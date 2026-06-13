@@ -1,0 +1,252 @@
+using System.Collections.ObjectModel;
+using System.Diagnostics;
+using System.Security.Principal;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using Microsoft.Win32;
+using SystemCare.Services;
+using Wpf.Ui;
+using Wpf.Ui.Appearance;
+using Wpf.Ui.Controls;
+
+namespace SystemCare.ViewModels;
+
+public partial class SettingsViewModel : ObservableObject
+{
+    private readonly ISettingsService _settings;
+    private readonly IScheduledMaintenanceService _maintenance;
+    private readonly IUpdateService _updates;
+    private readonly ISnackbarService _snackbar;
+
+    [ObservableProperty] private bool _isDarkTheme;
+    [ObservableProperty] private int _skipTempNewerThanHours;
+    [ObservableProperty] private int _largeFileMinMB;
+    [ObservableProperty] private int _largeFileTopN;
+
+    [ObservableProperty] private bool _autoMaintenanceEnabled;
+    [ObservableProperty] private bool _isWeekly;
+    [ObservableProperty] private bool _minimizeToTray;
+    [ObservableProperty] private bool _createRestorePointBeforeMaintenance;
+
+    [ObservableProperty] private bool _checkForUpdatesOnStartup;
+    [ObservableProperty] private string _updateStatus = "";
+    [ObservableProperty] private bool _isCheckingUpdate;
+    [ObservableProperty] private bool _updateAvailable;
+
+    [ObservableProperty] private bool _qaScanFix;
+    [ObservableProperty] private bool _qaFreeRam;
+    [ObservableProperty] private bool _qaFlushDns;
+    [ObservableProperty] private bool _qaEmptyBin;
+    [ObservableProperty] private bool _qaRestorePoint;
+    private bool _loadingQuickActions;
+
+    public ObservableCollection<string> Exclusions { get; }
+    public ObservableCollection<string> CustomFolders { get; }
+
+    public string VersionText { get; }
+    public string ElevationText { get; }
+
+    public SettingsViewModel(ISettingsService settings, IScheduledMaintenanceService maintenance,
+        IUpdateService updates, ISnackbarService snackbar)
+    {
+        _settings = settings;
+        _maintenance = maintenance;
+        _updates = updates;
+        _snackbar = snackbar;
+        _isDarkTheme = settings.Current.Theme != "Light";
+        _skipTempNewerThanHours = settings.Current.SkipTempNewerThanHours;
+        _largeFileMinMB = settings.Current.LargeFileMinMB;
+        _largeFileTopN = settings.Current.LargeFileTopN;
+        _autoMaintenanceEnabled = settings.Current.AutoMaintenanceEnabled;
+        _isWeekly = settings.Current.MaintenanceFrequency != "Daily";
+        _minimizeToTray = settings.Current.MinimizeToTray;
+        _createRestorePointBeforeMaintenance = settings.Current.CreateRestorePointBeforeMaintenance;
+        _checkForUpdatesOnStartup = settings.Current.CheckForUpdatesOnStartup;
+        Exclusions = new ObservableCollection<string>(settings.Current.CleanupExclusions);
+        CustomFolders = new ObservableCollection<string>(settings.Current.CustomJunkFolders);
+
+        _loadingQuickActions = true;
+        var qa = settings.Current.DashboardQuickActions;
+        _qaScanFix = qa.Contains("scanfix");
+        _qaFreeRam = qa.Contains("freeram");
+        _qaFlushDns = qa.Contains("flushdns");
+        _qaEmptyBin = qa.Contains("emptybin");
+        _qaRestorePoint = qa.Contains("restorepoint");
+        _loadingQuickActions = false;
+
+        VersionText = $"SystemCare {_updates.CurrentVersion}";
+        UpdateStatus = settings.Current.LastUpdateCheckUtc is DateTime t
+            ? $"Last checked {t.ToLocalTime():g}"
+            : "Not checked yet.";
+
+        using var identity = WindowsIdentity.GetCurrent();
+        bool elevated = new WindowsPrincipal(identity).IsInRole(WindowsBuiltInRole.Administrator);
+        ElevationText = elevated
+            ? "Running with administrator rights — all cleaning locations are available."
+            : "Not elevated — system-wide locations may be skipped.";
+    }
+
+    partial void OnCheckForUpdatesOnStartupChanged(bool value)
+    {
+        _settings.Current.CheckForUpdatesOnStartup = value;
+        _settings.Save();
+    }
+
+    [RelayCommand]
+    private async Task CheckForUpdatesAsync()
+    {
+        IsCheckingUpdate = true;
+        UpdateStatus = "Checking…";
+        try
+        {
+            var update = await _updates.CheckAsync();
+            UpdateAvailable = update is not null;
+            if (update is not null)
+            {
+                UpdateStatus = $"Update available: SystemCare {update.Version}.";
+                _snackbar.Show("Update available", $"SystemCare {update.Version} is available.",
+                    ControlAppearance.Info, null, TimeSpan.FromSeconds(5));
+            }
+            else if (string.IsNullOrWhiteSpace(_settings.Current.UpdateFeedUrl))
+            {
+                UpdateStatus = "No update feed configured (set UpdateFeedUrl in settings.json).";
+            }
+            else
+            {
+                UpdateStatus = "You're up to date.";
+            }
+        }
+        finally
+        {
+            IsCheckingUpdate = false;
+        }
+    }
+
+    [RelayCommand]
+    private void DownloadUpdate() => _updates.OpenDownload();
+
+    partial void OnQaScanFixChanged(bool value) => SaveQuickActions();
+    partial void OnQaFreeRamChanged(bool value) => SaveQuickActions();
+    partial void OnQaFlushDnsChanged(bool value) => SaveQuickActions();
+    partial void OnQaEmptyBinChanged(bool value) => SaveQuickActions();
+    partial void OnQaRestorePointChanged(bool value) => SaveQuickActions();
+
+    private void SaveQuickActions()
+    {
+        if (_loadingQuickActions) return;
+        var list = new List<string>();
+        if (QaScanFix) list.Add("scanfix");
+        if (QaFreeRam) list.Add("freeram");
+        if (QaFlushDns) list.Add("flushdns");
+        if (QaEmptyBin) list.Add("emptybin");
+        if (QaRestorePoint) list.Add("restorepoint");
+        _settings.Current.DashboardQuickActions = list;
+        _settings.Save();
+    }
+
+    partial void OnIsDarkThemeChanged(bool value)
+    {
+        ApplicationThemeManager.Apply(value ? ApplicationTheme.Dark : ApplicationTheme.Light);
+        _settings.Current.Theme = value ? "Dark" : "Light";
+        _settings.Save();
+    }
+
+    partial void OnCreateRestorePointBeforeMaintenanceChanged(bool value)
+    {
+        _settings.Current.CreateRestorePointBeforeMaintenance = value;
+        _settings.Save();
+    }
+
+    [RelayCommand]
+    private void AddExclusion()
+    {
+        var dialog = new OpenFolderDialog { Title = "Choose a folder to exclude from cleaning" };
+        if (dialog.ShowDialog() == true && !Exclusions.Contains(dialog.FolderName))
+        {
+            Exclusions.Add(dialog.FolderName);
+            _settings.Current.CleanupExclusions = [.. Exclusions];
+            _settings.Save();
+        }
+    }
+
+    [RelayCommand]
+    private void RemoveExclusion(string path)
+    {
+        if (Exclusions.Remove(path))
+        {
+            _settings.Current.CleanupExclusions = [.. Exclusions];
+            _settings.Save();
+        }
+    }
+
+    [RelayCommand]
+    private void AddCustomFolder()
+    {
+        var dialog = new OpenFolderDialog { Title = "Choose a custom folder to clean" };
+        if (dialog.ShowDialog() == true && !CustomFolders.Contains(dialog.FolderName))
+        {
+            CustomFolders.Add(dialog.FolderName);
+            _settings.Current.CustomJunkFolders = [.. CustomFolders];
+            _settings.Save();
+        }
+    }
+
+    [RelayCommand]
+    private void RemoveCustomFolder(string path)
+    {
+        if (CustomFolders.Remove(path))
+        {
+            _settings.Current.CustomJunkFolders = [.. CustomFolders];
+            _settings.Save();
+        }
+    }
+
+    partial void OnSkipTempNewerThanHoursChanged(int value)
+    {
+        _settings.Current.SkipTempNewerThanHours = Math.Max(0, value);
+        _settings.Save();
+    }
+
+    partial void OnLargeFileMinMBChanged(int value)
+    {
+        _settings.Current.LargeFileMinMB = Math.Max(1, value);
+        _settings.Save();
+    }
+
+    partial void OnLargeFileTopNChanged(int value)
+    {
+        _settings.Current.LargeFileTopN = Math.Clamp(value, 5, 500);
+        _settings.Save();
+    }
+
+    partial void OnAutoMaintenanceEnabledChanged(bool value)
+    {
+        _settings.Current.AutoMaintenanceEnabled = value;
+        _settings.Save();
+        _maintenance.Sync();
+    }
+
+    partial void OnIsWeeklyChanged(bool value)
+    {
+        _settings.Current.MaintenanceFrequency = value ? "Weekly" : "Daily";
+        _settings.Save();
+        if (_settings.Current.AutoMaintenanceEnabled) _maintenance.Sync();
+    }
+
+    partial void OnMinimizeToTrayChanged(bool value)
+    {
+        _settings.Current.MinimizeToTray = value;
+        _settings.Save();
+    }
+
+    [RelayCommand]
+    private void OpenSettingsFolder()
+    {
+        try
+        {
+            Directory.CreateDirectory(_settings.SettingsDirectory);
+            Process.Start(new ProcessStartInfo("explorer.exe", $"\"{_settings.SettingsDirectory}\"") { UseShellExecute = true });
+        }
+        catch (Exception) { }
+    }
+}

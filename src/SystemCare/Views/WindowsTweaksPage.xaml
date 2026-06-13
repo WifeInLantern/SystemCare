@@ -1,0 +1,73 @@
+<Page x:Class="SystemCare.Views.WindowsTweaksPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+      xmlns:vm="clr-namespace:SystemCare.ViewModels"
+      mc:Ignorable="d"
+      d:DataContext="{d:DesignInstance Type=vm:WindowsTweaksViewModel}"
+      Title="Windows Tweaks"
+      Loaded="OnPageLoaded">
+    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="24,12,24,24">
+        <StackPanel MaxWidth="820" HorizontalAlignment="Left">
+            <TextBlock Text="Windows Tweaks" FontSize="24" FontWeight="SemiBold" />
+            <TextBlock Text="Reversible tweaks to tune performance, privacy and Explorer. Toggle off to revert."
+                       FontSize="13" Opacity="0.7" Margin="0,4,0,0" TextWrapping="Wrap" />
+
+            <!-- Power plan -->
+            <TextBlock Text="Power" FontSize="15" FontWeight="SemiBold" Margin="0,20,0,8" />
+            <ui:Card Padding="16,12">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0" Margin="0,0,16,0">
+                        <TextBlock Text="Active power plan" FontWeight="SemiBold" />
+                        <TextBlock Text="Choose High Performance for speed, or Balanced to save power" FontSize="12" Opacity="0.65" TextWrapping="Wrap" />
+                    </StackPanel>
+                    <ComboBox Grid.Column="1" MinWidth="200" ItemsSource="{Binding PowerSchemes}" SelectedItem="{Binding ActiveScheme}"
+                              DisplayMemberPath="Name" VerticalAlignment="Center" />
+                </Grid>
+            </ui:Card>
+
+            <!-- Tweak groups -->
+            <ItemsControl ItemsSource="{Binding Groups}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Margin="0,12,0,0">
+                            <TextBlock Text="{Binding Name}" FontSize="15" FontWeight="SemiBold" Margin="0,8,0,8" />
+                            <ItemsControl ItemsSource="{Binding Items}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <ui:Card Padding="16,12" Margin="0,0,0,8">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="Auto" />
+                                                </Grid.ColumnDefinitions>
+                                                <StackPanel Grid.Column="0" Margin="0,0,16,0">
+                                                    <TextBlock Text="{Binding Name}" FontWeight="SemiBold" />
+                                                    <TextBlock Text="{Binding Description}" FontSize="12" Opacity="0.65" TextWrapping="Wrap" />
+                                                </StackPanel>
+                                                <ui:ToggleSwitch Grid.Column="1" IsChecked="{Binding IsEnabled}" />
+                                            </Grid>
+                                        </ui:Card>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+            <ui:Button Content="Restart Explorer to apply" Margin="0,12,0,0" Padding="16,8"
+                       Command="{Binding RestartExplorerCommand}">
+                <ui:Button.Icon>
+                    <ui:SymbolIcon Symbol="ArrowSync24" />
+                </ui:Button.Icon>
+            </ui:Button>
+        </StackPanel>
+    </ScrollViewer>
+</Page>

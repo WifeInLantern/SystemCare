@@ -1,0 +1,114 @@
+<Page x:Class="SystemCare.Views.PrivacyPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+      xmlns:converters="clr-namespace:SystemCare.Converters"
+      xmlns:vm="clr-namespace:SystemCare.ViewModels"
+      mc:Ignorable="d"
+      d:DataContext="{d:DesignInstance Type=vm:PrivacyViewModel}"
+      Title="Privacy"
+      Loaded="OnPageLoaded">
+    <Page.Resources>
+        <converters:BoolToVisibilityConverter x:Key="VisibleWhenTrue" />
+        <converters:InverseBoolConverter x:Key="Not" />
+    </Page.Resources>
+
+    <Grid Margin="24,12,24,24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0">
+            <TextBlock Text="Privacy Cleaner" FontSize="24" FontWeight="SemiBold" />
+            <TextBlock Text="{Binding StatusText}" FontSize="13" Opacity="0.75" Margin="0,4,0,0" TextWrapping="Wrap" />
+        </StackPanel>
+
+        <ItemsControl Grid.Row="1" ItemsSource="{Binding RunningBrowsers}" Margin="0,10,0,0">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Border Background="#332E1A00" BorderBrush="#FFA726" BorderThickness="1" CornerRadius="6"
+                            Padding="12,8" Margin="0,0,0,6">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <ui:SymbolIcon Grid.Column="0" Symbol="Warning24" Foreground="#FFA726" FontSize="18"
+                                           VerticalAlignment="Center" />
+                            <TextBlock Grid.Column="1" Text="{Binding Message}" VerticalAlignment="Center"
+                                       Margin="10,0" FontSize="12" TextWrapping="Wrap" />
+                            <ui:Button Grid.Column="2" Content="Close browser" Command="{Binding CloseCommand}"
+                                       Padding="12,5" />
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+
+        <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,12,0,12">
+            <ui:Button Content="Scan" Appearance="Primary" Padding="26,8"
+                       Command="{Binding ScanCommand}"
+                       IsEnabled="{Binding IsBusy, Converter={StaticResource Not}}">
+                <ui:Button.Icon>
+                    <ui:SymbolIcon Symbol="Search24" />
+                </ui:Button.Icon>
+            </ui:Button>
+            <ui:Button Content="Clear selected traces" Appearance="Success" Padding="26,8" Margin="10,0,0,0"
+                       Command="{Binding CleanCommand}">
+                <ui:Button.Icon>
+                    <ui:SymbolIcon Symbol="Shield24" />
+                </ui:Button.Icon>
+            </ui:Button>
+        </StackPanel>
+
+        <ScrollViewer Grid.Row="3" VerticalScrollBarVisibility="Auto">
+            <ItemsControl ItemsSource="{Binding Groups}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Margin="0,0,0,14">
+                            <TextBlock Text="{Binding Name}" FontSize="15" FontWeight="SemiBold" Margin="0,0,0,6" />
+                            <ItemsControl ItemsSource="{Binding Items}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <ui:Card Margin="0,0,0,6" Padding="14,10">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto" />
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="Auto" />
+                                                    <ColumnDefinition Width="Auto" />
+                                                </Grid.ColumnDefinitions>
+                                                <CheckBox Grid.Column="0" IsChecked="{Binding IsSelected}" VerticalAlignment="Center" />
+                                                <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center">
+                                                    <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="13" />
+                                                    <TextBlock Text="{Binding Description}" FontSize="11" Opacity="0.6" TextWrapping="Wrap" />
+                                                </StackPanel>
+                                                <ui:Badge Grid.Column="2" Appearance="Caution" Margin="8,0"
+                                                          VerticalAlignment="Center"
+                                                          Visibility="{Binding IsBlocked, Converter={StaticResource VisibleWhenTrue}}">
+                                                    <TextBlock Text="browser running — skipped" FontSize="11" />
+                                                </ui:Badge>
+                                                <TextBlock Grid.Column="3" Text="{Binding SizeText}" VerticalAlignment="Center"
+                                                           FontSize="12" FontWeight="SemiBold" Foreground="#4CAF50" />
+                                            </Grid>
+                                        </ui:Card>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+
+        <ProgressBar Grid.Row="4" IsIndeterminate="True" Height="4" Margin="0,10,0,0"
+                     Visibility="{Binding IsBusy, Converter={StaticResource VisibleWhenTrue}}" />
+    </Grid>
+</Page>

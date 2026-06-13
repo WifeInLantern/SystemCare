@@ -1,0 +1,44 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <!-- For the reliable WinForms NotifyIcon (system tray). -->
+    <UseWindowsForms>true</UseWindowsForms>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>Assets\app.ico</ApplicationIcon>
+    <AssemblyTitle>SystemCare</AssemblyTitle>
+    <Product>SystemCare</Product>
+    <Version>1.0.0</Version>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Resource Include="Assets\app.png" />
+    <!-- Shown instantly by the apphost before WPF loads, covering cold-start time. -->
+    <SplashScreen Include="Assets\splash.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- The WindowsDesktop SDK drops System.IO from implicit usings; restore it. -->
+    <Using Include="System.IO" />
+    <!-- WinForms/Drawing implicit usings clash with WPF types (Color, Point, Pen, Application…);
+         drop them so the custom-drawn WPF controls keep compiling. The tray service imports
+         these explicitly under aliases. -->
+    <Using Remove="System.Windows.Forms" />
+    <Using Remove="System.Drawing" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.3.2" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.1" />
+    <PackageReference Include="System.IO.Hashing" Version="8.0.0" />
+    <PackageReference Include="System.Management" Version="8.0.0" />
+    <PackageReference Include="System.ServiceProcess.ServiceController" Version="8.0.1" />
+    <PackageReference Include="TaskScheduler" Version="2.11.0" />
+    <PackageReference Include="WPF-UI" Version="3.0.5" />
+  </ItemGroup>
+
+</Project>
