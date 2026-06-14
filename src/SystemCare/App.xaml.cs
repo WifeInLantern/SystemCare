@@ -7,6 +7,7 @@ using SystemCare.ViewModels;
 using SystemCare.Views;
 using Wpf.Ui;
 using Wpf.Ui.Appearance;
+using Wpf.Ui.Extensions;
 
 namespace SystemCare;
 
@@ -43,6 +44,7 @@ public partial class App : Application
         services.AddSingleton<IDuplicateFinderService, DuplicateFinderService>();
         services.AddSingleton<IFileOperationService, FileOperationService>();
         services.AddSingleton<IHardwareInfoService, HardwareInfoService>();
+        services.AddSingleton<ITemperatureService, TemperatureService>();
         services.AddSingleton<IInstalledAppsService, InstalledAppsService>();
         services.AddSingleton<ILeftoverScanService, LeftoverScanService>();
         services.AddSingleton<IProcessService, ProcessService>();
@@ -213,20 +215,67 @@ public partial class App : Application
             _ = CheckForUpdatesAsync();
     }
 
+    /// <summary>
+    /// On startup: check the GitHub repo for a newer release, download its installer in the background,
+    /// then offer to install it now (which closes the app so the installer can replace files).
+    /// </summary>
     private static async Task CheckForUpdatesAsync()
     {
         try
         {
-            var update = await _services.GetRequiredService<IUpdateService>().CheckAsync();
-            if (update is not null)
+            var updates = _services.GetRequiredService<IUpdateService>();
+            var snackbar = _services.GetRequiredService<ISnackbarService>();
+
+            var info = await updates.CheckAsync();
+            if (info is null) return; // already up to date / offline
+
+            if (!info.HasAsset)
             {
-                _services.GetRequiredService<ISnackbarService>().Show(
-                    "Update available",
-                    $"SystemCare {update.Version} is available. Open Settings → Updates to download.",
+                snackbar.Show("Update available",
+                    $"SystemCare {info.Version} is on GitHub, but its release has no installer attached.",
                     Wpf.Ui.Controls.ControlAppearance.Info, null, TimeSpan.FromSeconds(8));
+                return;
+            }
+
+            snackbar.Show("Downloading update",
+                $"Getting SystemCare {info.Version} from GitHub…",
+                Wpf.Ui.Controls.ControlAppearance.Info, null, TimeSpan.FromSeconds(4));
+
+            string? installer = await updates.DownloadAsync(null, CancellationToken.None);
+            if (installer is null)
+            {
+                snackbar.Show("Update download failed",
+                    "Couldn't download the new version. You can retry from Settings → Updates.",
+                    Wpf.Ui.Controls.ControlAppearance.Caution, null, TimeSpan.FromSeconds(7));
+                return;
+            }
+
+            var choice = await _services.GetRequiredService<IContentDialogService>().ShowSimpleDialogAsync(
+                new SimpleContentDialogCreateOptions
+                {
+                    Title = $"Update ready: SystemCare {info.Version}",
+                    Content = "A newer version has been downloaded.\n\nInstall it now? SystemCare will close and the installer will open.",
+                    PrimaryButtonText = "Install now",
+                    CloseButtonText = "Later",
+                });
+
+            if (choice == Wpf.Ui.Controls.ContentDialogResult.Primary)
+            {
+                updates.Launch(installer);
+                if (Current.MainWindow is MainWindow main) main.ForceExit = true; // bypass minimize-to-tray
+                Current.Shutdown();
+            }
+            else
+            {
+                snackbar.Show("Update ready",
+                    $"SystemCare {info.Version} is in your Downloads folder — install it anytime from Settings → Updates.",
+                    Wpf.Ui.Controls.ControlAppearance.Success, null, TimeSpan.FromSeconds(7));
             }
         }
-        catch (Exception) { }
+        catch (Exception)
+        {
+            // offline / parse error / dialog host unavailable — never block startup over an update check
+        }
     }
 
     /// <summary>Listens for a second instance's activation signal and restores the window.</summary>
@@ -262,6 +311,7 @@ public partial class App : Application
     protected override void OnExit(ExitEventArgs e)
     {
         try { _services.GetRequiredService<ITrayIconService>().Dispose(); } catch (Exception) { }
+        try { _services.GetRequiredService<ITemperatureService>().Dispose(); } catch (Exception) { } // unload the sensor driver
         try { _activateEvent?.Dispose(); } catch (Exception) { }
         try { _singleInstanceMutex?.Dispose(); } catch (Exception) { }
         base.OnExit(e);

@@ -206,7 +206,7 @@
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
                     <StackPanel Grid.Column="0" Margin="0,0,16,0">
-                        <TextBlock Text="Check for updates on startup" FontWeight="SemiBold" />
+                        <TextBlock Text="Download updates on startup" FontWeight="SemiBold" />
                         <TextBlock Text="{Binding UpdateStatus}" FontSize="12" Opacity="0.65" TextWrapping="Wrap" />
                     </StackPanel>
                     <ui:ToggleSwitch Grid.Column="1" IsChecked="{Binding CheckForUpdatesOnStartup}" VerticalAlignment="Center" />
