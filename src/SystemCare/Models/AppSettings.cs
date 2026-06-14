@@ -24,7 +24,10 @@ public class AppSettings
 
     // Updates
     public bool CheckForUpdatesOnStartup { get; set; } = true;
+    /// <summary>GitHub releases API (or a custom JSON feed). Empty = use the built-in default repo.</summary>
     public string UpdateFeedUrl { get; set; } = "";
+    /// <summary>Optional GitHub token so the updater can read a PRIVATE repo's releases/assets.</summary>
+    public string UpdateGitHubToken { get; set; } = "";
     public DateTime? LastUpdateCheckUtc { get; set; }
 
     // Dashboard quick-actions (action ids shown as one-click tiles)

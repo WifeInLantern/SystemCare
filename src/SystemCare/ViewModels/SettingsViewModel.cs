@@ -32,6 +32,8 @@ public partial class SettingsViewModel : ObservableObject
     [ObservableProperty] private string _updateStatus = "";
     [ObservableProperty] private bool _isCheckingUpdate;
     [ObservableProperty] private bool _updateAvailable;
+    [ObservableProperty] private bool _isDownloadingUpdate;
+    [ObservableProperty] private double _downloadProgress;
 
     [ObservableProperty] private bool _qaScanFix;
     [ObservableProperty] private bool _qaFreeRam;
@@ -104,16 +106,12 @@ public partial class SettingsViewModel : ObservableObject
             if (update is not null)
             {
                 UpdateStatus = $"Update available: SystemCare {update.Version}.";
-                _snackbar.Show("Update available", $"SystemCare {update.Version} is available.",
+                _snackbar.Show("Update available", $"SystemCare {update.Version} is available — click Download & install.",
                     ControlAppearance.Info, null, TimeSpan.FromSeconds(5));
-            }
-            else if (string.IsNullOrWhiteSpace(_settings.Current.UpdateFeedUrl))
-            {
-                UpdateStatus = "No update feed configured (set UpdateFeedUrl in settings.json).";
             }
             else
             {
-                UpdateStatus = "You're up to date.";
+                UpdateStatus = $"You're up to date (SystemCare {_updates.CurrentVersion}).";
             }
         }
         finally
@@ -123,7 +121,35 @@ public partial class SettingsViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void DownloadUpdate() => _updates.OpenDownload();
+    private async Task DownloadAndInstallAsync()
+    {
+        if (_updates.LatestAvailable is null) return;
+        IsDownloadingUpdate = true;
+        DownloadProgress = 0;
+        UpdateStatus = $"Downloading {_updates.LatestAvailable.AssetName}…";
+        var progress = new Progress<double>(p => DownloadProgress = p);
+        try
+        {
+            string? path = await _updates.DownloadAsync(progress, CancellationToken.None);
+            if (path is null)
+            {
+                UpdateStatus = "Download failed. For a private repo, set a GitHub token in settings.json (UpdateGitHubToken).";
+                _snackbar.Show("Update download failed",
+                    "Could not download the installer. If the repo is private, add a token (see Settings).",
+                    ControlAppearance.Danger, null, TimeSpan.FromSeconds(7));
+                return;
+            }
+            UpdateStatus = "Download complete — launching the installer…";
+            _updates.Launch(path);
+            _snackbar.Show("Installer started",
+                "Follow the installer to finish updating. You can close SystemCare.",
+                ControlAppearance.Success, null, TimeSpan.FromSeconds(7));
+        }
+        finally
+        {
+            IsDownloadingUpdate = false;
+        }
+    }
 
     partial void OnQaScanFixChanged(bool value) => SaveQuickActions();
     partial void OnQaFreeRamChanged(bool value) => SaveQuickActions();
