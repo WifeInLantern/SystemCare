@@ -5,12 +5,14 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
         xmlns:views="clr-namespace:SystemCare.Views"
+        xmlns:controls="clr-namespace:SystemCare.Controls"
         mc:Ignorable="d"
         Title="SystemCare"
         Height="780" Width="1240"
         MinHeight="600" MinWidth="960"
         ExtendsContentIntoTitleBar="True"
-        WindowBackdropType="Mica"
+        WindowBackdropType="None"
+        Background="#0A0E14"
         WindowCornerPreference="Round"
         WindowStartupLocation="CenterScreen"
         Loaded="OnLoaded">
@@ -23,7 +25,10 @@
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <ui:TitleBar Grid.Row="0" Title="SystemCare">
+        <!-- Ambient cyberpunk backdrop behind the whole shell. -->
+        <controls:CyberBackground Grid.Row="0" Grid.RowSpan="2" />
+
+        <ui:TitleBar Grid.Row="0" Title="SYSTEMCARE" FontFamily="{StaticResource DisplayFontFamily}">
             <ui:TitleBar.Icon>
                 <ui:ImageIcon Source="pack://application:,,,/Assets/app.png" />
             </ui:TitleBar.Icon>
@@ -31,6 +36,7 @@
 
         <ui:NavigationView x:Name="RootNavigation"
                            Grid.Row="1"
+                           Background="Transparent"
                            PaneDisplayMode="Left"
                            IsBackButtonVisible="Collapsed"
                            IsPaneToggleVisible="False"

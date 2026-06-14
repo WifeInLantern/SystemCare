@@ -159,10 +159,18 @@ public partial class App : Application
         }
         StartActivationListener();
 
-        // Apply the saved theme before any window shows.
+        // Cyberpunk theme is dark-only. Apply the dark base, then force the neon
+        // cyan accent so every accent-driven Fluent control (buttons, toggles,
+        // selection, progress) picks it up.
         var settings = _services.GetRequiredService<ISettingsService>();
-        ApplicationThemeManager.Apply(
-            settings.Current.Theme == "Light" ? ApplicationTheme.Light : ApplicationTheme.Dark);
+        ApplicationThemeManager.Apply(ApplicationTheme.Dark);
+        ApplicationAccentColorManager.Apply(
+            System.Windows.Media.Color.FromRgb(0x00, 0xE5, 0xFF), ApplicationTheme.Dark);
+        if (settings.Current.Theme != "Dark")
+        {
+            settings.Current.Theme = "Dark";
+            settings.Save();
+        }
 
         bool minimized = e.Args.Contains("--minimized");
 

@@ -30,17 +30,18 @@ public class TreemapControl : FrameworkElement
     private readonly List<(Rect Rect, FileSystemNode Node)> _level1Rects = [];
     private readonly List<(Rect Rect, FileSystemNode Node)> _level2Rects = [];
 
+    // Neon "Night City" ramp.
     private static readonly (string[] Extensions, Color Color)[] ColorClasses =
     [
-        (new[] { ".exe", ".dll", ".sys", ".msi" }, Color.FromRgb(0x5C, 0x6B, 0xC0)),          // binaries: indigo
-        (new[] { ".mp4", ".mkv", ".avi", ".mov", ".mp3", ".wav", ".flac" }, Color.FromRgb(0xAB, 0x47, 0xBC)), // media: purple
-        (new[] { ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp", ".raw" }, Color.FromRgb(0x26, 0xA6, 0x9A)), // images: teal
-        (new[] { ".doc", ".docx", ".xls", ".xlsx", ".ppt", ".pptx", ".pdf", ".txt" }, Color.FromRgb(0x66, 0xBB, 0x6A)), // docs: green
-        (new[] { ".zip", ".rar", ".7z", ".iso", ".cab", ".gz" }, Color.FromRgb(0xFF, 0xA7, 0x26)), // archives: orange
+        (new[] { ".exe", ".dll", ".sys", ".msi" }, Color.FromRgb(0x7A, 0x5C, 0xFF)),          // binaries: violet
+        (new[] { ".mp4", ".mkv", ".avi", ".mov", ".mp3", ".wav", ".flac" }, Color.FromRgb(0xFF, 0x2A, 0x6D)), // media: magenta
+        (new[] { ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp", ".raw" }, Color.FromRgb(0x00, 0xE5, 0xFF)), // images: cyan
+        (new[] { ".doc", ".docx", ".xls", ".xlsx", ".ppt", ".pptx", ".pdf", ".txt" }, Color.FromRgb(0x00, 0xFF, 0xA3)), // docs: mint
+        (new[] { ".zip", ".rar", ".7z", ".iso", ".cab", ".gz" }, Color.FromRgb(0xFF, 0xD3, 0x00)), // archives: neon yellow
     ];
 
-    private static readonly Color DirectoryColor = Color.FromRgb(0x42, 0x85, 0xF4);
-    private static readonly Color DefaultFileColor = Color.FromRgb(0x78, 0x90, 0x9C);
+    private static readonly Color DirectoryColor = Color.FromRgb(0x00, 0x91, 0xAD);
+    private static readonly Color DefaultFileColor = Color.FromRgb(0x44, 0x55, 0x6E);
 
     private static Color ColorFor(FileSystemNode node)
     {
@@ -57,7 +58,7 @@ public class TreemapControl : FrameworkElement
         _level2Rects.Clear();
 
         var bounds = new Rect(0, 0, ActualWidth, ActualHeight);
-        dc.DrawRectangle(new SolidColorBrush(Color.FromRgb(0x1E, 0x1E, 0x1E)), null, bounds);
+        dc.DrawRectangle(new SolidColorBrush(Color.FromRgb(0x0A, 0x0E, 0x14)), null, bounds);
 
         var root = RootNode;
         if (root is null || ActualWidth < 20 || ActualHeight < 20) return;
@@ -68,8 +69,8 @@ public class TreemapControl : FrameworkElement
         Squarify(children, Rect.Inflate(bounds, -1, -1), _level1Rects);
 
         double dpi = VisualTreeHelper.GetDpi(this).PixelsPerDip;
-        var borderPen = new Pen(new SolidColorBrush(Color.FromRgb(0x12, 0x12, 0x12)), 1.5);
-        var innerPen = new Pen(new SolidColorBrush(Color.FromArgb(0x50, 0x12, 0x12, 0x12)), 0.8);
+        var borderPen = new Pen(new SolidColorBrush(Color.FromRgb(0x06, 0x0A, 0x10)), 1.5);
+        var innerPen = new Pen(new SolidColorBrush(Color.FromArgb(0x60, 0x06, 0x0A, 0x10)), 0.8);
 
         foreach (var (rect, node) in _level1Rects)
         {

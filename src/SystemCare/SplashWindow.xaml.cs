@@ -1,4 +1,5 @@
 using System.Windows;
+using System.Windows.Media;
 using System.Windows.Media.Animation;
 
 namespace SystemCare;
@@ -8,6 +9,13 @@ public partial class SplashWindow : Window
     public SplashWindow()
     {
         InitializeComponent();
+    }
+
+    // Clip the animated backdrop to the panel's rounded corners.
+    private void OnSplashLoaded(object sender, RoutedEventArgs e)
+    {
+        ContentRoot.Clip = new RectangleGeometry(
+            new Rect(0, 0, ContentRoot.ActualWidth, ContentRoot.ActualHeight), 16, 16);
     }
 
     /// <summary>Fades the splash out, then closes it. Completes once it's gone.</summary>

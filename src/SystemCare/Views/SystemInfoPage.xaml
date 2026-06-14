@@ -27,21 +27,21 @@
                     <StackPanel>
                         <TextBlock Text="Processor" FontWeight="SemiBold" Opacity="0.85" />
                         <TextBlock Text="{Binding CpuText}" FontSize="26" FontWeight="Bold" Margin="0,4,0,6" />
-                        <controls:SparklineChart Height="56" Values="{Binding CpuHistory}" Max="100" Accent="#2196F3" />
+                        <controls:SparklineChart Height="56" Values="{Binding CpuHistory}" Max="100" Accent="#00E5FF" />
                     </StackPanel>
                 </ui:Card>
                 <ui:Card Margin="8,0,8,0" Padding="18,14" helpers:Animations.HoverLift="True">
                     <StackPanel>
                         <TextBlock Text="Memory" FontWeight="SemiBold" Opacity="0.85" />
                         <TextBlock Text="{Binding RamText}" FontSize="26" FontWeight="Bold" Margin="0,4,0,6" />
-                        <controls:SparklineChart Height="56" Values="{Binding RamHistory}" Max="100" Accent="#26A69A" />
+                        <controls:SparklineChart Height="56" Values="{Binding RamHistory}" Max="100" Accent="#00FFA3" />
                     </StackPanel>
                 </ui:Card>
                 <ui:Card Margin="8,0,0,0" Padding="18,14" helpers:Animations.HoverLift="True">
                     <StackPanel>
                         <TextBlock Text="Network" FontWeight="SemiBold" Opacity="0.85" />
                         <TextBlock Text="{Binding NetText}" FontSize="15" FontWeight="Bold" Margin="0,8,0,6" />
-                        <controls:SparklineChart Height="56" Values="{Binding NetHistory}" Max="{Binding NetMax}" Accent="#AB47BC" />
+                        <controls:SparklineChart Height="56" Values="{Binding NetHistory}" Max="{Binding NetMax}" Accent="#B14CFF" />
                     </StackPanel>
                 </ui:Card>
             </UniformGrid>

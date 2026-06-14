@@ -9,6 +9,7 @@
                 <ui:ThemesDictionary Theme="Dark" />
                 <ui:ControlsDictionary />
                 <ResourceDictionary Source="pack://application:,,,/Styles/Theme.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/Styles/Cyberpunk.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

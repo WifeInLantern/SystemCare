@@ -59,16 +59,16 @@
                                     <Border Grid.Column="2" CornerRadius="10" Padding="8,3" VerticalAlignment="Center">
                                         <Border.Style>
                                             <Style TargetType="Border">
-                                                <Setter Property="Background" Value="#33888888" />
+                                                <Setter Property="Background" Value="#33445566" />
                                                 <Style.Triggers>
                                                     <DataTrigger Binding="{Binding HealthText}" Value="Healthy">
-                                                        <Setter Property="Background" Value="#334CAF50" />
+                                                        <Setter Property="Background" Value="#3300FFA3" />
                                                     </DataTrigger>
                                                     <DataTrigger Binding="{Binding HealthText}" Value="Warning">
-                                                        <Setter Property="Background" Value="#33FFA726" />
+                                                        <Setter Property="Background" Value="#33FFD300" />
                                                     </DataTrigger>
                                                     <DataTrigger Binding="{Binding HealthText}" Value="Failing">
-                                                        <Setter Property="Background" Value="#33F44336" />
+                                                        <Setter Property="Background" Value="#33FF2A6D" />
                                                     </DataTrigger>
                                                 </Style.Triggers>
                                             </Style>
@@ -158,9 +158,9 @@
                            Command="{Binding CancelCommand}"
                            Visibility="{Binding IsRunning, Converter={StaticResource VisibleWhenTrue}}" />
             </Grid>
-            <Border Grid.Row="1" Background="#12141A" CornerRadius="6" BorderBrush="#26000000" BorderThickness="1">
+            <Border Grid.Row="1" Background="#070C14" CornerRadius="6" BorderBrush="{StaticResource CyberStrokeBrush}" BorderThickness="1">
                 <TextBox x:Name="OutputBox" Text="{Binding OutputText, Mode=OneWay}" IsReadOnly="True"
-                         Background="Transparent" BorderThickness="0" Foreground="#C8D0D8"
+                         Background="Transparent" BorderThickness="0" Foreground="#9FE8FF"
                          FontFamily="Consolas, Cascadia Mono, monospace" FontSize="12"
                          TextWrapping="NoWrap" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"
                          Padding="10" TextChanged="OnOutputChanged" />

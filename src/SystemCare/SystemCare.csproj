@@ -17,6 +17,8 @@
 
   <ItemGroup>
     <Resource Include="Assets\app.png" />
+    <!-- Bundled futuristic fonts (Orbitron / Rajdhani, OFL) for the cyberpunk theme. -->
+    <Resource Include="Assets\Fonts\*.ttf" />
     <!-- Shown instantly by the apphost before WPF loads, covering cold-start time. -->
     <SplashScreen Include="Assets\splash.png" />
   </ItemGroup>

@@ -1,7 +1,9 @@
 # SystemCare
 
 A Windows system-maintenance desktop app in the style of Advanced SystemCare, built with
-C# + WPF on .NET 8 using the [WPF-UI](https://github.com/lepoco/wpfui) Fluent dark theme.
+C# + WPF on .NET 8 using [WPF-UI](https://github.com/lepoco/wpfui), themed as a **cyberpunk
+"Night City"** UI — neon cyan + magenta on near-black, an always-on animated neon-grid backdrop,
+glowing cards/charts, and a bundled futuristic font (Orbitron / Rajdhani, OFL). Dark-only.
 
 ## Features
 
@@ -55,11 +57,11 @@ C# + WPF on .NET 8 using the [WPF-UI](https://github.com/lepoco/wpfui) Fluent da
   compatible with a GitHub releases/latest URL) on startup and from Settings; notifies + offers a download link.
 - **Dashboard quick-actions** — a customizable row of one-click tiles (Scan & Fix, Free RAM,
   Flush DNS, Empty Recycle Bin, Create restore point), toggled in Settings.
-- **Settings** — light/dark theme, auto-maintenance schedule, minimize-to-tray, restore-point
+- **Settings** — auto-maintenance schedule, minimize-to-tray, restore-point
   safety, cleanup exclusions & custom folders, dashboard quick-actions, update preferences,
   temp-age protection, large-file thresholds; persisted to `%AppData%\SystemCare\settings.json`.
 
-The UI is a Fluent dashboard (dark by default, with a light theme) whose navigation is grouped
+The UI is a cyberpunk neon dashboard (dark-only) whose navigation is grouped
 into **Clean / Optimize / Analyze / Protect** sections. Animated transitions include a glowing
 health gauge, live sparkline graphs, count-up/gliding stats, card hover lift, staggered list
 fade-ins, and an animated startup splash. Only one instance runs at a time — launching again
@@ -120,8 +122,10 @@ src/SystemCare/
                 SHQueryRecycleBin/SHEmptyRecycleBin, DnsFlushResolverCache, known folders)
   ViewModels/   MVVM view models (CommunityToolkit.Mvvm)
   Views/        one Page per nav item
-  Controls/     HealthGauge, TreemapControl, SparklineChart (custom-drawn)
+  Controls/     HealthGauge, TreemapControl, SparklineChart, CyberBackground (custom-drawn)
   Helpers/      SafeFileEnumerator (reparse-point-safe walking), formatters,
-                Animations (fade-in / smooth-value attached behaviors)
-  Styles/       Theme.xaml (palette tokens), Cards.xaml (hover lift + glow)
+                Animations (fade-in / smooth-value / hover-lift / neon-pulse / reveal behaviors)
+  Styles/       Theme.xaml (neon palette tokens), Cyberpunk.xaml (WPF-UI token overrides,
+                fonts, neon card + button styles)
+  Assets/Fonts/ Orbitron + Rajdhani (OFL) bundled for the cyberpunk UI
 ```

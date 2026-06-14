@@ -71,7 +71,7 @@
                 <ColumnDefinition Width="320" />
             </Grid.ColumnDefinitions>
 
-            <Border Grid.Column="0" CornerRadius="8" ClipToBounds="True" Background="#1E1E1E">
+            <Border Grid.Column="0" CornerRadius="8" ClipToBounds="True" Background="#0A0E14">
                 <controls:TreemapControl x:Name="Treemap" RootNode="{Binding CurrentRoot}" />
             </Border>
 
@@ -93,7 +93,7 @@
                                 <StackPanel Grid.Column="0">
                                     <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="12"
                                                TextTrimming="CharacterEllipsis" ToolTip="{Binding Entry.FullPath}" />
-                                    <TextBlock Text="{Binding SizeText}" FontSize="11" Foreground="#FFA726" />
+                                    <TextBlock Text="{Binding SizeText}" FontSize="11" Foreground="{StaticResource WarningBrush}" />
                                 </StackPanel>
                                 <StackPanel Grid.Column="1" Orientation="Horizontal">
                                     <ui:Button Padding="6,4" Appearance="Secondary" ToolTip="Open in Explorer"

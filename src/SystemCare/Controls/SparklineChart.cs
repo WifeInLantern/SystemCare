@@ -93,6 +93,16 @@ public class SparklineChart : FrameworkElement
             EndLineCap = PenLineCap.Round,
         };
         pen.Freeze();
+
+        // Neon glow: a wider, translucent underlay stroke behind the crisp line.
+        var glowPen = new Pen(new SolidColorBrush(Color.FromArgb(0x60, Accent.R, Accent.G, Accent.B)), 5)
+        {
+            LineJoin = PenLineJoin.Round,
+            StartLineCap = PenLineCap.Round,
+            EndLineCap = PenLineCap.Round,
+        };
+        glowPen.Freeze();
+        dc.DrawGeometry(null, glowPen, line);
         dc.DrawGeometry(null, pen, line);
     }
 }

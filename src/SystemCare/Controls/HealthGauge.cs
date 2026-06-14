@@ -11,6 +11,10 @@ namespace SystemCare.Controls;
 /// </summary>
 public class HealthGauge : FrameworkElement
 {
+    // Bundled Rajdhani (techy numerals) for the score readout.
+    private static readonly FontFamily NumberFont =
+        new(new Uri("pack://application:,,,/"), "./Assets/Fonts/#Rajdhani");
+
     public static readonly DependencyProperty ScoreProperty = DependencyProperty.Register(
         nameof(Score), typeof(double), typeof(HealthGauge),
         new FrameworkPropertyMetadata(-1.0, OnScoreChanged));
@@ -66,12 +70,13 @@ public class HealthGauge : FrameworkElement
             });
     }
 
+    // Neon "Night City" bands: excellent = mint, good = cyan, attention = neon yellow, poor = magenta.
     private static Color BandColor(double score) => score switch
     {
-        >= 90 => Color.FromRgb(0x4C, 0xAF, 0x50),
-        >= 70 => Color.FromRgb(0x8B, 0xC3, 0x4A),
-        >= 40 => Color.FromRgb(0xFF, 0x98, 0x00),
-        _ => Color.FromRgb(0xF4, 0x43, 0x36),
+        >= 90 => Color.FromRgb(0x00, 0xFF, 0xA3),
+        >= 70 => Color.FromRgb(0x00, 0xE5, 0xFF),
+        >= 40 => Color.FromRgb(0xFF, 0xD3, 0x00),
+        _ => Color.FromRgb(0xFF, 0x2A, 0x6D),
     };
 
     private static string BandText(double score) => score switch
@@ -95,33 +100,35 @@ public class HealthGauge : FrameworkElement
         const double startAngle = 135;   // gauge opens downward
         const double sweepTotal = 270;
 
-        // Track
+        // Track (dark neon-tinted)
         DrawArc(dc, center, radius, startAngle, sweepTotal,
-            new Pen(new SolidColorBrush(Color.FromRgb(0x33, 0x37, 0x3B)), thickness) { StartLineCap = PenLineCap.Round, EndLineCap = PenLineCap.Round });
+            new Pen(new SolidColorBrush(Color.FromRgb(0x16, 0x20, 0x2E)), thickness) { StartLineCap = PenLineCap.Round, EndLineCap = PenLineCap.Round });
 
         double score = AnimatedScore;
         bool hasScore = score >= 0;
-        Color color = hasScore ? BandColor(score) : Color.FromRgb(0x66, 0x6A, 0x6E);
+        Color color = hasScore ? BandColor(score) : Color.FromRgb(0x44, 0x55, 0x6E);
 
         if (hasScore && score > 0.5)
         {
+            // Value arc: band color blended into a cyan→magenta neon sheen.
+            var arcBrush = new LinearGradientBrush(color, Color.FromRgb(0xFF, 0x2A, 0x6D), 45);
             DrawArc(dc, center, radius, startAngle, sweepTotal * Math.Clamp(score, 0, 100) / 100,
-                new Pen(new SolidColorBrush(color), thickness) { StartLineCap = PenLineCap.Round, EndLineCap = PenLineCap.Round });
+                new Pen(arcBrush, thickness) { StartLineCap = PenLineCap.Round, EndLineCap = PenLineCap.Round });
         }
 
         double dpi = VisualTreeHelper.GetDpi(this).PixelsPerDip;
         var scoreText = new FormattedText(
             hasScore ? Math.Round(score).ToString(CultureInfo.InvariantCulture) : "—",
             CultureInfo.InvariantCulture, FlowDirection.LeftToRight,
-            new Typeface(new FontFamily("Segoe UI"), FontStyles.Normal, FontWeights.Bold, FontStretches.Normal),
-            size * 0.26, new SolidColorBrush(color), dpi);
+            new Typeface(NumberFont, FontStyles.Normal, FontWeights.Bold, FontStretches.Normal),
+            size * 0.30, new SolidColorBrush(color), dpi);
         dc.DrawText(scoreText, new Point(center.X - scoreText.Width / 2, center.Y - scoreText.Height * 0.62));
 
         var label = new FormattedText(
-            hasScore ? BandText(score) : "Not scanned yet",
+            hasScore ? BandText(score).ToUpperInvariant() : "NOT SCANNED YET",
             CultureInfo.InvariantCulture, FlowDirection.LeftToRight,
-            new Typeface("Segoe UI"), size * 0.055,
-            new SolidColorBrush(Color.FromRgb(0xB0, 0xB4, 0xB8)), dpi);
+            new Typeface(NumberFont, FontStyles.Normal, FontWeights.SemiBold, FontStretches.Normal), size * 0.06,
+            new SolidColorBrush(Color.FromRgb(0x8F, 0xA6, 0xC0)), dpi);
         dc.DrawText(label, new Point(center.X - label.Width / 2, center.Y + scoreText.Height * 0.42));
     }
 

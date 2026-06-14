@@ -64,7 +64,7 @@
                                 </StackPanel>
                                 <StackPanel Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Right">
                                     <TextBlock Text="{Binding SizeText}" FontWeight="SemiBold" FontSize="15"
-                                               HorizontalAlignment="Right" Foreground="#4CAF50" />
+                                               HorizontalAlignment="Right" Foreground="{StaticResource SuccessBrush}" />
                                     <TextBlock FontSize="11" Opacity="0.6" HorizontalAlignment="Right">
                                         <Run Text="{Binding FileCount, Mode=OneWay, StringFormat=N0}" /><Run Text=" files" />
                                     </TextBlock>

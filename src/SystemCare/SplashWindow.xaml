@@ -2,6 +2,7 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+        xmlns:controls="clr-namespace:SystemCare.Controls"
         WindowStyle="None"
         AllowsTransparency="True"
         Background="Transparent"
@@ -9,30 +10,60 @@
         ShowInTaskbar="False"
         Topmost="True"
         SizeToContent="WidthAndHeight"
-        WindowStartupLocation="CenterScreen">
+        WindowStartupLocation="CenterScreen"
+        Loaded="OnSplashLoaded">
     <!-- Layout mirrors Assets/splash.png so the native splash hands off without a visible jump. -->
     <Border Width="380" Height="240" CornerRadius="18"
-            Background="#1E1E1E" BorderBrush="#3A3A3A" BorderThickness="1">
-        <Grid>
-            <!-- Pulsing, glowing logo (matches png badge at y=38) -->
-            <Image Source="pack://application:,,,/Assets/app.png" Width="76" Height="76"
-                   VerticalAlignment="Top" HorizontalAlignment="Center" Margin="0,38,0,0"
+            Background="#0B121C" BorderBrush="#00E5FF" BorderThickness="1">
+        <Border.Effect>
+            <DropShadowEffect Color="#00E5FF" ShadowDepth="0" BlurRadius="34" Opacity="0.5" />
+        </Border.Effect>
+        <Grid x:Name="ContentRoot">
+
+            <!-- Animated cyber backdrop (clipped to rounded corners in code-behind). -->
+            <controls:CyberBackground />
+
+            <!-- Rotating neon ring around the logo -->
+            <Ellipse Width="104" Height="104" StrokeThickness="1.4"
+                     VerticalAlignment="Top" HorizontalAlignment="Center" Margin="0,22,0,0"
+                     Stroke="#00E5FF" StrokeDashArray="3 4" Opacity="0.85" RenderTransformOrigin="0.5,0.5">
+                <Ellipse.Effect>
+                    <DropShadowEffect Color="#00E5FF" ShadowDepth="0" BlurRadius="12" Opacity="0.7" />
+                </Ellipse.Effect>
+                <Ellipse.RenderTransform>
+                    <RotateTransform x:Name="RingRotate" Angle="0" />
+                </Ellipse.RenderTransform>
+            </Ellipse>
+
+            <!-- Pulsing, glowing logo -->
+            <Image Source="pack://application:,,,/Assets/app.png" Width="64" Height="64"
+                   VerticalAlignment="Top" HorizontalAlignment="Center" Margin="0,42,0,0"
                    RenderTransformOrigin="0.5,0.5">
                 <Image.RenderTransform>
                     <ScaleTransform x:Name="LogoScale" ScaleX="1" ScaleY="1" />
                 </Image.RenderTransform>
                 <Image.Effect>
-                    <DropShadowEffect x:Name="LogoGlow" Color="#2196F3" ShadowDepth="0" BlurRadius="24" Opacity="0.5" />
+                    <DropShadowEffect x:Name="LogoGlow" Color="#00E5FF" ShadowDepth="0" BlurRadius="24" Opacity="0.6" />
                 </Image.Effect>
             </Image>
 
-            <TextBlock Text="SystemCare" FontSize="21" FontWeight="Bold" Foreground="White"
-                       VerticalAlignment="Top" HorizontalAlignment="Center" Margin="0,142,0,0" />
+            <TextBlock x:Name="TitleText" Text="SYSTEMCARE"
+                       FontFamily="{StaticResource DisplayFontFamily}" FontSize="22" FontWeight="Bold"
+                       Foreground="#E6F6FF" VerticalAlignment="Top" HorizontalAlignment="Center" Margin="0,142,0,0">
+                <TextBlock.Effect>
+                    <DropShadowEffect Color="#00E5FF" ShadowDepth="0" BlurRadius="16" Opacity="0.7" />
+                </TextBlock.Effect>
+            </TextBlock>
 
-            <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom" HorizontalAlignment="Center" Margin="0,0,0,26">
-                <ui:ProgressRing IsIndeterminate="True" Width="16" Height="16" />
-                <TextBlock Text="Starting…" Foreground="#9A9EA2" FontSize="12"
-                           VerticalAlignment="Center" Margin="8,0,0,0" />
+            <TextBlock Text="SYSTEM OPTIMIZATION SUITE"
+                       FontFamily="{StaticResource LabelFontFamily}" FontSize="10" FontWeight="SemiBold"
+                       Foreground="#FF2A6D" VerticalAlignment="Top" HorizontalAlignment="Center" Margin="0,176,0,0"
+                       Opacity="0.9" />
+
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom" HorizontalAlignment="Center" Margin="0,0,0,22">
+                <ui:ProgressRing IsIndeterminate="True" Width="15" Height="15" />
+                <TextBlock Text="BOOTING…" FontFamily="{StaticResource LabelFontFamily}" Foreground="#8FA6C0"
+                           FontSize="11" FontWeight="SemiBold" VerticalAlignment="Center" Margin="9,0,0,0" />
             </StackPanel>
         </Grid>
     </Border>
@@ -41,8 +72,13 @@
         <EventTrigger RoutedEvent="Window.Loaded">
             <BeginStoryboard>
                 <Storyboard>
-                    <!-- Fade the whole window in -->
-                    <DoubleAnimation Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:0.25" />
+                    <!-- Fade + rise the whole window in -->
+                    <DoubleAnimation Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:0.28" />
+
+                    <!-- Continuously rotating ring -->
+                    <DoubleAnimation Storyboard.TargetName="RingRotate" Storyboard.TargetProperty="Angle"
+                                     From="0" To="360" Duration="0:0:6" RepeatBehavior="Forever" />
+
                     <!-- Gentle logo pulse -->
                     <DoubleAnimation Storyboard.TargetName="LogoScale" Storyboard.TargetProperty="ScaleX"
                                      From="0.92" To="1.06" Duration="0:0:1.1" AutoReverse="True" RepeatBehavior="Forever">
@@ -54,9 +90,19 @@
                     </DoubleAnimation>
                     <!-- Glow breathing in sync -->
                     <DoubleAnimation Storyboard.TargetName="LogoGlow" Storyboard.TargetProperty="Opacity"
-                                     From="0.3" To="0.75" Duration="0:0:1.1" AutoReverse="True" RepeatBehavior="Forever">
+                                     From="0.35" To="0.85" Duration="0:0:1.1" AutoReverse="True" RepeatBehavior="Forever">
                         <DoubleAnimation.EasingFunction><SineEase EasingMode="EaseInOut" /></DoubleAnimation.EasingFunction>
                     </DoubleAnimation>
+
+                    <!-- Title glitch-style reveal: quick opacity flicker -->
+                    <DoubleAnimationUsingKeyFrames Storyboard.TargetName="TitleText" Storyboard.TargetProperty="Opacity">
+                        <DiscreteDoubleKeyFrame KeyTime="0:0:0.0" Value="0" />
+                        <DiscreteDoubleKeyFrame KeyTime="0:0:0.15" Value="0.6" />
+                        <DiscreteDoubleKeyFrame KeyTime="0:0:0.22" Value="0.1" />
+                        <DiscreteDoubleKeyFrame KeyTime="0:0:0.30" Value="0.85" />
+                        <DiscreteDoubleKeyFrame KeyTime="0:0:0.38" Value="0.3" />
+                        <LinearDoubleKeyFrame KeyTime="0:0:0.55" Value="1" />
+                    </DoubleAnimationUsingKeyFrames>
                 </Storyboard>
             </BeginStoryboard>
         </EventTrigger>

@@ -6,7 +6,6 @@ using CommunityToolkit.Mvvm.Input;
 using Microsoft.Win32;
 using SystemCare.Services;
 using Wpf.Ui;
-using Wpf.Ui.Appearance;
 using Wpf.Ui.Controls;
 
 namespace SystemCare.ViewModels;
@@ -18,7 +17,6 @@ public partial class SettingsViewModel : ObservableObject
     private readonly IUpdateService _updates;
     private readonly ISnackbarService _snackbar;
 
-    [ObservableProperty] private bool _isDarkTheme;
     [ObservableProperty] private int _skipTempNewerThanHours;
     [ObservableProperty] private int _largeFileMinMB;
     [ObservableProperty] private int _largeFileTopN;
@@ -55,7 +53,6 @@ public partial class SettingsViewModel : ObservableObject
         _maintenance = maintenance;
         _updates = updates;
         _snackbar = snackbar;
-        _isDarkTheme = settings.Current.Theme != "Light";
         _skipTempNewerThanHours = settings.Current.SkipTempNewerThanHours;
         _largeFileMinMB = settings.Current.LargeFileMinMB;
         _largeFileTopN = settings.Current.LargeFileTopN;
@@ -167,13 +164,6 @@ public partial class SettingsViewModel : ObservableObject
         if (QaEmptyBin) list.Add("emptybin");
         if (QaRestorePoint) list.Add("restorepoint");
         _settings.Current.DashboardQuickActions = list;
-        _settings.Save();
-    }
-
-    partial void OnIsDarkThemeChanged(bool value)
-    {
-        ApplicationThemeManager.Apply(value ? ApplicationTheme.Dark : ApplicationTheme.Light);
-        _settings.Current.Theme = value ? "Dark" : "Light";
         _settings.Save();
     }
 

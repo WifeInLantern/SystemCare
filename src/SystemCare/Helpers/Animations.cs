@@ -17,6 +17,9 @@ public static class Animations
     private const int ScaleIndex = 0;
     private const int TranslateIndex = 1;
 
+    /// <summary>Neon cyan used for hover/reveal/pulse glows across the cyberpunk theme.</summary>
+    private static readonly Color NeonCyan = Color.FromRgb(0x00, 0xE5, 0xFF);
+
     /// <summary>Ensures the element owns a private [Scale, Translate] transform group, centered.</summary>
     private static (ScaleTransform Scale, TranslateTransform Translate) GetTransforms(FrameworkElement element)
     {
@@ -108,15 +111,15 @@ public static class Animations
         var (scale, _) = GetTransforms(element);
         element.Effect = new DropShadowEffect
         {
-            Color = Color.FromRgb(0x21, 0x96, 0xF3),
+            Color = NeonCyan,
             ShadowDepth = 0,
-            BlurRadius = 22,
-            Opacity = 0.55,
+            BlurRadius = 28,
+            Opacity = 0.7,
         };
         var ease = new CubicEase { EasingMode = EasingMode.EaseOut };
         var d = TimeSpan.FromMilliseconds(150);
-        scale.BeginAnimation(ScaleTransform.ScaleXProperty, new DoubleAnimation(1.015, d) { EasingFunction = ease });
-        scale.BeginAnimation(ScaleTransform.ScaleYProperty, new DoubleAnimation(1.015, d) { EasingFunction = ease });
+        scale.BeginAnimation(ScaleTransform.ScaleXProperty, new DoubleAnimation(1.02, d) { EasingFunction = ease });
+        scale.BeginAnimation(ScaleTransform.ScaleYProperty, new DoubleAnimation(1.02, d) { EasingFunction = ease });
     }
 
     private static void OnHoverLeave(object sender, RoutedEventArgs e)
@@ -148,5 +151,86 @@ public static class Animations
             {
                 EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut },
             });
+    }
+
+    // ---------- NeonPulse (a forever-breathing cyan glow for hero/accent elements) ----------
+
+    public static readonly DependencyProperty NeonPulseProperty =
+        DependencyProperty.RegisterAttached(
+            "NeonPulse", typeof(bool), typeof(Animations),
+            new PropertyMetadata(false, OnNeonPulseChanged));
+
+    public static bool GetNeonPulse(DependencyObject o) => (bool)o.GetValue(NeonPulseProperty);
+    public static void SetNeonPulse(DependencyObject o, bool v) => o.SetValue(NeonPulseProperty, v);
+
+    private static void OnNeonPulseChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    {
+        if (d is not FrameworkElement element) return;
+        if ((bool)e.NewValue)
+        {
+            var glow = new DropShadowEffect { Color = NeonCyan, ShadowDepth = 0, BlurRadius = 24, Opacity = 0.4 };
+            element.Effect = glow;
+            glow.BeginAnimation(DropShadowEffect.OpacityProperty,
+                new DoubleAnimation(0.3, 0.8, TimeSpan.FromSeconds(1.6))
+                {
+                    AutoReverse = true,
+                    RepeatBehavior = RepeatBehavior.Forever,
+                    EasingFunction = new SineEase { EasingMode = EasingMode.EaseInOut },
+                });
+        }
+        else
+        {
+            element.Effect = null;
+        }
+    }
+
+    // ---------- RevealOnLoad (fade + rise + a one-shot "power-on" cyan flash) ----------
+
+    public static readonly DependencyProperty RevealOnLoadProperty =
+        DependencyProperty.RegisterAttached(
+            "RevealOnLoad", typeof(bool), typeof(Animations),
+            new PropertyMetadata(false, OnRevealOnLoadChanged));
+
+    public static bool GetRevealOnLoad(DependencyObject obj) => (bool)obj.GetValue(RevealOnLoadProperty);
+    public static void SetRevealOnLoad(DependencyObject obj, bool value) => obj.SetValue(RevealOnLoadProperty, value);
+
+    private static void OnRevealOnLoadChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    {
+        if (d is not FrameworkElement element || !(bool)e.NewValue) return;
+        if (element.IsLoaded)
+            PlayReveal(element);
+        else
+            element.Loaded += OnRevealLoaded;
+    }
+
+    private static void OnRevealLoaded(object sender, RoutedEventArgs e)
+    {
+        var element = (FrameworkElement)sender;
+        element.Loaded -= OnRevealLoaded;
+        PlayReveal(element);
+    }
+
+    private static void PlayReveal(FrameworkElement element)
+    {
+        var (_, translate) = GetTransforms(element);
+        element.Opacity = 0;
+
+        var ease = new CubicEase { EasingMode = EasingMode.EaseOut };
+        var duration = TimeSpan.FromMilliseconds(320);
+
+        element.BeginAnimation(UIElement.OpacityProperty,
+            new DoubleAnimation(0, 1, duration) { EasingFunction = ease });
+        translate.BeginAnimation(TranslateTransform.YProperty,
+            new DoubleAnimation(14, 0, duration) { EasingFunction = ease });
+
+        // One-shot cyan "power-on" flash that fades out, then clears the effect.
+        var glow = new DropShadowEffect { Color = NeonCyan, ShadowDepth = 0, BlurRadius = 26, Opacity = 0 };
+        element.Effect = glow;
+        var flash = new DoubleAnimation(0.65, 0, TimeSpan.FromMilliseconds(650))
+        {
+            EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut },
+        };
+        flash.Completed += (_, _) => { if (ReferenceEquals(element.Effect, glow)) element.Effect = null; };
+        glow.BeginAnimation(DropShadowEffect.OpacityProperty, flash);
     }
 }

@@ -32,11 +32,12 @@
                                       Score="{Binding HealthScoreValue}" />
 
                 <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="36,0,0,0">
-                    <TextBlock Text="PC Health" FontSize="28" FontWeight="SemiBold" />
+                    <TextBlock Text="PC HEALTH" FontSize="30" Style="{StaticResource CyberDisplayText}" />
                     <TextBlock Text="{Binding LastScanSummary}" Margin="0,8,0,16"
                                TextWrapping="Wrap" Opacity="0.75" FontSize="14" />
                     <StackPanel Orientation="Horizontal">
                         <ui:Button Content="Scan now" Appearance="Primary" FontSize="15"
+                                   helpers:Animations.NeonPulse="True"
                                    Padding="28,10" Command="{Binding ScanCommand}"
                                    IsEnabled="{Binding IsWorking, Converter={StaticResource Not}}">
                             <ui:Button.Icon>
@@ -65,7 +66,7 @@
 
             <!-- Quick actions (customizable in Settings) -->
             <StackPanel Visibility="{Binding AnyQuickAction, Converter={StaticResource VisibleWhenTrue}}">
-                <TextBlock Text="Quick actions" FontSize="18" FontWeight="SemiBold" Margin="0,28,0,12" />
+                <TextBlock Text="QUICK ACTIONS" FontSize="16" Margin="0,28,0,12" Style="{StaticResource CyberSectionHeader}" />
                 <WrapPanel Orientation="Horizontal">
                     <ui:Button Content="Scan &amp; Fix" Padding="18,9" Margin="0,0,8,8" Command="{Binding ScanCommand}"
                                Visibility="{Binding ShowScanFix, Converter={StaticResource VisibleWhenTrue}}">
@@ -91,9 +92,10 @@
             </StackPanel>
 
             <!-- Live stats -->
-            <TextBlock Text="Live system stats" FontSize="18" FontWeight="SemiBold" Margin="0,28,0,12" />
+            <TextBlock Text="LIVE SYSTEM STATS" FontSize="16" Margin="0,28,0,12" Style="{StaticResource CyberSectionHeader}" />
             <UniformGrid Columns="2">
-                <ui:Card Margin="0,0,8,0" Padding="20,16" helpers:Animations.HoverLift="True">
+                <ui:Card Margin="0,0,8,0" Padding="20,16" helpers:Animations.HoverLift="True"
+                         helpers:Animations.RevealOnLoad="True">
                     <StackPanel>
                         <StackPanel Orientation="Horizontal">
                             <ui:SymbolIcon Symbol="DeveloperBoard24" FontSize="20" />
@@ -102,11 +104,12 @@
                         <TextBlock Text="{Binding CpuText}" FontSize="32" FontWeight="Bold" Margin="0,8,0,4" />
                         <controls:SparklineChart Height="48" Margin="0,2,0,6"
                                                  Values="{Binding CpuHistory}" Max="100"
-                                                 Accent="#2196F3" />
+                                                 Accent="#00E5FF" />
                         <ProgressBar helpers:Animations.SmoothValue="{Binding CpuPercent}" Maximum="100" Height="6" />
                     </StackPanel>
                 </ui:Card>
-                <ui:Card Margin="8,0,0,0" Padding="20,16" helpers:Animations.HoverLift="True">
+                <ui:Card Margin="8,0,0,0" Padding="20,16" helpers:Animations.HoverLift="True"
+                         helpers:Animations.RevealOnLoad="True">
                     <StackPanel>
                         <StackPanel Orientation="Horizontal">
                             <ui:SymbolIcon Symbol="Ram20" FontSize="20" />
@@ -115,7 +118,7 @@
                         <TextBlock Text="{Binding RamText}" FontSize="26" FontWeight="Bold" Margin="0,8,0,4" />
                         <controls:SparklineChart Height="48" Margin="0,2,0,6"
                                                  Values="{Binding RamHistory}" Max="100"
-                                                 Accent="#26A69A" />
+                                                 Accent="#00FFA3" />
                         <ProgressBar helpers:Animations.SmoothValue="{Binding RamPercent}" Maximum="100" Height="6" />
                     </StackPanel>
                 </ui:Card>
@@ -152,7 +155,7 @@
             </ItemsControl>
 
             <!-- Quick links -->
-            <TextBlock Text="Tools" FontSize="18" FontWeight="SemiBold" Margin="0,20,0,12" />
+            <TextBlock Text="TOOLS" FontSize="16" Margin="0,20,0,12" Style="{StaticResource CyberSectionHeader}" />
             <UniformGrid Columns="5">
                 <ui:CardAction Margin="0,0,8,0" Command="{Binding NavigateToCommand}" CommandParameter="Cleanup">
                     <ui:CardAction.Icon>

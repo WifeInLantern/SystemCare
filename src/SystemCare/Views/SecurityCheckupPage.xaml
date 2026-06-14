@@ -57,16 +57,16 @@
                                 <Border Grid.Column="2" CornerRadius="10" Padding="9,3" VerticalAlignment="Center" Margin="0,0,8,0">
                                     <Border.Style>
                                         <Style TargetType="Border">
-                                            <Setter Property="Background" Value="#33888888" />
+                                            <Setter Property="Background" Value="#33445566" />
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding StatusText}" Value="OK">
-                                                    <Setter Property="Background" Value="#334CAF50" />
+                                                    <Setter Property="Background" Value="#3300FFA3" />
                                                 </DataTrigger>
                                                 <DataTrigger Binding="{Binding StatusText}" Value="Review">
-                                                    <Setter Property="Background" Value="#33FFA726" />
+                                                    <Setter Property="Background" Value="#33FFD300" />
                                                 </DataTrigger>
                                                 <DataTrigger Binding="{Binding StatusText}" Value="At risk">
-                                                    <Setter Property="Background" Value="#33F44336" />
+                                                    <Setter Property="Background" Value="#33FF2A6D" />
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>

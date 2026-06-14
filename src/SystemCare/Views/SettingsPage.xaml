@@ -18,17 +18,13 @@
 
             <TextBlock Text="Appearance" FontSize="15" FontWeight="SemiBold" Margin="0,20,0,8" />
             <ui:Card Padding="16,12">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="Auto" />
-                    </Grid.ColumnDefinitions>
-                    <StackPanel Grid.Column="0" Margin="0,0,16,0">
-                        <TextBlock Text="Dark theme" FontWeight="SemiBold" />
-                        <TextBlock Text="Turn off for a light theme. Charts and consoles keep a dark canvas." FontSize="12" Opacity="0.65" TextWrapping="Wrap" />
+                <StackPanel Orientation="Horizontal">
+                    <ui:SymbolIcon Symbol="Color24" FontSize="20" Foreground="{StaticResource NeonCyanBrush}" VerticalAlignment="Center" />
+                    <StackPanel Margin="12,0,0,0">
+                        <TextBlock Text="Cyberpunk (Night City)" FontWeight="SemiBold" />
+                        <TextBlock Text="A neon cyan + magenta dark theme with an animated backdrop. SystemCare is dark-only." FontSize="12" Opacity="0.65" TextWrapping="Wrap" />
                     </StackPanel>
-                    <ui:ToggleSwitch Grid.Column="1" IsChecked="{Binding IsDarkTheme}" />
-                </Grid>
+                </StackPanel>
             </ui:Card>
 
             <TextBlock Text="Automatic maintenance" FontSize="15" FontWeight="SemiBold" Margin="0,20,0,8" />
