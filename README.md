@@ -31,6 +31,10 @@ glowing cards/charts, and a bundled futuristic font (Orbitron / Rajdhani, OFL). 
   start/stop and start-mode.
 - **Disk Health & Maintenance** — SMART health per disk, plus CHKDSK / optimize / SFC / DISM with
   live streaming output.
+- **Driver Updater** — inventories every device + its current driver (WMI `Win32_PnPSignedDriver`),
+  flags problem/missing drivers (Device Manager error codes), and checks the **Windows Update**
+  driver catalog for newer drivers — downloading and installing selected ones in-app (a restore
+  point is created first). Coverage is what Microsoft distributes; no third-party driver sites.
 - **Security Checkup** — Defender, Firewall, UAC, Remote Desktop and Windows Update status with
   quick-fix links.
 - **Network Tools** — active connections per process (via the TCP table), ping/traceroute, and

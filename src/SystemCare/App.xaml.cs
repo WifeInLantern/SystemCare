@@ -44,6 +44,7 @@ public partial class App : Application
         services.AddSingleton<IFileOperationService, FileOperationService>();
         services.AddSingleton<IHardwareInfoService, HardwareInfoService>();
         services.AddSingleton<IInstalledAppsService, InstalledAppsService>();
+        services.AddSingleton<ILeftoverScanService, LeftoverScanService>();
         services.AddSingleton<IProcessService, ProcessService>();
         services.AddSingleton<IServiceControlService, ServiceControlService>();
         services.AddSingleton<IScheduledMaintenanceService, ScheduledMaintenanceService>();
@@ -61,6 +62,7 @@ public partial class App : Application
         services.AddSingleton<ITweaksService, TweaksService>();
         services.AddSingleton<IBoostService, BoostService>();
         services.AddSingleton<IFileShredderService, FileShredderService>();
+        services.AddSingleton<IDriverUpdateService, DriverUpdateService>();
 
         // Window
         services.AddSingleton<MainWindow>();
@@ -86,6 +88,7 @@ public partial class App : Application
         services.AddSingleton<WindowsTweaksViewModel>();
         services.AddSingleton<BoostViewModel>();
         services.AddSingleton<FileShredderViewModel>();
+        services.AddSingleton<DriverUpdateViewModel>();
         services.AddSingleton<SettingsViewModel>();
 
         // Pages
@@ -109,6 +112,7 @@ public partial class App : Application
         services.AddTransient<WindowsTweaksPage>();
         services.AddTransient<BoostPage>();
         services.AddTransient<FileShredderPage>();
+        services.AddTransient<DriverUpdatePage>();
         services.AddTransient<SettingsPage>();
 
         return services.BuildServiceProvider();
