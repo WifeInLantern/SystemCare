@@ -27,6 +27,7 @@ public partial class SettingsViewModel : ObservableObject
     [ObservableProperty] private bool _createRestorePointBeforeMaintenance;
 
     [ObservableProperty] private bool _checkForUpdatesOnStartup;
+    [ObservableProperty] private string _updateGitHubToken = "";
     [ObservableProperty] private string _updateStatus = "";
     [ObservableProperty] private bool _isCheckingUpdate;
     [ObservableProperty] private bool _updateAvailable;
@@ -61,6 +62,7 @@ public partial class SettingsViewModel : ObservableObject
         _minimizeToTray = settings.Current.MinimizeToTray;
         _createRestorePointBeforeMaintenance = settings.Current.CreateRestorePointBeforeMaintenance;
         _checkForUpdatesOnStartup = settings.Current.CheckForUpdatesOnStartup;
+        _updateGitHubToken = settings.Current.UpdateGitHubToken;
         Exclusions = new ObservableCollection<string>(settings.Current.CleanupExclusions);
         CustomFolders = new ObservableCollection<string>(settings.Current.CustomJunkFolders);
 
@@ -88,6 +90,12 @@ public partial class SettingsViewModel : ObservableObject
     partial void OnCheckForUpdatesOnStartupChanged(bool value)
     {
         _settings.Current.CheckForUpdatesOnStartup = value;
+        _settings.Save();
+    }
+
+    partial void OnUpdateGitHubTokenChanged(string value)
+    {
+        _settings.Current.UpdateGitHubToken = value?.Trim() ?? "";
         _settings.Save();
     }
 

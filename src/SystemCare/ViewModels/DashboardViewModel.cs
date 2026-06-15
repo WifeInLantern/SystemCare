@@ -20,6 +20,7 @@ public partial class DashboardViewModel : ObservableObject
     private readonly ISnackbarService _snackbar;
     private readonly IRestorePointService _restore;
     private readonly INetworkToolsService _network;
+    private readonly IHistoryService _history;
 
     private const int HistorySize = 60;
     private readonly DispatcherTimer _timer;
@@ -58,7 +59,8 @@ public partial class DashboardViewModel : ObservableObject
         ISettingsService settings,
         ISnackbarService snackbar,
         IRestorePointService restore,
-        INetworkToolsService network)
+        INetworkToolsService network,
+        IHistoryService history)
     {
         _systemInfo = systemInfo;
         _junkScan = junkScan;
@@ -69,6 +71,7 @@ public partial class DashboardViewModel : ObservableObject
         _snackbar = snackbar;
         _restore = restore;
         _network = network;
+        _history = history;
 
         if (_settings.Current.LastHealthScore is int saved)
         {
@@ -203,6 +206,10 @@ public partial class DashboardViewModel : ObservableObject
                 $"Removed {ByteFormatter.Format(cleanTask.Result.BytesRemoved)} of junk and freed " +
                 $"{ByteFormatter.Format(ramTask.Result.BytesFreed)} of RAM across {ramTask.Result.ProcessesTrimmed} processes.",
                 ControlAppearance.Success, null, TimeSpan.FromSeconds(6));
+
+            _history.Record("Fix all",
+                $"Removed {ByteFormatter.Format(cleanTask.Result.BytesRemoved)} of junk · freed {ByteFormatter.Format(ramTask.Result.BytesFreed)} of RAM",
+                cleanTask.Result.BytesRemoved, cleanTask.Result.FilesRemoved, "Rocket24");
 
             CanFix = false;
             await ScanAsync(CancellationToken.None); // re-score so the gauge reflects the cleanup

@@ -23,6 +23,7 @@ public partial class FileShredderViewModel : ObservableObject
     private readonly IFileShredderService _shredder;
     private readonly ISnackbarService _snackbar;
     private readonly IContentDialogService _dialogs;
+    private readonly IHistoryService _history;
     private CancellationTokenSource? _cts;
 
     public ObservableCollection<ShredItemViewModel> Items { get; } = [];
@@ -32,11 +33,13 @@ public partial class FileShredderViewModel : ObservableObject
     [ObservableProperty] private string _progressText = "";
     [ObservableProperty] [NotifyCanExecuteChangedFor(nameof(ShredCommand))] private bool _hasItems;
 
-    public FileShredderViewModel(IFileShredderService shredder, ISnackbarService snackbar, IContentDialogService dialogs)
+    public FileShredderViewModel(IFileShredderService shredder, ISnackbarService snackbar,
+        IContentDialogService dialogs, IHistoryService history)
     {
         _shredder = shredder;
         _snackbar = snackbar;
         _dialogs = dialogs;
+        _history = history;
     }
 
     [RelayCommand]
@@ -108,6 +111,10 @@ public partial class FileShredderViewModel : ObservableObject
                 $"Shredded {result.FilesShredded} file(s) ({ByteFormatter.Format(result.BytesShredded)})." +
                 (result.FilesSkipped > 0 ? $" {result.FilesSkipped} in-use file(s) skipped." : ""),
                 ControlAppearance.Success, null, TimeSpan.FromSeconds(6));
+            if (result.FilesShredded > 0)
+                _history.Record("Shredded files",
+                    $"Securely shredded {result.FilesShredded} item(s) in {Passes} pass(es)",
+                    result.BytesShredded, result.FilesShredded, "Delete24");
             Items.Clear();
             HasItems = false;
             ProgressText = "";

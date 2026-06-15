@@ -57,8 +57,10 @@ glowing cards/charts, and a bundled futuristic font (Orbitron / Rajdhani, OFL). 
 - **Automatic maintenance + system tray** — optional scheduled junk cleanup + RAM trim via a
   Windows scheduled task, a tray icon with "run maintenance now" and balloon notifications, and
   minimize-to-tray. Headless runs use `SystemCare.exe --run-maintenance`.
-- **Update checker** — checks a configurable release feed (set `UpdateFeedUrl` in settings.json;
-  compatible with a GitHub releases/latest URL) on startup and from Settings; notifies + offers a download link.
+- **Update checker** — checks a configurable release feed (set `UpdateFeedUrl` in settings.json,
+  or a `UpdateGitHubToken` for a private repo; compatible with a GitHub releases/latest URL) on
+  startup and from Settings. On startup it auto-downloads a newer release and offers to install it;
+  the Settings page also has a manual check + download &amp; install.
 - **Dashboard quick-actions** — a customizable row of one-click tiles (Scan & Fix, Free RAM,
   Flush DNS, Empty Recycle Bin, Create restore point), toggled in Settings.
 - **Settings** — auto-maintenance schedule, minimize-to-tray, restore-point
@@ -72,8 +74,7 @@ fade-ins, and an animated startup splash. Only one instance runs at a time — l
 focuses the existing window.
 
 The app requests administrator elevation (required for system temp, machine-level startup
-items, working-set trimming, DNS flush, and service control). There is intentionally **no
-registry cleaner**.
+items, working-set trimming, DNS flush, and service control).
 
 ## Install / run the app
 

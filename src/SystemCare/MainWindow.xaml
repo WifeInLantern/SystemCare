@@ -134,6 +134,11 @@
                         <ui:SymbolIcon Symbol="Info24" />
                     </ui:NavigationViewItem.Icon>
                 </ui:NavigationViewItem>
+                <ui:NavigationViewItem Content="History" TargetPageType="{x:Type views:HistoryPage}" ToolTipService.ToolTip="Activity History">
+                    <ui:NavigationViewItem.Icon>
+                        <ui:SymbolIcon Symbol="History24" />
+                    </ui:NavigationViewItem.Icon>
+                </ui:NavigationViewItem>
 
                 <ui:NavigationViewItemHeader Text="Protect" />
                 <ui:NavigationViewItem Content="Bloatware" TargetPageType="{x:Type views:BloatwarePage}" ToolTipService.ToolTip="Bloatware &amp; Store Apps">

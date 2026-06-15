@@ -23,6 +23,7 @@ public partial class RegistryCleanerViewModel : ObservableObject
     private readonly IRegistryCleanerService _registry;
     private readonly ISnackbarService _snackbar;
     private readonly IContentDialogService _dialogs;
+    private readonly IHistoryService _history;
     private List<RegistryIssue> _lastScan = [];
 
     public ObservableCollection<RegistryCategoryItemViewModel> Categories { get; }
@@ -33,11 +34,13 @@ public partial class RegistryCleanerViewModel : ObservableObject
     [ObservableProperty] private string _statusText = "Scan finds registry entries that point to files or folders that no longer exist.";
     [ObservableProperty] [NotifyCanExecuteChangedFor(nameof(CleanCommand))] private bool _canClean;
 
-    public RegistryCleanerViewModel(IRegistryCleanerService registry, ISnackbarService snackbar, IContentDialogService dialogs)
+    public RegistryCleanerViewModel(IRegistryCleanerService registry, ISnackbarService snackbar,
+        IContentDialogService dialogs, IHistoryService history)
     {
         _registry = registry;
         _snackbar = snackbar;
         _dialogs = dialogs;
+        _history = history;
         Categories = new ObservableCollection<RegistryCategoryItemViewModel>(
             registry.Categories.Select(c => new RegistryCategoryItemViewModel(c)));
     }
@@ -104,6 +107,10 @@ public partial class RegistryCleanerViewModel : ObservableObject
             _snackbar.Show("Registry cleaned",
                 $"Removed {result.Removed} entries. Backup saved to the RegistryBackups folder.",
                 ControlAppearance.Success, null, TimeSpan.FromSeconds(6));
+            if (result.Removed > 0)
+                _history.Record("Registry clean",
+                    $"Removed {result.Removed} invalid entr{(result.Removed == 1 ? "y" : "ies")} (backup saved)",
+                    0, result.Removed, "Broom24");
         }
         finally
         {

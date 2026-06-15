@@ -45,6 +45,7 @@ public partial class App : Application
         services.AddSingleton<IFileOperationService, FileOperationService>();
         services.AddSingleton<IHardwareInfoService, HardwareInfoService>();
         services.AddSingleton<ITemperatureService, TemperatureService>();
+        services.AddSingleton<IHistoryService, HistoryService>();
         services.AddSingleton<IInstalledAppsService, InstalledAppsService>();
         services.AddSingleton<ILeftoverScanService, LeftoverScanService>();
         services.AddSingleton<IProcessService, ProcessService>();
@@ -92,6 +93,7 @@ public partial class App : Application
         services.AddSingleton<FileShredderViewModel>();
         services.AddSingleton<DriverUpdateViewModel>();
         services.AddSingleton<SettingsViewModel>();
+        services.AddSingleton<HistoryViewModel>();
 
         // Pages
         services.AddTransient<DashboardPage>();
@@ -116,6 +118,7 @@ public partial class App : Application
         services.AddTransient<FileShredderPage>();
         services.AddTransient<DriverUpdatePage>();
         services.AddTransient<SettingsPage>();
+        services.AddTransient<HistoryPage>();
 
         return services.BuildServiceProvider();
     }

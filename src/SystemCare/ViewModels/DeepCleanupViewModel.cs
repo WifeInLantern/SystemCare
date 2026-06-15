@@ -26,6 +26,7 @@ public partial class DeepCleanupViewModel : ObservableObject
     private const int MaxOutputChars = 60_000;
     private readonly IDeepCleanupService _service;
     private readonly IContentDialogService _dialogs;
+    private readonly IHistoryService _history;
     private readonly StringBuilder _output = new();
     private CancellationTokenSource? _cts;
 
@@ -35,10 +36,11 @@ public partial class DeepCleanupViewModel : ObservableObject
     [ObservableProperty] private bool _isRunning;
     [ObservableProperty] private string _outputText = "Select items and run to reclaim space. Output appears here.";
 
-    public DeepCleanupViewModel(IDeepCleanupService service, IContentDialogService dialogs)
+    public DeepCleanupViewModel(IDeepCleanupService service, IContentDialogService dialogs, IHistoryService history)
     {
         _service = service;
         _dialogs = dialogs;
+        _history = history;
     }
 
     public async void OnNavigatedTo()
@@ -72,6 +74,7 @@ public partial class DeepCleanupViewModel : ObservableObject
         if (IsRunning) return;
         var selected = Items.Where(i => i.IsSelected).Select(i => i.Item.Id).ToList();
         if (selected.Count == 0) return;
+        long estBytes = Items.Where(i => i.IsSelected).Sum(i => i.Item.SizeBytes);
 
         bool removingWindowsOld = selected.Contains("windowsold");
         var confirm = await _dialogs.ShowSimpleDialogAsync(new SimpleContentDialogCreateOptions
@@ -92,6 +95,7 @@ public partial class DeepCleanupViewModel : ObservableObject
         try
         {
             await _service.RunAsync(selected, AppendLine, _cts.Token);
+            _history.Record("Deep cleanup", $"Cleaned {selected.Count} area(s)", estBytes, selected.Count, "Storage24");
             await RefreshAsync();
         }
         catch (OperationCanceledException)

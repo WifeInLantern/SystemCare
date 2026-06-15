@@ -27,6 +27,7 @@ public partial class DriverUpdateViewModel : ObservableObject
     private readonly ISettingsService _settings;
     private readonly ISnackbarService _snackbar;
     private readonly IContentDialogService _dialogs;
+    private readonly IHistoryService _history;
 
     public ObservableCollection<DriverDevice> Devices { get; } = [];
     public ObservableCollection<DriverUpdateItemViewModel> Updates { get; } = [];
@@ -41,13 +42,15 @@ public partial class DriverUpdateViewModel : ObservableObject
     [ObservableProperty] private string _statusText = "";
 
     public DriverUpdateViewModel(IDriverUpdateService drivers, IRestorePointService restore,
-        ISettingsService settings, ISnackbarService snackbar, IContentDialogService dialogs)
+        ISettingsService settings, ISnackbarService snackbar, IContentDialogService dialogs,
+        IHistoryService history)
     {
         _drivers = drivers;
         _restore = restore;
         _settings = settings;
         _snackbar = snackbar;
         _dialogs = dialogs;
+        _history = history;
     }
 
     public async void OnNavigatedTo()
@@ -147,6 +150,9 @@ public partial class DriverUpdateViewModel : ObservableObject
                 result.Message,
                 result.Failed == 0 ? ControlAppearance.Success : ControlAppearance.Caution,
                 null, TimeSpan.FromSeconds(7));
+
+            if (result.Installed > 0)
+                _history.Record("Driver update", result.Message, 0, result.Installed, "ArrowDownload24");
 
             // Refresh inventory and drop the ones we installed.
             await RefreshDevicesAsync();

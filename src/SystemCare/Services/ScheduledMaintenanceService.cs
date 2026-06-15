@@ -24,7 +24,8 @@ public interface IScheduledMaintenanceService
 public class ScheduledMaintenanceService(
     IJunkScanService junkScan,
     IMemoryOptimizerService memoryOptimizer,
-    ISettingsService settings) : IScheduledMaintenanceService
+    ISettingsService settings,
+    IHistoryService history) : IScheduledMaintenanceService
 {
     private const string TaskName = "SystemCare Auto Maintenance";
 
@@ -88,6 +89,10 @@ public class ScheduledMaintenanceService(
 
         settings.Current.LastScanUtc = DateTime.UtcNow;
         settings.Save();
+
+        history.Record("Auto maintenance",
+            $"Cleaned {ByteFormatter.Format(clean.BytesRemoved)} of junk · freed {ByteFormatter.Format(ram.BytesFreed)} of RAM",
+            clean.BytesRemoved, clean.FilesRemoved, "Broom24");
 
         return new MaintenanceResult
         {

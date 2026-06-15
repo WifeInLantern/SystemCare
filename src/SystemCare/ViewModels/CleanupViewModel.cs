@@ -32,6 +32,7 @@ public partial class CleanupViewModel : ObservableObject
 {
     private readonly IJunkScanService _junkScan;
     private readonly ISnackbarService _snackbar;
+    private readonly IHistoryService _history;
     private JunkScanResult? _scanResult;
 
     public ObservableCollection<JunkCategoryItemViewModel> Categories { get; }
@@ -41,10 +42,12 @@ public partial class CleanupViewModel : ObservableObject
     [ObservableProperty] private string _totalText = "Select categories and scan to see what can be cleaned.";
     [ObservableProperty] [NotifyCanExecuteChangedFor(nameof(CleanCommand))] private bool _canClean;
 
-    public CleanupViewModel(IJunkScanService junkScan, ISettingsService settings, ISnackbarService snackbar)
+    public CleanupViewModel(IJunkScanService junkScan, ISettingsService settings, ISnackbarService snackbar,
+        IHistoryService history)
     {
         _junkScan = junkScan;
         _snackbar = snackbar;
+        _history = history;
         Categories = new ObservableCollection<JunkCategoryItemViewModel>(
             junkScan.Categories.Select(c => new JunkCategoryItemViewModel(c, settings)));
     }
@@ -115,6 +118,9 @@ public partial class CleanupViewModel : ObservableObject
             _snackbar.Show("Cleanup complete",
                 $"Removed {ByteFormatter.Format(result.BytesRemoved)} of junk.",
                 ControlAppearance.Success, null, TimeSpan.FromSeconds(5));
+            _history.Record("Junk cleanup",
+                $"Removed {ByteFormatter.Format(result.BytesRemoved)} of junk files",
+                result.BytesRemoved, result.FilesRemoved, "Broom24");
             _scanResult = null;
 
             foreach (var category in Categories)

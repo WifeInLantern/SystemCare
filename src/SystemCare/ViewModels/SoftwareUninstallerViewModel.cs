@@ -45,6 +45,7 @@ public partial class SoftwareUninstallerViewModel : ObservableObject
     private readonly ILeftoverScanService _leftovers;
     private readonly ISnackbarService _snackbar;
     private readonly IContentDialogService _dialogs;
+    private readonly IHistoryService _history;
     private List<InstalledAppViewModel> _all = [];
 
     public ObservableCollection<InstalledAppViewModel> Items { get; } = [];
@@ -62,13 +63,15 @@ public partial class SoftwareUninstallerViewModel : ObservableObject
         IFileOperationService fileOps,
         ILeftoverScanService leftovers,
         ISnackbarService snackbar,
-        IContentDialogService dialogs)
+        IContentDialogService dialogs,
+        IHistoryService history)
     {
         _apps = apps;
         _fileOps = fileOps;
         _leftovers = leftovers;
         _snackbar = snackbar;
         _dialogs = dialogs;
+        _history = history;
     }
 
     partial void OnSearchTextChanged(string value) => ApplyFilter();
@@ -143,6 +146,7 @@ public partial class SoftwareUninstallerViewModel : ObservableObject
             await SearchAndRemoveLeftoversAsync(item.Name, plan);
 
             await RefreshAsync();
+            _history.Record("Uninstalled program", item.Name, 0, 1, "Delete24");
             _snackbar.Show("Uninstall complete", $"{item.Name} was removed.",
                 ControlAppearance.Success, null, TimeSpan.FromSeconds(4));
         }
@@ -192,6 +196,10 @@ public partial class SoftwareUninstallerViewModel : ObservableObject
         _snackbar.Show("Leftovers removed",
             parts.Count > 0 ? string.Join(", ", parts) + "." : "Nothing was removed.",
             ControlAppearance.Success, null, TimeSpan.FromSeconds(5));
+
+        if (result.FilesRemoved + result.RegistryRemoved > 0)
+            _history.Record("Removed leftovers", $"{appName}: {string.Join(", ", parts)}",
+                result.BytesRemoved, result.FilesRemoved + result.RegistryRemoved, "BinFull24");
     }
 
     public async void OnNavigatedTo()

@@ -24,6 +24,7 @@ public partial class BoostViewModel : ObservableObject
 
     private readonly IBoostService _boost;
     private readonly IProcessService _processes;
+    private readonly IHistoryService _history;
 
     public ObservableCollection<BoostAppViewModel> Apps { get; } = [];
 
@@ -31,10 +32,11 @@ public partial class BoostViewModel : ObservableObject
     [ObservableProperty] private bool _isBusy;
     [ObservableProperty] private string _statusText = "Boost switches to High Performance, frees memory, and (optionally) pauses background apps.";
 
-    public BoostViewModel(IBoostService boost, IProcessService processes)
+    public BoostViewModel(IBoostService boost, IProcessService processes, IHistoryService history)
     {
         _boost = boost;
         _processes = processes;
+        _history = history;
         IsBoosted = boost.IsBoosted;
     }
 
@@ -63,6 +65,10 @@ public partial class BoostViewModel : ObservableObject
             IsBoosted = true;
             StatusText = $"Boost active — power plan: {result.PowerPlanName}, freed {ByteFormatter.Format(result.BytesFreed)}" +
                          (result.AppsPaused > 0 ? $", paused {result.AppsPaused} app(s)." : ".");
+            _history.Record("Boost",
+                $"High Performance · freed {ByteFormatter.Format(result.BytesFreed)} of RAM" +
+                (result.AppsPaused > 0 ? $" · paused {result.AppsPaused} app(s)" : ""),
+                result.BytesFreed, result.AppsPaused, "Rocket24");
         }
         finally
         {
