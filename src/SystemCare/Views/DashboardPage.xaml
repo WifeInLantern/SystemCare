@@ -16,6 +16,7 @@
         <converters:BytesToReadableConverter x:Key="Bytes" />
         <converters:BoolToVisibilityConverter x:Key="VisibleWhenTrue" />
         <converters:InverseBoolConverter x:Key="Not" />
+        <converters:PercentToUsageBrushConverter x:Key="UsageBrush" />
     </Page.Resources>
 
     <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="24,12,24,24">
@@ -92,16 +93,19 @@
             </StackPanel>
 
             <!-- Live stats -->
-            <TextBlock Text="LIVE SYSTEM STATS" FontSize="16" Margin="0,28,0,12" Style="{StaticResource CyberSectionHeader}" />
+            <TextBlock Text="LIVE SYSTEM STATS" FontSize="16" Margin="0,28,0,12" Style="{StaticResource CyberSectionHeader}"
+                       helpers:Animations.FadeInOnLoad="True" helpers:Animations.RevealDelay="40" />
             <UniformGrid Columns="2">
                 <ui:Card Margin="0,0,8,0" Padding="20,16" helpers:Animations.HoverLift="True"
-                         helpers:Animations.RevealOnLoad="True">
+                         helpers:Animations.RevealOnLoad="True" helpers:Animations.RevealDelay="80">
                     <StackPanel>
                         <StackPanel Orientation="Horizontal">
                             <ui:SymbolIcon Symbol="DeveloperBoard24" FontSize="20" />
                             <TextBlock Text="Processor" Margin="8,0,0,0" FontWeight="SemiBold" />
                         </StackPanel>
-                        <TextBlock Text="{Binding CpuText}" FontSize="32" FontWeight="Bold" Margin="0,8,0,4" />
+                        <TextBlock FontSize="32" FontWeight="Bold" Margin="0,8,0,4"
+                                   helpers:Animations.CountUpText="{Binding CpuPercent}"
+                                   helpers:Animations.CountUpFormat="0'%'" />
                         <controls:SparklineChart Height="48" Margin="0,2,0,6"
                                                  Values="{Binding CpuHistory}" Max="100"
                                                  Accent="#00E5FF" />
@@ -109,13 +113,16 @@
                     </StackPanel>
                 </ui:Card>
                 <ui:Card Margin="8,0,0,0" Padding="20,16" helpers:Animations.HoverLift="True"
-                         helpers:Animations.RevealOnLoad="True">
+                         helpers:Animations.RevealOnLoad="True" helpers:Animations.RevealDelay="150">
                     <StackPanel>
                         <StackPanel Orientation="Horizontal">
                             <ui:SymbolIcon Symbol="Ram20" FontSize="20" />
                             <TextBlock Text="Memory" Margin="8,0,0,0" FontWeight="SemiBold" />
                         </StackPanel>
-                        <TextBlock Text="{Binding RamText}" FontSize="26" FontWeight="Bold" Margin="0,8,0,4" />
+                        <TextBlock FontSize="26" FontWeight="Bold" Margin="0,8,0,4"
+                                   helpers:Animations.CountUpBytes="True"
+                                   helpers:Animations.CountUpText="{Binding RamUsedBytes}"
+                                   helpers:Animations.CountUpSuffix="{Binding RamTotalText}" />
                         <controls:SparklineChart Height="48" Margin="0,2,0,6"
                                                  Values="{Binding RamHistory}" Max="100"
                                                  Accent="#00FFA3" />
@@ -147,7 +154,9 @@
                                     <Run Text="free of" />
                                     <Run Text="{Binding TotalBytes, Mode=OneWay, Converter={StaticResource Bytes}}" />
                                 </TextBlock>
-                                <ProgressBar Value="{Binding UsedPercent, Mode=OneWay}" Maximum="100" Height="5" />
+                                <ProgressBar Maximum="100" Height="5"
+                                             helpers:Animations.SmoothValue="{Binding UsedPercent}"
+                                             Foreground="{Binding UsedPercent, Converter={StaticResource UsageBrush}}" />
                             </StackPanel>
                         </ui:Card>
                     </DataTemplate>
@@ -155,9 +164,11 @@
             </ItemsControl>
 
             <!-- Quick links -->
-            <TextBlock Text="TOOLS" FontSize="16" Margin="0,20,0,12" Style="{StaticResource CyberSectionHeader}" />
+            <TextBlock Text="TOOLS" FontSize="16" Margin="0,20,0,12" Style="{StaticResource CyberSectionHeader}"
+                       helpers:Animations.FadeInOnLoad="True" helpers:Animations.RevealDelay="180" />
             <UniformGrid Columns="5">
-                <ui:CardAction Margin="0,0,8,0" Command="{Binding NavigateToCommand}" CommandParameter="Cleanup">
+                <ui:CardAction Margin="0,0,8,0" Command="{Binding NavigateToCommand}" CommandParameter="Cleanup"
+                               helpers:Animations.RevealOnLoad="True" helpers:Animations.RevealDelay="210">
                     <ui:CardAction.Icon>
                         <ui:SymbolIcon Symbol="Broom24" />
                     </ui:CardAction.Icon>
@@ -166,7 +177,8 @@
                         <TextBlock Text="Remove junk files" FontSize="11" Opacity="0.7" TextWrapping="Wrap" />
                     </StackPanel>
                 </ui:CardAction>
-                <ui:CardAction Margin="0,0,8,0" Command="{Binding NavigateToCommand}" CommandParameter="Startup">
+                <ui:CardAction Margin="0,0,8,0" Command="{Binding NavigateToCommand}" CommandParameter="Startup"
+                               helpers:Animations.RevealOnLoad="True" helpers:Animations.RevealDelay="260">
                     <ui:CardAction.Icon>
                         <ui:SymbolIcon Symbol="Rocket24" />
                     </ui:CardAction.Icon>
@@ -175,7 +187,8 @@
                         <TextBlock Text="Boot faster" FontSize="11" Opacity="0.7" TextWrapping="Wrap" />
                     </StackPanel>
                 </ui:CardAction>
-                <ui:CardAction Margin="0,0,8,0" Command="{Binding NavigateToCommand}" CommandParameter="Privacy">
+                <ui:CardAction Margin="0,0,8,0" Command="{Binding NavigateToCommand}" CommandParameter="Privacy"
+                               helpers:Animations.RevealOnLoad="True" helpers:Animations.RevealDelay="310">
                     <ui:CardAction.Icon>
                         <ui:SymbolIcon Symbol="Shield24" />
                     </ui:CardAction.Icon>
@@ -184,7 +197,8 @@
                         <TextBlock Text="Clear traces" FontSize="11" Opacity="0.7" TextWrapping="Wrap" />
                     </StackPanel>
                 </ui:CardAction>
-                <ui:CardAction Margin="0,0,8,0" Command="{Binding NavigateToCommand}" CommandParameter="Disk">
+                <ui:CardAction Margin="0,0,8,0" Command="{Binding NavigateToCommand}" CommandParameter="Disk"
+                               helpers:Animations.RevealOnLoad="True" helpers:Animations.RevealDelay="360">
                     <ui:CardAction.Icon>
                         <ui:SymbolIcon Symbol="DataPie24" />
                     </ui:CardAction.Icon>
@@ -193,7 +207,8 @@
                         <TextBlock Text="See space usage" FontSize="11" Opacity="0.7" TextWrapping="Wrap" />
                     </StackPanel>
                 </ui:CardAction>
-                <ui:CardAction Command="{Binding NavigateToCommand}" CommandParameter="Duplicates">
+                <ui:CardAction Command="{Binding NavigateToCommand}" CommandParameter="Duplicates"
+                               helpers:Animations.RevealOnLoad="True" helpers:Animations.RevealDelay="410">
                     <ui:CardAction.Icon>
                         <ui:SymbolIcon Symbol="Copy24" />
                     </ui:CardAction.Icon>

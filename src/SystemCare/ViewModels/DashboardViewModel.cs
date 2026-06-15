@@ -34,6 +34,8 @@ public partial class DashboardViewModel : ObservableObject
     [ObservableProperty] private double _cpuPercent;
     [ObservableProperty] private string _ramText = "—";
     [ObservableProperty] private double _ramPercent;
+    [ObservableProperty] private double _ramUsedBytes;
+    [ObservableProperty] private string _ramTotalText = "";
     [ObservableProperty] private IReadOnlyList<double> _cpuHistory = [];
     [ObservableProperty] private IReadOnlyList<double> _ramHistory = [];
     [ObservableProperty] private System.Collections.ObjectModel.ObservableCollection<DriveStat> _drives = [];
@@ -119,6 +121,8 @@ public partial class DashboardViewModel : ObservableObject
         CpuText = snapshot.CpuPercent is double cpu ? $"{cpu:0}%" : "—";
         CpuPercent = cpuValue;
         RamText = $"{ByteFormatter.Format((long)snapshot.RamUsedBytes)} / {ByteFormatter.Format((long)snapshot.RamTotalBytes)}";
+        RamUsedBytes = snapshot.RamUsedBytes;
+        RamTotalText = $" / {ByteFormatter.Format((long)snapshot.RamTotalBytes)}";
         RamPercent = snapshot.RamLoadPercent;
 
         PushSample(_cpuSamples, cpuValue);

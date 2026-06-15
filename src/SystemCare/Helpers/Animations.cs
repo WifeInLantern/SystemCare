@@ -72,12 +72,23 @@ public static class Animations
 
         var ease = new CubicEase { EasingMode = EasingMode.EaseOut };
         var duration = TimeSpan.FromMilliseconds(260);
+        var delay = TimeSpan.FromMilliseconds(GetRevealDelay(element));
 
         element.BeginAnimation(UIElement.OpacityProperty,
-            new DoubleAnimation(0, 1, duration) { EasingFunction = ease });
+            new DoubleAnimation(0, 1, duration) { EasingFunction = ease, BeginTime = delay });
         translate.BeginAnimation(TranslateTransform.YProperty,
-            new DoubleAnimation(12, 0, duration) { EasingFunction = ease });
+            new DoubleAnimation(12, 0, duration) { EasingFunction = ease, BeginTime = delay });
     }
+
+    // ---------- RevealDelay (stagger: shared by FadeInOnLoad and RevealOnLoad) ----------
+
+    /// <summary>Milliseconds to delay a FadeInOnLoad/RevealOnLoad entrance, for a staggered cascade.</summary>
+    public static readonly DependencyProperty RevealDelayProperty =
+        DependencyProperty.RegisterAttached(
+            "RevealDelay", typeof(double), typeof(Animations), new PropertyMetadata(0.0));
+
+    public static double GetRevealDelay(DependencyObject o) => (double)o.GetValue(RevealDelayProperty);
+    public static void SetRevealDelay(DependencyObject o, double v) => o.SetValue(RevealDelayProperty, v);
 
     // ---------- HoverLift (scale + glow on mouse-over) ----------
 
@@ -217,11 +228,12 @@ public static class Animations
 
         var ease = new CubicEase { EasingMode = EasingMode.EaseOut };
         var duration = TimeSpan.FromMilliseconds(320);
+        var delay = TimeSpan.FromMilliseconds(GetRevealDelay(element));
 
         element.BeginAnimation(UIElement.OpacityProperty,
-            new DoubleAnimation(0, 1, duration) { EasingFunction = ease });
+            new DoubleAnimation(0, 1, duration) { EasingFunction = ease, BeginTime = delay });
         translate.BeginAnimation(TranslateTransform.YProperty,
-            new DoubleAnimation(14, 0, duration) { EasingFunction = ease });
+            new DoubleAnimation(14, 0, duration) { EasingFunction = ease, BeginTime = delay });
 
         // One-shot cyan "power-on" flash that fades out, then clears the effect.
         var glow = new DropShadowEffect { Color = NeonCyan, ShadowDepth = 0, BlurRadius = 26, Opacity = 0 };
@@ -229,8 +241,84 @@ public static class Animations
         var flash = new DoubleAnimation(0.65, 0, TimeSpan.FromMilliseconds(650))
         {
             EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut },
+            BeginTime = delay,
         };
         flash.Completed += (_, _) => { if (ReferenceEquals(element.Effect, glow)) element.Effect = null; };
         glow.BeginAnimation(DropShadowEffect.OpacityProperty, flash);
+    }
+
+    // ---------- CountUpText (smoothly animate a TextBlock's numeric value) ----------
+
+    /// <summary>Target value; the TextBlock counts toward it (~600ms cubic-out) instead of snapping.</summary>
+    public static readonly DependencyProperty CountUpTextProperty =
+        DependencyProperty.RegisterAttached(
+            "CountUpText", typeof(double), typeof(Animations),
+            new PropertyMetadata(double.NaN, OnCountUpTextChanged));
+
+    public static double GetCountUpText(DependencyObject o) => (double)o.GetValue(CountUpTextProperty);
+    public static void SetCountUpText(DependencyObject o, double v) => o.SetValue(CountUpTextProperty, v);
+
+    /// <summary>Numeric format applied to the animated value (e.g. <c>0'%'</c>). Ignored when CountUpBytes is set.</summary>
+    public static readonly DependencyProperty CountUpFormatProperty =
+        DependencyProperty.RegisterAttached(
+            "CountUpFormat", typeof(string), typeof(Animations), new PropertyMetadata("0"));
+
+    public static string GetCountUpFormat(DependencyObject o) => (string)o.GetValue(CountUpFormatProperty);
+    public static void SetCountUpFormat(DependencyObject o, string v) => o.SetValue(CountUpFormatProperty, v);
+
+    /// <summary>When true, the animated value is byte-formatted (e.g. "12.3 GB") via <see cref="ByteFormatter"/>.</summary>
+    public static readonly DependencyProperty CountUpBytesProperty =
+        DependencyProperty.RegisterAttached(
+            "CountUpBytes", typeof(bool), typeof(Animations), new PropertyMetadata(false));
+
+    public static bool GetCountUpBytes(DependencyObject o) => (bool)o.GetValue(CountUpBytesProperty);
+    public static void SetCountUpBytes(DependencyObject o, bool v) => o.SetValue(CountUpBytesProperty, v);
+
+    /// <summary>Text appended after the formatted value (e.g. " / 32.0 GB" for memory).</summary>
+    public static readonly DependencyProperty CountUpSuffixProperty =
+        DependencyProperty.RegisterAttached(
+            "CountUpSuffix", typeof(string), typeof(Animations), new PropertyMetadata(""));
+
+    public static string GetCountUpSuffix(DependencyObject o) => (string)o.GetValue(CountUpSuffixProperty);
+    public static void SetCountUpSuffix(DependencyObject o, string v) => o.SetValue(CountUpSuffixProperty, v);
+
+    // Internal animated "current" value; writing it formats the TextBlock.
+    private static readonly DependencyProperty CountUpCurrentProperty =
+        DependencyProperty.RegisterAttached(
+            "CountUpCurrent", typeof(double), typeof(Animations),
+            new PropertyMetadata(double.NaN, OnCountUpCurrentChanged));
+
+    private static void OnCountUpTextChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    {
+        if (d is not System.Windows.Controls.TextBlock tb) return;
+        double to = (double)e.NewValue;
+        if (double.IsNaN(to)) return;
+
+        double from = (double)tb.GetValue(CountUpCurrentProperty);
+        if (double.IsNaN(from))
+        {
+            // First value: set instantly so the screen doesn't count up from zero on load.
+            tb.SetValue(CountUpCurrentProperty, to);
+            return;
+        }
+        if (Math.Abs(from - to) < 0.001) return;
+
+        tb.BeginAnimation(CountUpCurrentProperty,
+            new DoubleAnimation(from, to, TimeSpan.FromMilliseconds(600))
+            {
+                EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut },
+            });
+    }
+
+    private static void OnCountUpCurrentChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    {
+        if (d is not System.Windows.Controls.TextBlock tb) return;
+        double v = (double)e.NewValue;
+        if (double.IsNaN(v)) return;
+
+        string body = GetCountUpBytes(tb)
+            ? ByteFormatter.Format((long)v)
+            : v.ToString(GetCountUpFormat(tb), System.Globalization.CultureInfo.InvariantCulture);
+        tb.Text = body + GetCountUpSuffix(tb);
     }
 }

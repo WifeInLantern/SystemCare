@@ -2,6 +2,20 @@
 
 All notable changes to SystemCare are documented here. Versions follow [SemVer](https://semver.org/).
 
+## [1.4.0] - 2026-06-15
+
+### Changed
+- **Refined Dashboard with smoother graphics and subtle new animations.**
+  - **Health gauge**: glass gradient track, faint tick marks, a glowing dot at the leading tip of the
+    score sweep, and a brief glow flash when a new score is computed.
+  - **Live sparklines**: the CPU/RAM/network graphs are now flowing curves (Catmull-Rom smoothing)
+    with a glowing dot tracking the latest value, instead of straight polylines.
+  - **Live numbers**: the big CPU% and Memory readouts now count up/down smoothly instead of snapping
+    each second.
+  - **Drive cards**: usage bars glide to their value and shift colour (cyan -> yellow -> magenta) as a
+    drive fills, with a hover lift.
+  - **Entrances**: dashboard sections and tiles cascade in with a gentle staggered reveal.
+
 ## [1.3.1] - 2026-06-15
 
 ### Fixed
@@ -55,6 +69,7 @@ A bug-fix and hardening release from a full audit of the services and view-model
 ## [1.0.0]
 - Initial release: cleanup, privacy, duplicates, disk tools, startup, boost, tweaks, security, and more.
 
+[1.4.0]: https://github.com/WifeInLantern/SystemCare/releases/tag/v1.4.0
 [1.3.1]: https://github.com/WifeInLantern/SystemCare/releases/tag/v1.3.1
 [1.3.0]: https://github.com/WifeInLantern/SystemCare/releases/tag/v1.3.0
 [1.2.0]: https://github.com/WifeInLantern/SystemCare/releases/tag/v1.2.0

@@ -50,7 +50,10 @@ public class HealthGauge : FrameworkElement
         gauge.UpdateGlow(target);
     }
 
-    /// <summary>Soft band-colored glow behind the arc with a gentle looping pulse.</summary>
+    /// <summary>
+    /// Soft band-colored glow behind the arc with a gentle looping pulse, plus a one-shot
+    /// brightness flash so a freshly-computed score feels acknowledged.
+    /// </summary>
     private void UpdateGlow(double score)
     {
         var glow = new System.Windows.Media.Effects.DropShadowEffect
@@ -61,13 +64,28 @@ public class HealthGauge : FrameworkElement
             Opacity = 0.5,
         };
         Effect = glow;
-        glow.BeginAnimation(System.Windows.Media.Effects.DropShadowEffect.OpacityProperty,
-            new DoubleAnimation(0.35, 0.75, TimeSpan.FromSeconds(1.6))
-            {
-                AutoReverse = true,
-                RepeatBehavior = RepeatBehavior.Forever,
-                EasingFunction = new SineEase { EasingMode = EasingMode.EaseInOut },
-            });
+
+        // Gentle forever-breathing pulse (started once the one-shot flash below completes).
+        var breathe = new DoubleAnimation(0.35, 0.7, TimeSpan.FromSeconds(1.6))
+        {
+            AutoReverse = true,
+            RepeatBehavior = RepeatBehavior.Forever,
+            EasingFunction = new SineEase { EasingMode = EasingMode.EaseInOut },
+        };
+
+        // One-shot "power-on" flash that hands off to the looping breathe.
+        var flash = new DoubleAnimationUsingKeyFrames();
+        flash.KeyFrames.Add(new LinearDoubleKeyFrame(0.35, KeyTime.FromTimeSpan(TimeSpan.Zero)));
+        flash.KeyFrames.Add(new EasingDoubleKeyFrame(1.0, KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(220)),
+            new CubicEase { EasingMode = EasingMode.EaseOut }));
+        flash.KeyFrames.Add(new EasingDoubleKeyFrame(0.5, KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(700)),
+            new CubicEase { EasingMode = EasingMode.EaseInOut }));
+        flash.Completed += (_, _) =>
+        {
+            if (ReferenceEquals(Effect, glow))
+                glow.BeginAnimation(System.Windows.Media.Effects.DropShadowEffect.OpacityProperty, breathe);
+        };
+        glow.BeginAnimation(System.Windows.Media.Effects.DropShadowEffect.OpacityProperty, flash);
     }
 
     // Neon "Night City" bands: excellent = mint, good = cyan, attention = neon yellow, poor = magenta.
@@ -100,9 +118,15 @@ public class HealthGauge : FrameworkElement
         const double startAngle = 135;   // gauge opens downward
         const double sweepTotal = 270;
 
-        // Track (dark neon-tinted)
+        // Track: a subtle glass gradient (top-lit) instead of a flat band.
+        var trackBrush = new LinearGradientBrush(
+            Color.FromRgb(0x16, 0x20, 0x2E), Color.FromRgb(0x0E, 0x16, 0x22), 90);
+        trackBrush.Freeze();
         DrawArc(dc, center, radius, startAngle, sweepTotal,
-            new Pen(new SolidColorBrush(Color.FromRgb(0x16, 0x20, 0x2E)), thickness) { StartLineCap = PenLineCap.Round, EndLineCap = PenLineCap.Round });
+            new Pen(trackBrush, thickness) { StartLineCap = PenLineCap.Round, EndLineCap = PenLineCap.Round });
+
+        // Faint tick marks around the sweep for a precision-instrument feel.
+        DrawTicks(dc, center, radius, thickness, startAngle, sweepTotal);
 
         double score = AnimatedScore;
         bool hasScore = score >= 0;
@@ -110,10 +134,15 @@ public class HealthGauge : FrameworkElement
 
         if (hasScore && score > 0.5)
         {
+            double valueSweep = sweepTotal * Math.Clamp(score, 0, 100) / 100;
+
             // Value arc: band color blended into a cyan→magenta neon sheen.
             var arcBrush = new LinearGradientBrush(color, Color.FromRgb(0xFF, 0x2A, 0x6D), 45);
-            DrawArc(dc, center, radius, startAngle, sweepTotal * Math.Clamp(score, 0, 100) / 100,
+            DrawArc(dc, center, radius, startAngle, valueSweep,
                 new Pen(arcBrush, thickness) { StartLineCap = PenLineCap.Round, EndLineCap = PenLineCap.Round });
+
+            // Glowing "head" dot at the leading tip of the value arc.
+            DrawArcTip(dc, center, radius, thickness, startAngle + valueSweep, color);
         }
 
         double dpi = VisualTreeHelper.GetDpi(this).PixelsPerDip;
@@ -130,6 +159,50 @@ public class HealthGauge : FrameworkElement
             new Typeface(NumberFont, FontStyles.Normal, FontWeights.SemiBold, FontStretches.Normal), size * 0.06,
             new SolidColorBrush(Color.FromRgb(0x8F, 0xA6, 0xC0)), dpi);
         dc.DrawText(label, new Point(center.X - label.Width / 2, center.Y + scoreText.Height * 0.42));
+    }
+
+    /// <summary>Faint radial ticks evenly spaced along the 270° sweep.</summary>
+    private static void DrawTicks(DrawingContext dc, Point center, double radius, double thickness,
+        double startDeg, double sweepDeg)
+    {
+        const int count = 10;
+        var pen = new Pen(new SolidColorBrush(Color.FromArgb(0x33, 0x00, 0xE5, 0xFF)), 1.2)
+        {
+            StartLineCap = PenLineCap.Round,
+            EndLineCap = PenLineCap.Round,
+        };
+        pen.Freeze();
+
+        double inner = radius - thickness * 0.5 - 3;
+        double outer = radius - thickness * 0.5 - 3 + Math.Max(3, thickness * 0.35);
+        for (int i = 0; i <= count; i++)
+        {
+            double rad = (startDeg + sweepDeg * i / count) * Math.PI / 180;
+            double cos = Math.Cos(rad), sin = Math.Sin(rad);
+            dc.DrawLine(pen,
+                new Point(center.X + inner * cos, center.Y + inner * sin),
+                new Point(center.X + outer * cos, center.Y + outer * sin));
+        }
+    }
+
+    /// <summary>A bright dot with a soft halo at the leading edge of the value arc.</summary>
+    private static void DrawArcTip(DrawingContext dc, Point center, double radius, double thickness,
+        double tipDeg, Color color)
+    {
+        double rad = tipDeg * Math.PI / 180;
+        var tip = new Point(center.X + radius * Math.Cos(rad), center.Y + radius * Math.Sin(rad));
+
+        // Soft halo.
+        var halo = new RadialGradientBrush();
+        halo.GradientStops.Add(new GradientStop(Color.FromArgb(0x70, color.R, color.G, color.B), 0));
+        halo.GradientStops.Add(new GradientStop(Color.FromArgb(0x00, color.R, color.G, color.B), 1));
+        halo.Freeze();
+        dc.DrawEllipse(halo, null, tip, thickness * 1.4, thickness * 1.4);
+
+        // Crisp core.
+        var core = new SolidColorBrush(Color.FromRgb(0xF0, 0xFB, 0xFF));
+        core.Freeze();
+        dc.DrawEllipse(core, null, tip, thickness * 0.32, thickness * 0.32);
     }
 
     private static void DrawArc(DrawingContext dc, Point center, double radius, double startDeg, double sweepDeg, Pen pen)

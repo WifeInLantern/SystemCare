@@ -54,21 +54,34 @@ public class SparklineChart : FrameworkElement
 
         double Y(double v) => h - Math.Clamp(v / max, 0, 1) * (h - 2) - 1;
 
+        // Sample points across the width.
+        var pts = new Point[n];
+        for (int i = 0; i < n; i++) pts[i] = new Point(i * step, Y(values[i]));
+
+        // Build a smooth curve through the points using Catmull-Rom -> cubic Bezier segments,
+        // so the live graph flows instead of showing hard polyline kinks.
         var line = new StreamGeometry();
         var fill = new StreamGeometry();
         using (var lc = line.Open())
         using (var fc = fill.Open())
         {
-            var first = new Point(0, Y(values[0]));
-            lc.BeginFigure(first, false, false);
+            lc.BeginFigure(pts[0], false, false);
             fc.BeginFigure(new Point(0, h), true, true);
-            fc.LineTo(first, false, false);
+            fc.LineTo(pts[0], false, false);
 
-            for (int i = 1; i < n; i++)
+            for (int i = 0; i < n - 1; i++)
             {
-                var p = new Point(i * step, Y(values[i]));
-                lc.LineTo(p, true, true);
-                fc.LineTo(p, true, false);
+                Point p0 = pts[i == 0 ? 0 : i - 1];
+                Point p1 = pts[i];
+                Point p2 = pts[i + 1];
+                Point p3 = pts[i + 2 < n ? i + 2 : n - 1];
+
+                // Catmull-Rom -> Bezier control points (tension 1/6).
+                var c1 = new Point(p1.X + (p2.X - p0.X) / 6.0, p1.Y + (p2.Y - p0.Y) / 6.0);
+                var c2 = new Point(p2.X - (p3.X - p1.X) / 6.0, p2.Y - (p3.Y - p1.Y) / 6.0);
+
+                lc.BezierTo(c1, c2, p2, true, false);
+                fc.BezierTo(c1, c2, p2, true, false);
             }
             fc.LineTo(new Point(w, h), false, false);
         }
@@ -104,5 +117,17 @@ public class SparklineChart : FrameworkElement
         glowPen.Freeze();
         dc.DrawGeometry(null, glowPen, line);
         dc.DrawGeometry(null, pen, line);
+
+        // Glowing head dot at the latest sample — the live focal point.
+        var head = pts[n - 1];
+        var halo = new RadialGradientBrush();
+        halo.GradientStops.Add(new GradientStop(Color.FromArgb(0x80, Accent.R, Accent.G, Accent.B), 0));
+        halo.GradientStops.Add(new GradientStop(Color.FromArgb(0x00, Accent.R, Accent.G, Accent.B), 1));
+        halo.Freeze();
+        dc.DrawEllipse(halo, null, head, 7, 7);
+
+        var core = new SolidColorBrush(Color.FromRgb(0xF0, 0xFB, 0xFF));
+        core.Freeze();
+        dc.DrawEllipse(core, null, head, 2.2, 2.2);
     }
 }
