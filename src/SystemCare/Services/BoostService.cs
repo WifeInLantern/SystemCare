@@ -31,13 +31,16 @@ public class BoostService(IPowerPlanService power, IMemoryOptimizerService memor
         _previousScheme ??= power.GetActiveScheme();
         power.SetActiveScheme(power.HighPerformanceGuid);
 
-        // Pause the chosen background apps (reversible — suspend, not kill).
+        // Pause the chosen background apps (reversible — suspend, not kill). Skip any PID we've
+        // already suspended: NtSuspendProcess increments a suspend count, so suspending twice would
+        // need two resumes, leaving the app frozen after a single Restore.
         int paused = 0;
         foreach (int pid in pidsToSuspend)
         {
+            if (_suspended.Contains(pid)) continue;
             if (SuspendOrResume(pid, suspend: true))
             {
-                if (!_suspended.Contains(pid)) _suspended.Add(pid);
+                _suspended.Add(pid);
                 paused++;
             }
         }

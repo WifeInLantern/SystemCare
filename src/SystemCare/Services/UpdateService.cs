@@ -57,15 +57,17 @@ public class UpdateService(ISettingsService settings) : IUpdateService
             // Pick the best downloadable asset (prefer the installer, then any .exe).
             string? assetApi = null, assetDownload = null, assetName = "";
             long assetSize = 0;
-            if (root.TryGetProperty("assets", out var assets) && assets.ValueKind == JsonValueKind.Array)
+            bool hasAssetsArray = root.TryGetProperty("assets", out var assets) && assets.ValueKind == JsonValueKind.Array;
+            if (hasAssetsArray)
             {
                 JsonElement? best = null;
                 foreach (var a in assets.EnumerateArray())
                 {
                     string n = GetStr(a, "name") ?? "";
+                    // Only ever treat an .exe as the installer — never fall back to launching an
+                    // arbitrary asset (a .zip, source archive, checksum file, …) as if it were one.
                     if (n.EndsWith("Setup.exe", StringComparison.OrdinalIgnoreCase)) { best = a; break; }
                     if (best is null && n.EndsWith(".exe", StringComparison.OrdinalIgnoreCase)) best = a;
-                    best ??= a;
                 }
                 if (best is JsonElement chosen)
                 {
@@ -75,8 +77,9 @@ public class UpdateService(ISettingsService settings) : IUpdateService
                     assetSize = chosen.TryGetProperty("size", out var s) && s.ValueKind == JsonValueKind.Number ? s.GetInt64() : 0;
                 }
             }
-            // A simple custom feed may put the download url under "url".
-            if (assetDownload is null && assetApi is null)
+            // A simple custom feed (no GitHub-style "assets" array) may put the download url under "url".
+            // Never do this for a GitHub release, whose root "url" is the release API endpoint, not a file.
+            if (assetDownload is null && assetApi is null && !hasAssetsArray)
                 assetDownload = GetStr(root, "url");
 
             if (Version.TryParse(version, out var remote) &&

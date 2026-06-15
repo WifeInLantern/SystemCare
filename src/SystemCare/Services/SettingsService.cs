@@ -13,6 +13,7 @@ public interface ISettingsService
 public class SettingsService : ISettingsService
 {
     private static readonly JsonSerializerOptions JsonOptions = new() { WriteIndented = true };
+    private readonly object _saveGate = new();
 
     public string SettingsDirectory { get; } = Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "SystemCare");
@@ -42,16 +43,22 @@ public class SettingsService : ISettingsService
 
     public void Save()
     {
-        try
+        // The settings singleton is written from several threads (UI toggles, background scans,
+        // scheduled maintenance). Serialize writes and use a per-call temp file so two concurrent
+        // saves can't clobber each other's temp and fail the File.Move (which silently lost a write).
+        lock (_saveGate)
         {
-            Directory.CreateDirectory(SettingsDirectory);
-            string tmp = SettingsPath + ".tmp";
-            File.WriteAllText(tmp, JsonSerializer.Serialize(Current, JsonOptions));
-            File.Move(tmp, SettingsPath, overwrite: true);
-        }
-        catch (Exception)
-        {
-            // never crash over settings persistence
+            try
+            {
+                Directory.CreateDirectory(SettingsDirectory);
+                string tmp = SettingsPath + "." + Guid.NewGuid().ToString("N") + ".tmp";
+                File.WriteAllText(tmp, JsonSerializer.Serialize(Current, JsonOptions));
+                File.Move(tmp, SettingsPath, overwrite: true);
+            }
+            catch (Exception)
+            {
+                // never crash over settings persistence
+            }
         }
     }
 }
