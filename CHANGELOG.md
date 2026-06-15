@@ -2,6 +2,13 @@
 
 All notable changes to SystemCare are documented here. Versions follow [SemVer](https://semver.org/).
 
+## [1.3.1] - 2026-06-15
+
+### Fixed
+- **Startup splash showed the old logo.** The native splash image (`Assets/splash.png`, shown by the
+  app host before the UI loads) still had the previous checkmark logo baked in, so the new neon-shield
+  logo only appeared once the animated splash took over. The splash image now uses the new logo.
+
 ## [1.3.0] - 2026-06-15
 
 A bug-fix and hardening release from a full audit of the services and view-models.
@@ -48,5 +55,6 @@ A bug-fix and hardening release from a full audit of the services and view-model
 ## [1.0.0]
 - Initial release: cleanup, privacy, duplicates, disk tools, startup, boost, tweaks, security, and more.
 
+[1.3.1]: https://github.com/WifeInLantern/SystemCare/releases/tag/v1.3.1
 [1.3.0]: https://github.com/WifeInLantern/SystemCare/releases/tag/v1.3.0
 [1.2.0]: https://github.com/WifeInLantern/SystemCare/releases/tag/v1.2.0
