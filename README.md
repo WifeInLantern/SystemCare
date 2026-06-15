@@ -37,12 +37,14 @@ maintenance, and more - all in one self-contained executable that needs no .NET 
 - [Tech stack](#tech-stack)
 - [Safety & privacy](#safety--privacy)
 - [Auto-update & configuration](#auto-update--configuration)
+- [Changelog](#changelog)
 - [License](#license)
 - [Disclaimer](#disclaimer)
 
 ## Highlights
 
 - 🧹 **One dashboard, 25+ tools** - grouped into **Clean / Optimize / Analyze / Protect**.
+- ✨ **Refined neon dashboard** - an animated health gauge, flowing live graphs, counting stats, colour-shifting drive bars and staggered entrances.
 - 💯 **PC Health score** - a single 0-100 gauge from junk, startup load, memory pressure and **security posture**, with one-click **Fix all**.
 - 📦 **Software Updater** - update all your installed apps via `winget`, with per-app ignore lists and "Update all".
 - 🔧 **Driver Updater** - finds newer drivers through the Windows Update catalog and installs them in-app.
@@ -54,10 +56,13 @@ maintenance, and more - all in one self-contained executable that needs no .NET 
 ## Features
 
 ### 🏠 Dashboard
-Animated PC **health-score gauge** plus live CPU, RAM and per-drive stats. One-click **Scan** and
-**Fix all** (clean junk + trim RAM, then re-score). The score now also factors in your **security
-posture** (Defender, firewall, UAC, Remote Desktop, Windows Update). A customizable row of
-**quick-action tiles** (Scan & Fix, Free RAM, Flush DNS, Empty Recycle Bin, Create restore point).
+A refined, animated hero screen. The **health-score gauge** sweeps to its value with a glowing tip and
+tick marks; live CPU and RAM readouts **count up smoothly** above **flowing sparkline graphs**; and
+per-drive bars **glide** to their fill and shift colour (cyan -> magenta) as a disk fills. One-click
+**Scan** and **Fix all** (clean junk + trim RAM, then re-score). The score also factors in your
+**security posture** (Defender, firewall, UAC, Remote Desktop, Windows Update). Cards and tiles cascade
+in with a gentle staggered reveal, and a customizable row of **quick-action tiles** (Scan & Fix, Free
+RAM, Flush DNS, Empty Recycle Bin, Create restore point) sits below.
 
 ### 🧹 Clean
 - **Junk Cleanup** - temp files, Windows Update cache, thumbnail cache, error reports, crash dumps,
@@ -241,6 +246,17 @@ downloads it and offers to install. Defaults target this repo's GitHub releases.
 - `UpdateGitHubToken` - optional token for a **private** release repo (only sent to GitHub over HTTPS).
 - Plus auto-maintenance schedule, minimize-to-tray, restore-point safety, cleanup exclusions & custom
   folders, dashboard quick-actions, temp-age protection and large-file thresholds.
+
+## Changelog
+
+See [CHANGELOG.md](CHANGELOG.md) for the full version history. Recent highlights:
+
+- **1.4.0** - refined Dashboard: smoother graphics and subtle new animations (glowing gauge tip + tick
+  marks, flowing sparklines, counting CPU/RAM stats, gliding colour-shift drive bars, staggered entrances).
+- **1.3.x** - reliable System Restore points (fixed the 24h-throttle silent no-op), settings/boost/updater
+  bug fixes, and the new neon-shield logo across the app and splash.
+- **1.2.0** - Software Updater (winget), diagnostic logging, security-aware health score, and updater
+  hardening.
 
 ## License
 
