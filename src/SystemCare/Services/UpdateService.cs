@@ -109,11 +109,16 @@ public class UpdateService(ISettingsService settings) : IUpdateService
         // For private repos, download via the asset API url with octet-stream + auth (302 → signed URL).
         string url = hasToken && !string.IsNullOrEmpty(info.AssetApiUrl) ? info.AssetApiUrl! : info.AssetDownloadUrl!;
 
+        // The downloaded file is launched with administrator rights, so only ever fetch it over HTTPS —
+        // a plaintext download could be tampered with in transit (MITM) to run arbitrary code as admin.
+        if (!IsHttps(url)) return null;
+
         try
         {
             using var request = new HttpRequestMessage(HttpMethod.Get, url);
             request.Headers.UserAgent.ParseAdd("SystemCare-UpdateCheck");
-            if (hasToken)
+            // Only send the token to GitHub itself, never to an arbitrary asset/redirect host.
+            if (hasToken && IsGitHubHost(url))
             {
                 request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", settings.Current.UpdateGitHubToken);
                 request.Headers.Accept.ParseAdd("application/octet-stream");
@@ -161,9 +166,23 @@ public class UpdateService(ISettingsService settings) : IUpdateService
             request.Headers.Accept.ParseAdd("application/vnd.github+json");
             request.Headers.Add("X-GitHub-Api-Version", "2022-11-28");
         }
-        if (!string.IsNullOrWhiteSpace(settings.Current.UpdateGitHubToken))
+        // Only attach the access token when the feed is actually a GitHub host over HTTPS, so a custom
+        // (or hijacked) feed URL can't be used to exfiltrate the user's token.
+        if (!string.IsNullOrWhiteSpace(settings.Current.UpdateGitHubToken) && IsGitHubHost(FeedUrl))
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", settings.Current.UpdateGitHubToken);
     }
+
+    private static bool IsHttps(string url) =>
+        Uri.TryCreate(url, UriKind.Absolute, out var u) && u.Scheme == Uri.UriSchemeHttps;
+
+    /// <summary>True only for HTTPS GitHub hosts (api.github.com, github.com, *.githubusercontent.com).</summary>
+    private static bool IsGitHubHost(string url) =>
+        Uri.TryCreate(url, UriKind.Absolute, out var u) &&
+        u.Scheme == Uri.UriSchemeHttps &&
+        (u.Host.Equals("github.com", StringComparison.OrdinalIgnoreCase) ||
+         u.Host.Equals("api.github.com", StringComparison.OrdinalIgnoreCase) ||
+         u.Host.EndsWith(".github.com", StringComparison.OrdinalIgnoreCase) ||
+         u.Host.EndsWith(".githubusercontent.com", StringComparison.OrdinalIgnoreCase));
 
     private static string? GetStr(JsonElement el, string prop) =>
         el.TryGetProperty(prop, out var v) && v.ValueKind == JsonValueKind.String ? v.GetString() : null;
