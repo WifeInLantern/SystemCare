@@ -6,4 +6,9 @@ obj/
 # Visual Studio / VS Code
 .vs/
 
-# Note: dist/ (the built exe + installer) IS tracked in this repo by request.
+# Built artifacts (exe + installer) — distributed via GitHub Releases, not committed.
+dist/
+
+# Per-release notes live in CHANGELOG.md and on the GitHub release pages.
+RELEASE_NOTES_*.md
+

@@ -62,9 +62,10 @@
     <SolidColorBrush x:Key="TextFillColorTertiaryBrush" Color="{StaticResource TextTertiaryColor}" />
     <SolidColorBrush x:Key="TextFillColorDisabledBrush" Color="#3A4A60" />
 
-    <!-- Dark text shows on the bright cyan accent (buttons etc.) for contrast -->
-    <SolidColorBrush x:Key="TextOnAccentFillColorPrimaryBrush" Color="#05070B" />
-    <SolidColorBrush x:Key="TextOnAccentFillColorSecondaryBrush" Color="#0A0E14" />
+    <!-- White text on accent-colored surfaces (buttons, selected items), by request. -->
+    <SolidColorBrush x:Key="TextOnAccentFillColorPrimaryBrush" Color="#FFFFFF" />
+    <SolidColorBrush x:Key="TextOnAccentFillColorSecondaryBrush" Color="#FFFFFF" />
+    <SolidColorBrush x:Key="TextOnAccentFillColorDisabledBrush" Color="#C8E9FF" />
 
     <!-- Angular corners for the cyber feel (cards, inputs, flyouts) -->
     <CornerRadius x:Key="ControlCornerRadius">4</CornerRadius>

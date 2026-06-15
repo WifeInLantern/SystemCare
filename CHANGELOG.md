@@ -2,6 +2,18 @@
 
 All notable changes to SystemCare are documented here. Versions follow [SemVer](https://semver.org/).
 
+## [1.4.1] - 2026-06-15
+
+### Fixed
+- **GPU VRAM under-reported in System Info.** The GPU's memory was read from WMI's
+  `Win32_VideoController.AdapterRAM`, a 32-bit value that caps at ~4 GB, so cards with more memory
+  (e.g. a 12 GB GPU) showed 4 GB. It now reads the true 64-bit size from the adapter's registry
+  `HardwareInformation.qwMemorySize`, falling back to the WMI value if unavailable.
+
+### Changed
+- Text on accent-coloured surfaces (Primary/Success buttons, selected items) is now **white** instead
+  of near-black.
+
 ## [1.4.0] - 2026-06-15
 
 ### Changed
@@ -69,6 +81,7 @@ A bug-fix and hardening release from a full audit of the services and view-model
 ## [1.0.0]
 - Initial release: cleanup, privacy, duplicates, disk tools, startup, boost, tweaks, security, and more.
 
+[1.4.1]: https://github.com/WifeInLantern/SystemCare/releases/tag/v1.4.1
 [1.4.0]: https://github.com/WifeInLantern/SystemCare/releases/tag/v1.4.0
 [1.3.1]: https://github.com/WifeInLantern/SystemCare/releases/tag/v1.3.1
 [1.3.0]: https://github.com/WifeInLantern/SystemCare/releases/tag/v1.3.0

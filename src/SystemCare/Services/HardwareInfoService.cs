@@ -1,4 +1,6 @@
 using System.Management;
+using System.Text.RegularExpressions;
+using Microsoft.Win32;
 using SystemCare.Helpers;
 using SystemCare.Models;
 
@@ -62,7 +64,7 @@ public class HardwareInfoService : IHardwareInfoService
         {
             string name = Str(mo, "Name");
             if (string.IsNullOrWhiteSpace(name)) continue;
-            long vram = Long(mo, "AdapterRAM");
+            long vram = ResolveVramBytes(name, Long(mo, "AdapterRAM"));
             report.Specs.Add(new HardwareSpec
             {
                 Category = "Graphics", Icon = "VideoClip24",
@@ -100,6 +102,43 @@ public class HardwareInfoService : IHardwareInfoService
         _cached = report;
         return report;
     });
+
+    /// <summary>
+    /// Win32_VideoController.AdapterRAM is a <c>uint32</c>, so it caps at ~4 GB and under-reports any
+    /// larger GPU (e.g. a 12 GB card shows 4 GB). The true size is exposed as a 64-bit
+    /// <c>HardwareInformation.qwMemorySize</c> on the adapter's registry key — read that instead.
+    /// </summary>
+    private static long ResolveVramBytes(string gpuName, long adapterRam)
+    {
+        try
+        {
+            using var classKey = Registry.LocalMachine.OpenSubKey(
+                @"SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}");
+            if (classKey is null) return adapterRam;
+
+            long best = adapterRam;
+            foreach (var sub in classKey.GetSubKeyNames())
+            {
+                if (!Regex.IsMatch(sub, @"^\d{4}$")) continue; // adapter instances: 0000, 0001, …
+                using var k = classKey.OpenSubKey(sub);
+                if (k?.GetValue("DriverDesc") is not string desc || desc.Length == 0) continue;
+                if (!NameMatches(desc, gpuName)) continue;
+
+                if (k.GetValue("HardwareInformation.qwMemorySize") is long qw && qw > best)
+                    best = qw;
+            }
+            return best;
+        }
+        catch (Exception)
+        {
+            return adapterRam;
+        }
+    }
+
+    private static bool NameMatches(string a, string b) =>
+        a.Equals(b, StringComparison.OrdinalIgnoreCase) ||
+        a.Contains(b, StringComparison.OrdinalIgnoreCase) ||
+        b.Contains(a, StringComparison.OrdinalIgnoreCase);
 
     private static IEnumerable<ManagementObject> Query(string className)
     {
