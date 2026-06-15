@@ -66,6 +66,7 @@ public partial class App : Application
         services.AddSingleton<IBoostService, BoostService>();
         services.AddSingleton<IFileShredderService, FileShredderService>();
         services.AddSingleton<IDriverUpdateService, DriverUpdateService>();
+        services.AddSingleton<ISoftwareUpdateService, SoftwareUpdateService>();
 
         // Window
         services.AddSingleton<MainWindow>();
@@ -92,6 +93,7 @@ public partial class App : Application
         services.AddSingleton<BoostViewModel>();
         services.AddSingleton<FileShredderViewModel>();
         services.AddSingleton<DriverUpdateViewModel>();
+        services.AddSingleton<SoftwareUpdateViewModel>();
         services.AddSingleton<SettingsViewModel>();
         services.AddSingleton<HistoryViewModel>();
 
@@ -117,6 +119,7 @@ public partial class App : Application
         services.AddTransient<BoostPage>();
         services.AddTransient<FileShredderPage>();
         services.AddTransient<DriverUpdatePage>();
+        services.AddTransient<SoftwareUpdatePage>();
         services.AddTransient<SettingsPage>();
         services.AddTransient<HistoryPage>();
 

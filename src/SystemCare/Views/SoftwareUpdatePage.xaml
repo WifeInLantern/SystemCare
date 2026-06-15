@@ -1,0 +1,106 @@
+<Page x:Class="SystemCare.Views.SoftwareUpdatePage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+      xmlns:converters="clr-namespace:SystemCare.Converters"
+      xmlns:vm="clr-namespace:SystemCare.ViewModels"
+      mc:Ignorable="d"
+      d:DataContext="{d:DesignInstance Type=vm:SoftwareUpdateViewModel}"
+      Title="Software Updater"
+      Loaded="OnPageLoaded">
+    <Page.Resources>
+        <converters:BoolToVisibilityConverter x:Key="VisibleWhenTrue" />
+        <converters:InverseBoolConverter x:Key="Not" />
+    </Page.Resources>
+
+    <Grid Margin="24,12,24,24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <StackPanel Grid.Row="0">
+            <TextBlock Text="Software Updater" FontSize="24" FontWeight="SemiBold" />
+            <TextBlock Text="Keeps your installed apps up to date using the Windows Package Manager (winget). A restore point is created before updating."
+                       FontSize="13" Opacity="0.7" Margin="0,4,0,0" TextWrapping="Wrap" />
+        </StackPanel>
+
+        <!-- Toolbar -->
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,14,0,8">
+            <ui:Button Content="Check for updates" Appearance="Primary" Padding="20,8"
+                       Command="{Binding CheckCommand}"
+                       IsEnabled="{Binding IsChecking, Converter={StaticResource Not}}">
+                <ui:Button.Icon><ui:SymbolIcon Symbol="ArrowSync24" /></ui:Button.Icon>
+            </ui:Button>
+            <ui:Button Content="Cancel" Padding="16,8" Margin="8,0,0,0"
+                       Command="{Binding CheckCancelCommand}"
+                       Visibility="{Binding IsChecking, Converter={StaticResource VisibleWhenTrue}}" />
+        </StackPanel>
+
+        <!-- winget unavailable -->
+        <ui:InfoBar Grid.Row="2" Severity="Warning" IsOpen="True" Margin="0,0,0,4"
+                    Title="Windows Package Manager not found"
+                    Message="Install 'App Installer' from the Microsoft Store to enable software updates."
+                    Visibility="{Binding IsWingetMissing, Converter={StaticResource VisibleWhenTrue}}" />
+
+        <!-- Status + progress -->
+        <StackPanel Grid.Row="3" Margin="0,0,0,4">
+            <ProgressBar IsIndeterminate="True" Height="4"
+                         Visibility="{Binding IsChecking, Converter={StaticResource VisibleWhenTrue}}" />
+            <ProgressBar Maximum="100" Height="4" Value="{Binding InstallProgress}"
+                         Visibility="{Binding IsUpdating, Converter={StaticResource VisibleWhenTrue}}" />
+            <TextBlock Text="{Binding StatusText}" FontSize="12" Opacity="0.7" Margin="0,6,0,0"
+                       TextTrimming="CharacterEllipsis" />
+        </StackPanel>
+
+        <!-- Available updates header -->
+        <Grid Grid.Row="4" Margin="0,12,0,0"
+              Visibility="{Binding HasChecked, Converter={StaticResource VisibleWhenTrue}}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" Text="AVAILABLE UPDATES" Style="{StaticResource CyberSectionHeader}"
+                       VerticalAlignment="Center" />
+            <ui:Button Grid.Column="1" Content="Update selected" Appearance="Primary" Padding="18,7"
+                       Command="{Binding UpdateSelectedCommand}"
+                       IsEnabled="{Binding IsUpdating, Converter={StaticResource Not}}">
+                <ui:Button.Icon><ui:SymbolIcon Symbol="ArrowDownload24" /></ui:Button.Icon>
+            </ui:Button>
+        </Grid>
+
+        <!-- Updates list -->
+        <ui:ListView Grid.Row="5" ItemsSource="{Binding Updates}" Margin="0,8,0,0"
+                     VirtualizingPanel.IsVirtualizing="True"
+                     Visibility="{Binding HasChecked, Converter={StaticResource VisibleWhenTrue}}"
+                     ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+            <ui:ListView.ItemTemplate>
+                <DataTemplate>
+                    <Grid Margin="0,5">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <CheckBox Grid.Column="0" IsChecked="{Binding IsSelected}" VerticalAlignment="Center" />
+                        <StackPanel Grid.Column="1" Margin="10,0,12,0" VerticalAlignment="Center">
+                            <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+                            <TextBlock FontSize="11" Opacity="0.55" TextTrimming="CharacterEllipsis">
+                                <Run Text="{Binding Id, Mode=OneWay}" /><Run Text="  ·  " /><Run Text="{Binding Source, Mode=OneWay}" />
+                            </TextBlock>
+                        </StackPanel>
+                        <TextBlock Grid.Column="2" Text="{Binding VersionChangeText}" FontSize="12" FontWeight="SemiBold"
+                                   Foreground="{StaticResource NeonCyanBrush}" VerticalAlignment="Center" />
+                    </Grid>
+                </DataTemplate>
+            </ui:ListView.ItemTemplate>
+        </ui:ListView>
+    </Grid>
+</Page>

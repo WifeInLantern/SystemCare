@@ -112,6 +112,11 @@
                         <ui:SymbolIcon Symbol="DeveloperBoard24" />
                     </ui:NavigationViewItem.Icon>
                 </ui:NavigationViewItem>
+                <ui:NavigationViewItem Content="Software Updater" TargetPageType="{x:Type views:SoftwareUpdatePage}" ToolTipService.ToolTip="Update installed apps (winget)">
+                    <ui:NavigationViewItem.Icon>
+                        <ui:SymbolIcon Symbol="ArrowSync24" />
+                    </ui:NavigationViewItem.Icon>
+                </ui:NavigationViewItem>
 
                 <ui:NavigationViewItemHeader Text="Analyze" />
                 <ui:NavigationViewItem Content="Disk" TargetPageType="{x:Type views:DiskAnalyzerPage}" ToolTipService.ToolTip="Disk Analyzer">
