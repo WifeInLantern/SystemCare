@@ -62,10 +62,9 @@
     <SolidColorBrush x:Key="TextFillColorTertiaryBrush" Color="{StaticResource TextTertiaryColor}" />
     <SolidColorBrush x:Key="TextFillColorDisabledBrush" Color="#3A4A60" />
 
-    <!-- White text on accent-colored surfaces (buttons, selected items), by request. -->
-    <SolidColorBrush x:Key="TextOnAccentFillColorPrimaryBrush" Color="#FFFFFF" />
-    <SolidColorBrush x:Key="TextOnAccentFillColorSecondaryBrush" Color="#FFFFFF" />
-    <SolidColorBrush x:Key="TextOnAccentFillColorDisabledBrush" Color="#C8E9FF" />
+    <!-- Dark text shows on the bright cyan/green accent (buttons etc.) for contrast -->
+    <SolidColorBrush x:Key="TextOnAccentFillColorPrimaryBrush" Color="#05070B" />
+    <SolidColorBrush x:Key="TextOnAccentFillColorSecondaryBrush" Color="#0A0E14" />
 
     <!-- Angular corners for the cyber feel (cards, inputs, flyouts) -->
     <CornerRadius x:Key="ControlCornerRadius">4</CornerRadius>
@@ -81,6 +80,18 @@
         <Setter Property="Effect">
             <Setter.Value>
                 <DropShadowEffect Color="{StaticResource AccentColor}" ShadowDepth="0" BlurRadius="16" Opacity="0.55" />
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Page H1 title: bright, readable heading (plain TextBlocks otherwise fall back to dark). -->
+    <Style x:Key="CyberPageTitle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="24" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Foreground" Value="{StaticResource TextFillColorPrimaryBrush}" />
+        <Setter Property="Effect">
+            <Setter.Value>
+                <DropShadowEffect Color="{StaticResource AccentColor}" ShadowDepth="0" BlurRadius="10" Opacity="0.3" />
             </Setter.Value>
         </Setter>
     </Style>

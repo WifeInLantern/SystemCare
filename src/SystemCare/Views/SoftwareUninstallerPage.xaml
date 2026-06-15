@@ -23,7 +23,7 @@
         </Grid.RowDefinitions>
 
         <StackPanel Grid.Row="0">
-            <TextBlock Text="Software Uninstaller" FontSize="24" FontWeight="SemiBold" />
+            <TextBlock Text="Software Uninstaller" Style="{StaticResource CyberPageTitle}" />
             <TextBlock Text="Remove installed programs. This runs each program's own uninstaller."
                        FontSize="13" Opacity="0.7" Margin="0,4,0,0" TextWrapping="Wrap" />
         </StackPanel>

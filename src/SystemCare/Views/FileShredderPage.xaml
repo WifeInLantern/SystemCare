@@ -24,7 +24,7 @@
         </Grid.RowDefinitions>
 
         <StackPanel Grid.Row="0">
-            <TextBlock Text="File Shredder" FontSize="24" FontWeight="SemiBold" />
+            <TextBlock Text="File Shredder" Style="{StaticResource CyberPageTitle}" />
             <TextBlock Text="Permanently erase files by overwriting them before deletion. Shredded files cannot be recovered. (On SSDs, wear-levelling means overwriting isn't a 100% guarantee.)"
                        FontSize="13" Opacity="0.7" Margin="0,4,0,0" TextWrapping="Wrap" />
         </StackPanel>

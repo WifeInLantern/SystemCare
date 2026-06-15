@@ -23,7 +23,7 @@
         </Grid.RowDefinitions>
 
         <StackPanel Grid.Row="0">
-            <TextBlock Text="Empty Folder Finder" FontSize="24" FontWeight="SemiBold" />
+            <TextBlock Text="Empty Folder Finder" Style="{StaticResource CyberPageTitle}" />
             <TextBlock Text="{Binding StatusText}" FontSize="13" Opacity="0.75" Margin="0,4,0,0" TextWrapping="Wrap" />
         </StackPanel>
 

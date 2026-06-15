@@ -24,7 +24,7 @@
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <TextBlock Grid.Row="0" Text="Disk Space Analyzer" FontSize="24" FontWeight="SemiBold" />
+        <TextBlock Grid.Row="0" Text="Disk Space Analyzer" Style="{StaticResource CyberPageTitle}" />
 
         <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,14,0,10">
             <ComboBox MinWidth="220" ItemsSource="{Binding ScanTargets}" SelectedItem="{Binding SelectedTarget}" />

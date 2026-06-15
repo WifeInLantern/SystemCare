@@ -23,7 +23,7 @@
         </Grid.RowDefinitions>
 
         <StackPanel Grid.Row="0">
-            <TextBlock Text="Junk Cleanup" FontSize="24" FontWeight="SemiBold" />
+            <TextBlock Text="Junk Cleanup" Style="{StaticResource CyberPageTitle}" />
             <TextBlock Text="{Binding TotalText}" FontSize="14" Opacity="0.8" Margin="0,6,0,0" />
         </StackPanel>
 

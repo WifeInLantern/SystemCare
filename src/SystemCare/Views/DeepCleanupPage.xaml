@@ -24,7 +24,7 @@
         </Grid.RowDefinitions>
 
         <StackPanel Grid.Row="0">
-            <TextBlock Text="Deep Windows Cleanup" FontSize="24" FontWeight="SemiBold" />
+            <TextBlock Text="Deep Windows Cleanup" Style="{StaticResource CyberPageTitle}" />
             <TextBlock Text="Reclaim large amounts of space from Windows-managed areas. Some tasks take several minutes."
                        FontSize="13" Opacity="0.7" Margin="0,4,0,0" TextWrapping="Wrap" />
         </StackPanel>

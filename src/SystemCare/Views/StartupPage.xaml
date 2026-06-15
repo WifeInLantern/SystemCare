@@ -23,7 +23,7 @@
         </Grid.RowDefinitions>
 
         <StackPanel Grid.Row="0">
-            <TextBlock Text="Startup Manager" FontSize="24" FontWeight="SemiBold" />
+            <TextBlock Text="Startup Manager" Style="{StaticResource CyberPageTitle}" />
             <TextBlock Text="Programs and tasks that launch when Windows starts. Disabling keeps the entry so you can re-enable it later."
                        FontSize="13" Opacity="0.7" Margin="0,4,0,0" TextWrapping="Wrap" />
         </StackPanel>

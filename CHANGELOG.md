@@ -2,6 +2,15 @@
 
 All notable changes to SystemCare are documented here. Versions follow [SemVer](https://semver.org/).
 
+## [1.4.2] - 2026-06-15
+
+### Fixed
+- **Page titles were hard to read.** Each page heading (e.g. "Junk Cleanup") was a plain `TextBlock`
+  with no colour set, so it fell back to a dark default against the dark background. All page titles now
+  use a shared bright heading style (`CyberPageTitle`).
+- Reverted the 1.4.1 white accent-button text: dark text on the bright cyan/green buttons reads better
+  than white. (The white-text request actually meant the dark page titles above.)
+
 ## [1.4.1] - 2026-06-15
 
 ### Fixed
@@ -81,6 +90,7 @@ A bug-fix and hardening release from a full audit of the services and view-model
 ## [1.0.0]
 - Initial release: cleanup, privacy, duplicates, disk tools, startup, boost, tweaks, security, and more.
 
+[1.4.2]: https://github.com/WifeInLantern/SystemCare/releases/tag/v1.4.2
 [1.4.1]: https://github.com/WifeInLantern/SystemCare/releases/tag/v1.4.1
 [1.4.0]: https://github.com/WifeInLantern/SystemCare/releases/tag/v1.4.0
 [1.3.1]: https://github.com/WifeInLantern/SystemCare/releases/tag/v1.3.1

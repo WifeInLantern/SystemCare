@@ -11,7 +11,7 @@
       Loaded="OnPageLoaded">
     <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="24,12,24,24">
         <StackPanel MaxWidth="820" HorizontalAlignment="Left">
-            <TextBlock Text="Windows Tweaks" FontSize="24" FontWeight="SemiBold" />
+            <TextBlock Text="Windows Tweaks" Style="{StaticResource CyberPageTitle}" />
             <TextBlock Text="Reversible tweaks to tune performance, privacy and Explorer. Toggle off to revert."
                        FontSize="13" Opacity="0.7" Margin="0,4,0,0" TextWrapping="Wrap" />
 

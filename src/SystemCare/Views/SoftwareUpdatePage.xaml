@@ -28,7 +28,7 @@
 
         <!-- Header -->
         <StackPanel Grid.Row="0">
-            <TextBlock Text="Software Updater" FontSize="24" FontWeight="SemiBold" />
+            <TextBlock Text="Software Updater" Style="{StaticResource CyberPageTitle}" />
             <TextBlock Text="Keeps your installed apps up to date using the Windows Package Manager (winget). A restore point is created before updating."
                        FontSize="13" Opacity="0.7" Margin="0,4,0,0" TextWrapping="Wrap" />
         </StackPanel>

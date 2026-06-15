@@ -23,7 +23,7 @@
         </Grid.RowDefinitions>
 
         <StackPanel Grid.Row="0">
-            <TextBlock Text="Activity History" FontSize="24" FontWeight="SemiBold" />
+            <TextBlock Text="Activity History" Style="{StaticResource CyberPageTitle}" />
             <TextBlock Text="What SystemCare has cleaned, freed and changed on this PC."
                        FontSize="13" Opacity="0.7" Margin="0,4,0,0" TextWrapping="Wrap" />
         </StackPanel>

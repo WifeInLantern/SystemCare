@@ -20,7 +20,7 @@
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <TextBlock Grid.Row="0" Text="Network Tools" FontSize="24" FontWeight="SemiBold" Margin="0,0,0,12" />
+        <TextBlock Grid.Row="0" Text="Network Tools" Style="{StaticResource CyberPageTitle}" Margin="0,0,0,12" />
 
         <TabControl Grid.Row="1">
             <TabItem Header="Connections">

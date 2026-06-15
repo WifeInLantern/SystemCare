@@ -27,7 +27,7 @@
 
         <!-- Header -->
         <StackPanel Grid.Row="0">
-            <TextBlock Text="Driver Updater" FontSize="24" FontWeight="SemiBold" />
+            <TextBlock Text="Driver Updater" Style="{StaticResource CyberPageTitle}" />
             <TextBlock Text="Checks Windows Update for newer drivers and installs them safely. Coverage is what Microsoft distributes (most major vendors)."
                        FontSize="13" Opacity="0.7" Margin="0,4,0,0" TextWrapping="Wrap" />
         </StackPanel>
