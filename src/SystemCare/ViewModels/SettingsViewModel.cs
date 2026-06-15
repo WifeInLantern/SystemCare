@@ -16,6 +16,7 @@ public partial class SettingsViewModel : ObservableObject
     private readonly IScheduledMaintenanceService _maintenance;
     private readonly IUpdateService _updates;
     private readonly ISnackbarService _snackbar;
+    private readonly ILogService _log;
 
     [ObservableProperty] private int _skipTempNewerThanHours;
     [ObservableProperty] private int _largeFileMinMB;
@@ -48,12 +49,13 @@ public partial class SettingsViewModel : ObservableObject
     public string ElevationText { get; }
 
     public SettingsViewModel(ISettingsService settings, IScheduledMaintenanceService maintenance,
-        IUpdateService updates, ISnackbarService snackbar)
+        IUpdateService updates, ISnackbarService snackbar, ILogService log)
     {
         _settings = settings;
         _maintenance = maintenance;
         _updates = updates;
         _snackbar = snackbar;
+        _log = log;
         _skipTempNewerThanHours = settings.Current.SkipTempNewerThanHours;
         _largeFileMinMB = settings.Current.LargeFileMinMB;
         _largeFileTopN = settings.Current.LargeFileTopN;
@@ -270,6 +272,17 @@ public partial class SettingsViewModel : ObservableObject
         {
             Directory.CreateDirectory(_settings.SettingsDirectory);
             Process.Start(new ProcessStartInfo("explorer.exe", $"\"{_settings.SettingsDirectory}\"") { UseShellExecute = true });
+        }
+        catch (Exception) { }
+    }
+
+    [RelayCommand]
+    private void OpenLogsFolder()
+    {
+        try
+        {
+            Directory.CreateDirectory(_log.LogDirectory);
+            Process.Start(new ProcessStartInfo("explorer.exe", $"\"{_log.LogDirectory}\"") { UseShellExecute = true });
         }
         catch (Exception) { }
     }

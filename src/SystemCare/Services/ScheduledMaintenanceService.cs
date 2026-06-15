@@ -25,7 +25,8 @@ public class ScheduledMaintenanceService(
     IJunkScanService junkScan,
     IMemoryOptimizerService memoryOptimizer,
     ISettingsService settings,
-    IHistoryService history) : IScheduledMaintenanceService
+    IHistoryService history,
+    ILogService log) : IScheduledMaintenanceService
 {
     private const string TaskName = "SystemCare Auto Maintenance";
 
@@ -69,10 +70,12 @@ public class ScheduledMaintenanceService(
             td.Settings.DisallowStartIfOnBatteries = false;
 
             ts.RootFolder.RegisterTaskDefinition(TaskName, td);
+            log.Info("Maintenance", $"Scheduled task registered ({settings.Current.MaintenanceFrequency}).");
         }
-        catch (Exception)
+        catch (Exception ex)
         {
             // scheduling is best-effort; never crash the app over it
+            log.Warn("Maintenance", $"Could not sync scheduled task: {ex.Message}");
         }
     }
 
@@ -93,6 +96,9 @@ public class ScheduledMaintenanceService(
         history.Record("Auto maintenance",
             $"Cleaned {ByteFormatter.Format(clean.BytesRemoved)} of junk · freed {ByteFormatter.Format(ram.BytesFreed)} of RAM",
             clean.BytesRemoved, clean.FilesRemoved, "Broom24");
+
+        log.Info("Maintenance",
+            $"Maintenance done — removed {ByteFormatter.Format(clean.BytesRemoved)} junk in {clean.FilesRemoved} file(s), freed {ByteFormatter.Format(ram.BytesFreed)} RAM.");
 
         return new MaintenanceResult
         {

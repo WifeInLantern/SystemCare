@@ -32,6 +32,7 @@ public partial class App : Application
         services.AddSingleton<ISnackbarService, SnackbarService>();
         services.AddSingleton<IContentDialogService, ContentDialogService>();
         services.AddSingleton<ISettingsService, SettingsService>();
+        services.AddSingleton<ILogService, LogService>();
 
         // Domain services
         services.AddSingleton<ISystemInfoService, SystemInfoService>();
@@ -134,6 +135,8 @@ public partial class App : Application
         if (e.Args.Contains("--run-maintenance"))
         {
             ShutdownMode = ShutdownMode.OnExplicitShutdown;
+            var log = _services.GetRequiredService<ILogService>();
+            log.Info("Maintenance", "Headless scheduled maintenance started (--run-maintenance).");
             var tray = _services.GetRequiredService<ITrayIconService>();
             tray.Initialize();
             try
@@ -143,7 +146,7 @@ public partial class App : Application
                     $"Removed {Helpers.ByteFormatter.Format(result.BytesRemoved)} of junk and freed {Helpers.ByteFormatter.Format(result.BytesFreed)} of RAM.");
                 await Task.Delay(TimeSpan.FromSeconds(6));
             }
-            catch (Exception) { }
+            catch (Exception ex) { log.Error("Maintenance", "Headless maintenance failed", ex); }
             finally
             {
                 tray.Dispose();
@@ -278,9 +281,11 @@ public partial class App : Application
                     Wpf.Ui.Controls.ControlAppearance.Success, null, TimeSpan.FromSeconds(7));
             }
         }
-        catch (Exception)
+        catch (Exception ex)
         {
             // offline / parse error / dialog host unavailable — never block startup over an update check
+            try { _services.GetRequiredService<ILogService>().Warn("Updater", $"Startup update check failed: {ex.Message}"); }
+            catch (Exception) { }
         }
     }
 
@@ -328,6 +333,11 @@ public partial class App : Application
         try
         {
             File.WriteAllText(Path.Combine(Path.GetTempPath(), "systemcare_error.log"), e.Exception.ToString());
+        }
+        catch (Exception) { }
+        try
+        {
+            _services.GetRequiredService<ILogService>().Error("App", "Unhandled UI exception", e.Exception);
         }
         catch (Exception) { }
         MessageBox.Show(e.Exception.Message, "SystemCare — Unexpected error",

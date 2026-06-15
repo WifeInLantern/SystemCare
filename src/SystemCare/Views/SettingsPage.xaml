@@ -241,11 +241,19 @@
                 <StackPanel>
                     <TextBlock Text="{Binding VersionText}" FontWeight="SemiBold" />
                     <TextBlock Text="{Binding ElevationText}" FontSize="12" Opacity="0.7" Margin="0,4,0,10" TextWrapping="Wrap" />
-                    <ui:Button Content="Open settings folder" Command="{Binding OpenSettingsFolderCommand}" Padding="14,7">
-                        <ui:Button.Icon>
-                            <ui:SymbolIcon Symbol="FolderOpen24" />
-                        </ui:Button.Icon>
-                    </ui:Button>
+                    <StackPanel Orientation="Horizontal">
+                        <ui:Button Content="Open settings folder" Command="{Binding OpenSettingsFolderCommand}" Padding="14,7">
+                            <ui:Button.Icon>
+                                <ui:SymbolIcon Symbol="FolderOpen24" />
+                            </ui:Button.Icon>
+                        </ui:Button>
+                        <ui:Button Content="Open logs folder" Command="{Binding OpenLogsFolderCommand}" Padding="14,7" Margin="8,0,0,0"
+                                   ToolTip="Diagnostic logs for maintenance, updates and errors">
+                            <ui:Button.Icon>
+                                <ui:SymbolIcon Symbol="History24" />
+                            </ui:Button.Icon>
+                        </ui:Button>
+                    </StackPanel>
                 </StackPanel>
             </ui:Card>
         </StackPanel>

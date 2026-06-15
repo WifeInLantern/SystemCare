@@ -21,6 +21,7 @@ public partial class DashboardViewModel : ObservableObject
     private readonly IRestorePointService _restore;
     private readonly INetworkToolsService _network;
     private readonly IHistoryService _history;
+    private readonly ISecurityCheckService _security;
 
     private const int HistorySize = 60;
     private readonly DispatcherTimer _timer;
@@ -60,7 +61,8 @@ public partial class DashboardViewModel : ObservableObject
         ISnackbarService snackbar,
         IRestorePointService restore,
         INetworkToolsService network,
-        IHistoryService history)
+        IHistoryService history,
+        ISecurityCheckService security)
     {
         _systemInfo = systemInfo;
         _junkScan = junkScan;
@@ -72,6 +74,7 @@ public partial class DashboardViewModel : ObservableObject
         _restore = restore;
         _network = network;
         _history = history;
+        _security = security;
 
         if (_settings.Current.LastHealthScore is int saved)
         {
@@ -151,10 +154,13 @@ public partial class DashboardViewModel : ObservableObject
             LastScanSummary = "Scanning for junk files…";
             var junkTask = _junkScan.ScanAsync(DefaultCategoryIds(), null, ct);
             var startupTask = _startupManager.GetEntriesAsync(includeSystemTasks: false);
-            await Task.WhenAll(junkTask, startupTask);
+            var securityTask = _security.GetChecksAsync();
+            await Task.WhenAll(junkTask, startupTask, securityTask);
 
             _lastScan = junkTask.Result;
             int enabledStartup = startupTask.Result.Count(e => e.IsEnabled);
+            int securityIssues = securityTask.Result.Count(c =>
+                c.Status is Models.SecurityStatus.Warning or Models.SecurityStatus.Bad);
             var snapshot = _systemInfo.GetSnapshot(includeDrives: false);
 
             var report = _healthScore.Compute(new HealthInputs
@@ -162,12 +168,14 @@ public partial class DashboardViewModel : ObservableObject
                 JunkBytes = _lastScan.TotalBytes,
                 EnabledStartupItems = enabledStartup,
                 RamLoadPercent = snapshot.RamLoadPercent,
+                SecurityIssues = securityIssues,
             });
 
             HealthScoreValue = report.Score;
             LastScanSummary =
                 $"{ByteFormatter.Format(_lastScan.TotalBytes)} of junk in {_lastScan.TotalFiles:N0} files · " +
-                $"{enabledStartup} startup items · RAM {snapshot.RamLoadPercent:0}% used";
+                $"{enabledStartup} startup items · RAM {snapshot.RamLoadPercent:0}% used" +
+                (securityIssues > 0 ? $" · {securityIssues} security issue(s)" : "");
             CanFix = _lastScan.TotalBytes > 0;
 
             _settings.Current.LastScanUtc = DateTime.UtcNow;

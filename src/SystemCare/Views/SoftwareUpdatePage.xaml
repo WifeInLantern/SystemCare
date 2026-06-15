@@ -13,6 +13,7 @@
     <Page.Resources>
         <converters:BoolToVisibilityConverter x:Key="VisibleWhenTrue" />
         <converters:InverseBoolConverter x:Key="Not" />
+        <converters:CountToVisibilityConverter x:Key="CountToVisibility" />
     </Page.Resources>
 
     <Grid Margin="24,12,24,24">
@@ -67,13 +68,26 @@
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
-            <TextBlock Grid.Column="0" Text="AVAILABLE UPDATES" Style="{StaticResource CyberSectionHeader}"
-                       VerticalAlignment="Center" />
-            <ui:Button Grid.Column="1" Content="Update selected" Appearance="Primary" Padding="18,7"
-                       Command="{Binding UpdateSelectedCommand}"
-                       IsEnabled="{Binding IsUpdating, Converter={StaticResource Not}}">
-                <ui:Button.Icon><ui:SymbolIcon Symbol="ArrowDownload24" /></ui:Button.Icon>
-            </ui:Button>
+            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                <TextBlock Text="AVAILABLE UPDATES" Style="{StaticResource CyberSectionHeader}"
+                           VerticalAlignment="Center" />
+                <ui:Button Content="Reset exclusions" Appearance="Secondary" Padding="10,4" Margin="14,0,0,0"
+                           FontSize="11" Command="{Binding ResetExclusionsCommand}"
+                           ToolTip="Show apps you previously chose to ignore"
+                           Visibility="{Binding ExcludedCount, Converter={StaticResource CountToVisibility}}" />
+            </StackPanel>
+            <StackPanel Grid.Column="1" Orientation="Horizontal">
+                <ui:Button Content="Update all" Padding="16,7" Margin="0,0,8,0"
+                           Command="{Binding UpdateAllCommand}"
+                           IsEnabled="{Binding IsUpdating, Converter={StaticResource Not}}">
+                    <ui:Button.Icon><ui:SymbolIcon Symbol="ArrowDownload24" /></ui:Button.Icon>
+                </ui:Button>
+                <ui:Button Content="Update selected" Appearance="Primary" Padding="18,7"
+                           Command="{Binding UpdateSelectedCommand}"
+                           IsEnabled="{Binding IsUpdating, Converter={StaticResource Not}}">
+                    <ui:Button.Icon><ui:SymbolIcon Symbol="ArrowDownload24" /></ui:Button.Icon>
+                </ui:Button>
+            </StackPanel>
         </Grid>
 
         <!-- Updates list -->
@@ -88,6 +102,7 @@
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                         <CheckBox Grid.Column="0" IsChecked="{Binding IsSelected}" VerticalAlignment="Center" />
                         <StackPanel Grid.Column="1" Margin="10,0,12,0" VerticalAlignment="Center">
@@ -98,6 +113,11 @@
                         </StackPanel>
                         <TextBlock Grid.Column="2" Text="{Binding VersionChangeText}" FontSize="12" FontWeight="SemiBold"
                                    Foreground="{StaticResource NeonCyanBrush}" VerticalAlignment="Center" />
+                        <ui:Button Grid.Column="3" Content="Ignore" Appearance="Secondary" Padding="10,4" Margin="12,0,0,0"
+                                   FontSize="11" VerticalAlignment="Center"
+                                   ToolTip="Never show updates for this app"
+                                   Command="{Binding DataContext.ExcludeCommand, RelativeSource={RelativeSource AncestorType=Page}}"
+                                   CommandParameter="{Binding}" />
                     </Grid>
                 </DataTemplate>
             </ui:ListView.ItemTemplate>

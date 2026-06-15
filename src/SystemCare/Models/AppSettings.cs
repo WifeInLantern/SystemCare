@@ -30,6 +30,9 @@ public class AppSettings
     public string UpdateGitHubToken { get; set; } = "";
     public DateTime? LastUpdateCheckUtc { get; set; }
 
+    /// <summary>winget package Ids the user has chosen to skip in the Software Updater.</summary>
+    public List<string> SoftwareUpdateExclusions { get; set; } = [];
+
     // Dashboard quick-actions (action ids shown as one-click tiles)
     public List<string> DashboardQuickActions { get; set; } =
         ["scanfix", "freeram", "flushdns", "emptybin", "restorepoint"];

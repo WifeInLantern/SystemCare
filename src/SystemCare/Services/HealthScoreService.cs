@@ -16,8 +16,9 @@ public class HealthScoreService : IHealthScoreService
         double junkPenalty = Math.Min(40, 40.0 * inputs.JunkBytes / JunkFullPenaltyBytes);
         double startupPenalty = Math.Min(25, 3.0 * Math.Max(0, inputs.EnabledStartupItems - 4));
         double ramPenalty = inputs.RamLoadPercent <= 50 ? 0 : Math.Min(35, (inputs.RamLoadPercent - 50) * 0.7);
+        double securityPenalty = Math.Min(20, 8.0 * inputs.SecurityIssues);
 
-        int score = (int)Math.Clamp(100 - junkPenalty - startupPenalty - ramPenalty, 0, 100);
+        int score = (int)Math.Clamp(100 - junkPenalty - startupPenalty - ramPenalty - securityPenalty, 0, 100);
 
         return new HealthReport
         {
@@ -32,6 +33,7 @@ public class HealthScoreService : IHealthScoreService
             JunkPenalty = junkPenalty,
             StartupPenalty = startupPenalty,
             RamPenalty = ramPenalty,
+            SecurityPenalty = securityPenalty,
         };
     }
 }

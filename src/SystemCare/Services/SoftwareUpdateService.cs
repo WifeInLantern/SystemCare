@@ -20,7 +20,7 @@ public interface ISoftwareUpdateService
 /// "App Installer" package; its PATH alias is sometimes missing, so the real executable is resolved from
 /// the DesktopAppInstaller package folder. The upgrade list is parsed from winget's fixed-width text table.
 /// </summary>
-public class SoftwareUpdateService : ISoftwareUpdateService
+public class SoftwareUpdateService(ILogService log) : ISoftwareUpdateService
 {
     private string? _wingetPath;
     private bool _resolved;
@@ -59,7 +59,16 @@ public class SoftwareUpdateService : ISoftwareUpdateService
             var (exit, _) = await RunWingetAsync(
                 $"upgrade --id \"{app.Id}\" --exact --silent --accept-package-agreements --accept-source-agreements --disable-interactivity",
                 ct);
-            if (exit == 0) updated++; else failed++;
+            if (exit == 0)
+            {
+                updated++;
+                log.Info("SoftwareUpdate", $"Updated {app.Id} → {app.AvailableVersion}");
+            }
+            else
+            {
+                failed++;
+                log.Warn("SoftwareUpdate", $"winget exited {exit} updating {app.Id} ({app.Name})");
+            }
 
             progress?.Report(new SoftwareUpdateProgress
             {

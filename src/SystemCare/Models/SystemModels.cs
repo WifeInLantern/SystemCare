@@ -29,6 +29,8 @@ public class HealthInputs
     public long JunkBytes { get; init; }
     public int EnabledStartupItems { get; init; }
     public double RamLoadPercent { get; init; }
+    /// <summary>Number of security checks reporting a warning or worse.</summary>
+    public int SecurityIssues { get; init; }
 }
 
 public enum HealthBand { Excellent, Good, NeedsAttention, Poor }
@@ -40,4 +42,5 @@ public class HealthReport
     public double JunkPenalty { get; init; }
     public double StartupPenalty { get; init; }
     public double RamPenalty { get; init; }
+    public double SecurityPenalty { get; init; }
 }

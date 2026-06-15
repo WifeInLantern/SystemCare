@@ -27,6 +27,7 @@ public partial class SoftwareUpdateViewModel : ObservableObject
     private readonly ISnackbarService _snackbar;
     private readonly IContentDialogService _dialogs;
     private readonly IHistoryService _history;
+    private readonly ILogService _log;
 
     public ObservableCollection<SoftwareUpdateItemViewModel> Updates { get; } = [];
 
@@ -37,9 +38,11 @@ public partial class SoftwareUpdateViewModel : ObservableObject
     [ObservableProperty] private double _installProgress;
     [ObservableProperty] private string _statusText = "";
     [ObservableProperty] private string _updateSummary = "";
+    [ObservableProperty] private int _excludedCount;
 
     public SoftwareUpdateViewModel(ISoftwareUpdateService software, IRestorePointService restore,
-        ISettingsService settings, ISnackbarService snackbar, IContentDialogService dialogs, IHistoryService history)
+        ISettingsService settings, ISnackbarService snackbar, IContentDialogService dialogs,
+        IHistoryService history, ILogService log)
     {
         _software = software;
         _restore = restore;
@@ -47,7 +50,11 @@ public partial class SoftwareUpdateViewModel : ObservableObject
         _snackbar = snackbar;
         _dialogs = dialogs;
         _history = history;
+        _log = log;
     }
+
+    private HashSet<string> ExcludedIds =>
+        new(_settings.Current.SoftwareUpdateExclusions, StringComparer.OrdinalIgnoreCase);
 
     public async void OnNavigatedTo()
     {
@@ -70,12 +77,18 @@ public partial class SoftwareUpdateViewModel : ObservableObject
             IsWingetMissing = false;
 
             var found = await _software.GetUpgradesAsync(ct);
+            var excluded = ExcludedIds;
+            var visible = found.Where(u => !excluded.Contains(u.Id)).ToList();
+            ExcludedCount = found.Count - visible.Count;
+
             Updates.Clear();
-            foreach (var u in found) Updates.Add(new SoftwareUpdateItemViewModel(u));
+            foreach (var u in visible) Updates.Add(new SoftwareUpdateItemViewModel(u));
             HasChecked = true;
-            UpdateSummary = found.Count == 0
+
+            UpdateSummary = visible.Count == 0
                 ? "All your apps are up to date."
-                : $"{found.Count} app update(s) available.";
+                : $"{visible.Count} app update(s) available.";
+            if (ExcludedCount > 0) UpdateSummary += $" ({ExcludedCount} excluded)";
             StatusText = UpdateSummary;
         }
         catch (OperationCanceledException)
@@ -89,9 +102,15 @@ public partial class SoftwareUpdateViewModel : ObservableObject
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private async Task UpdateSelectedAsync(CancellationToken ct)
+    private Task UpdateSelectedAsync(CancellationToken ct) =>
+        RunUpgradeAsync(Updates.Where(u => u.IsSelected).Select(u => u.Update).ToList(), ct);
+
+    [RelayCommand(IncludeCancelCommand = true)]
+    private Task UpdateAllAsync(CancellationToken ct) =>
+        RunUpgradeAsync(Updates.Select(u => u.Update).ToList(), ct);
+
+    private async Task RunUpgradeAsync(List<SoftwareUpdate> selected, CancellationToken ct)
     {
-        var selected = Updates.Where(u => u.IsSelected).Select(u => u.Update).ToList();
         if (selected.Count == 0)
         {
             _snackbar.Show("Nothing selected", "Tick at least one app to update.",
@@ -112,6 +131,7 @@ public partial class SoftwareUpdateViewModel : ObservableObject
 
         IsUpdating = true;
         InstallProgress = 0;
+        _log.Info("SoftwareUpdate", $"Starting update of {selected.Count} app(s).");
         try
         {
             if (_settings.Current.CreateRestorePointBeforeMaintenance)
@@ -128,6 +148,7 @@ public partial class SoftwareUpdateViewModel : ObservableObject
 
             var result = await _software.UpgradeAsync(selected, progress, ct);
             StatusText = result.Message;
+            _log.Info("SoftwareUpdate", result.Message);
             _snackbar.Show(
                 result.Failed == 0 ? "Updates complete" : "Updates finished with errors",
                 result.Message,
@@ -148,5 +169,35 @@ public partial class SoftwareUpdateViewModel : ObservableObject
             IsUpdating = false;
             InstallProgress = 0;
         }
+    }
+
+    /// <summary>Hide an app from this and future update checks (persisted to settings).</summary>
+    [RelayCommand]
+    private void Exclude(SoftwareUpdateItemViewModel? item)
+    {
+        if (item is null) return;
+        if (!_settings.Current.SoftwareUpdateExclusions.Contains(item.Id, StringComparer.OrdinalIgnoreCase))
+        {
+            _settings.Current.SoftwareUpdateExclusions.Add(item.Id);
+            _settings.Save();
+            _log.Info("SoftwareUpdate", $"Excluded {item.Id} from updates.");
+        }
+        Updates.Remove(item);
+        ExcludedCount++;
+        UpdateSummary = Updates.Count == 0
+            ? "All your apps are up to date."
+            : $"{Updates.Count} app update(s) available.";
+        UpdateSummary += $" ({ExcludedCount} excluded)";
+        StatusText = UpdateSummary;
+    }
+
+    /// <summary>Clear the exclusion list and re-check.</summary>
+    [RelayCommand]
+    private async Task ResetExclusionsAsync()
+    {
+        _settings.Current.SoftwareUpdateExclusions.Clear();
+        _settings.Save();
+        _log.Info("SoftwareUpdate", "Cleared software-update exclusions.");
+        await CheckAsync(CancellationToken.None);
     }
 }
