@@ -15,7 +15,13 @@ public partial class NetworkToolsPage : Page
         InitializeComponent();
     }
 
-    private void OnPageLoaded(object sender, RoutedEventArgs e) => _viewModel.OnNavigatedTo();
+    private void OnPageLoaded(object sender, RoutedEventArgs e)
+    {
+        _viewModel.OnNavigatedTo();
+        _viewModel.StartMonitoring();
+    }
+
+    private void OnPageUnloaded(object sender, RoutedEventArgs e) => _viewModel.StopMonitoring();
 
     private void OnOutputChanged(object sender, TextChangedEventArgs e)
     {

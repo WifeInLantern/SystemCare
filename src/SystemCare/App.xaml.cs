@@ -62,6 +62,7 @@ public partial class App : Application
         services.AddSingleton<IUpdateService, UpdateService>();
         services.AddSingleton<ISecurityCheckService, SecurityCheckService>();
         services.AddSingleton<INetworkToolsService, NetworkToolsService>();
+        services.AddSingleton<INetworkUsageService, NetworkUsageService>();
         services.AddSingleton<IPowerPlanService, PowerPlanService>();
         services.AddSingleton<ITweaksService, TweaksService>();
         services.AddSingleton<IBoostService, BoostService>();
@@ -323,6 +324,7 @@ public partial class App : Application
     {
         try { _services.GetRequiredService<ITrayIconService>().Dispose(); } catch (Exception) { }
         try { _services.GetRequiredService<ITemperatureService>().Dispose(); } catch (Exception) { } // unload the sensor driver
+        try { _services.GetRequiredService<INetworkUsageService>().Dispose(); } catch (Exception) { } // stop the ETW session
         try { _activateEvent?.Dispose(); } catch (Exception) { }
         try { _singleInstanceMutex?.Dispose(); } catch (Exception) { }
         base.OnExit(e);
