@@ -2,6 +2,27 @@
 
 All notable changes to SystemCare are documented here. Versions follow [SemVer](https://semver.org/).
 
+## [1.6.0] - 2026-06-16
+
+### Added
+- **Windows Debloater.** A new Debloat page (under Protect) bundles curated, safety-vetted cleanups into
+  one checkbox-driven workflow: disable telemetry & data collection (DiagTrack/dmwappushservice,
+  `AllowTelemetry`, telemetry scheduled tasks), turn off ads/suggestions and the advertising ID, stop
+  auto-installed "consumer feature" bloat, disable Cortana / Bing web search, optionally disable
+  unneeded services (Xbox, Maps, Fax, WMP sharing), and optionally remove common preinstalled bloat apps.
+  - **Safe by design:** acts only on a hardcoded allowlist (never arbitrary input); services are
+    *disabled*, not deleted; a System Restore point is created first; most items have one-click **Revert**;
+    a confirmation dialog reviews the selection (app removal is clearly flagged permanent). Every action is
+    idempotent, logged, and recorded in History.
+
+## [1.5.8] - 2026-06-16
+
+### Added
+- **Per-process bandwidth monitor.** The Network tab gains a Bandwidth panel showing live per-process
+  download/upload speed, totals, and usage % (with app icon, PID, color-coded levels, speed bars, and
+  high-usage highlighting), sorted by download/upload/combined. Uses an ETW kernel session (the same
+  source Resource Monitor uses) and runs only while the Network page is open.
+
 ## [1.5.7] - 2026-06-16
 
 ### Changed
@@ -135,6 +156,8 @@ A bug-fix and hardening release from a full audit of the services and view-model
 ## [1.0.0]
 - Initial release: cleanup, privacy, duplicates, disk tools, startup, boost, tweaks, security, and more.
 
+[1.6.0]: https://github.com/WifeInLantern/SystemCare/releases/tag/v1.6.0
+[1.5.8]: https://github.com/WifeInLantern/SystemCare/releases/tag/v1.5.8
 [1.5.7]: https://github.com/WifeInLantern/SystemCare/releases/tag/v1.5.7
 [1.5.6]: https://github.com/WifeInLantern/SystemCare/releases/tag/v1.5.6
 [1.5.5]: https://github.com/WifeInLantern/SystemCare/releases/tag/v1.5.5

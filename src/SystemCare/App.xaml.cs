@@ -63,6 +63,7 @@ public partial class App : Application
         services.AddSingleton<ISecurityCheckService, SecurityCheckService>();
         services.AddSingleton<INetworkToolsService, NetworkToolsService>();
         services.AddSingleton<INetworkUsageService, NetworkUsageService>();
+        services.AddSingleton<IDebloatService, DebloatService>();
         services.AddSingleton<IPowerPlanService, PowerPlanService>();
         services.AddSingleton<ITweaksService, TweaksService>();
         services.AddSingleton<IBoostService, BoostService>();
@@ -89,6 +90,7 @@ public partial class App : Application
         services.AddSingleton<EmptyFolderViewModel>();
         services.AddSingleton<DeepCleanupViewModel>();
         services.AddSingleton<BloatwareViewModel>();
+        services.AddSingleton<DebloatViewModel>();
         services.AddSingleton<SecurityCheckupViewModel>();
         services.AddSingleton<NetworkToolsViewModel>();
         services.AddSingleton<WindowsTweaksViewModel>();
@@ -115,6 +117,7 @@ public partial class App : Application
         services.AddTransient<EmptyFolderPage>();
         services.AddTransient<DeepCleanupPage>();
         services.AddTransient<BloatwarePage>();
+        services.AddTransient<DebloatPage>();
         services.AddTransient<SecurityCheckupPage>();
         services.AddTransient<NetworkToolsPage>();
         services.AddTransient<WindowsTweaksPage>();

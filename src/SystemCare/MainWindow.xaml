@@ -151,6 +151,11 @@
                         <ui:SymbolIcon Symbol="Apps24" />
                     </ui:NavigationViewItem.Icon>
                 </ui:NavigationViewItem>
+                <ui:NavigationViewItem Content="Debloat" TargetPageType="{x:Type views:DebloatPage}" ToolTipService.ToolTip="Debloat Windows (telemetry, services, bloat apps)">
+                    <ui:NavigationViewItem.Icon>
+                        <ui:SymbolIcon Symbol="Broom24" />
+                    </ui:NavigationViewItem.Icon>
+                </ui:NavigationViewItem>
                 <ui:NavigationViewItem Content="Security" TargetPageType="{x:Type views:SecurityCheckupPage}" ToolTipService.ToolTip="Security Checkup">
                     <ui:NavigationViewItem.Icon>
                         <ui:SymbolIcon Symbol="ShieldCheckmark24" />
