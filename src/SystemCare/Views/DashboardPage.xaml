@@ -9,6 +9,7 @@
       xmlns:helpers="clr-namespace:SystemCare.Helpers"
       xmlns:vm="clr-namespace:SystemCare.ViewModels"
       mc:Ignorable="d"
+      TextElement.Foreground="{StaticResource TextFillColorPrimaryBrush}"
       d:DataContext="{d:DesignInstance Type=vm:DashboardViewModel}"
       Title="Dashboard"
       Loaded="OnPageLoaded" Unloaded="OnPageUnloaded">

@@ -124,14 +124,39 @@ public class HardwareInfoService : IHardwareInfoService
                 if (k?.GetValue("DriverDesc") is not string desc || desc.Length == 0) continue;
                 if (!NameMatches(desc, gpuName)) continue;
 
-                if (k.GetValue("HardwareInformation.qwMemorySize") is long qw && qw > best)
-                    best = qw;
+                long qw = ReadQwMemorySize(k);
+                if (qw > best) best = qw;
             }
             return best;
         }
         catch (Exception)
         {
             return adapterRam;
+        }
+    }
+
+    /// <summary>
+    /// Reads <c>HardwareInformation.qwMemorySize</c>, which different drivers store as a REG_QWORD
+    /// (returned as <see cref="long"/>) or a REG_BINARY 8-byte little-endian blob. Returns 0 if absent
+    /// or unreadable so the caller keeps its existing best value.
+    /// </summary>
+    private static long ReadQwMemorySize(RegistryKey adapterKey)
+    {
+        try
+        {
+            object? raw = adapterKey.GetValue("HardwareInformation.qwMemorySize");
+            return raw switch
+            {
+                long l => l,
+                int i => i,
+                byte[] b when b.Length >= 8 => BitConverter.ToInt64(b, 0),
+                byte[] b when b.Length >= 4 => BitConverter.ToUInt32(b, 0),
+                _ => 0,
+            };
+        }
+        catch (Exception)
+        {
+            return 0;
         }
     }
 

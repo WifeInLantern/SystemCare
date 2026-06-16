@@ -6,6 +6,7 @@
              xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
              xmlns:vm="clr-namespace:SystemCare.ViewModels"
              mc:Ignorable="d"
+             TextElement.Foreground="{StaticResource TextFillColorPrimaryBrush}"
              d:DataContext="{d:DesignInstance Type=vm:SoftwareUninstallerViewModel}"
              d:DesignWidth="560">
     <Grid Width="560" MaxHeight="420">

@@ -2,6 +2,17 @@
 
 All notable changes to SystemCare are documented here. Versions follow [SemVer](https://semver.org/).
 
+## [1.4.3] - 2026-06-16
+
+### Fixed
+- **No more hard-to-read dark text.** Many secondary labels (subtitles, card captions, list rows,
+  status lines) were plain text with no colour set, so they fell back to a dark default against the
+  dark background. Every page now sets a bright inherited text colour, so all text is readable while
+  buttons keep their dark-on-accent text for contrast.
+- **GPU VRAM detection hardened.** The 64-bit `HardwareInformation.qwMemorySize` reader now also
+  understands the REG_BINARY form some drivers use, so a high-VRAM card can't fall back to the
+  ~4 GB-capped value on those systems (the 1.4.1 fix only handled the REG_QWORD form).
+
 ## [1.4.2] - 2026-06-15
 
 ### Fixed
@@ -90,6 +101,7 @@ A bug-fix and hardening release from a full audit of the services and view-model
 ## [1.0.0]
 - Initial release: cleanup, privacy, duplicates, disk tools, startup, boost, tweaks, security, and more.
 
+[1.4.3]: https://github.com/WifeInLantern/SystemCare/releases/tag/v1.4.3
 [1.4.2]: https://github.com/WifeInLantern/SystemCare/releases/tag/v1.4.2
 [1.4.1]: https://github.com/WifeInLantern/SystemCare/releases/tag/v1.4.1
 [1.4.0]: https://github.com/WifeInLantern/SystemCare/releases/tag/v1.4.0

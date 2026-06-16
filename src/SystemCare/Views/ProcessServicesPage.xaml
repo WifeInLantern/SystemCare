@@ -7,6 +7,7 @@
       xmlns:converters="clr-namespace:SystemCare.Converters"
       xmlns:vm="clr-namespace:SystemCare.ViewModels"
       mc:Ignorable="d"
+      TextElement.Foreground="{StaticResource TextFillColorPrimaryBrush}"
       d:DataContext="{d:DesignInstance Type=vm:ProcessServicesViewModel}"
       Title="Processes &amp; Services"
       Loaded="OnPageLoaded" Unloaded="OnPageUnloaded">
