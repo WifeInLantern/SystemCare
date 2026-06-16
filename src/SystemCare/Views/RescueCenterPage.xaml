@@ -6,6 +6,7 @@
       xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
       xmlns:converters="clr-namespace:SystemCare.Converters"
       xmlns:helpers="clr-namespace:SystemCare.Helpers"
+      xmlns:controls="clr-namespace:SystemCare.Controls"
       xmlns:vm="clr-namespace:SystemCare.ViewModels"
       mc:Ignorable="d"
       TextElement.Foreground="{StaticResource TextFillColorPrimaryBrush}"
@@ -47,8 +48,7 @@
             </ui:Button>
         </StackPanel>
 
-        <ProgressBar Grid.Row="2" IsIndeterminate="True" Height="4" Margin="0,12,0,0"
-                     Visibility="{Binding IsBusy, Converter={StaticResource VisibleWhenTrue}}" />
+        <controls:TaskProgress Grid.Row="2" IsActive="{Binding IsBusy}" Margin="0,12,0,0" />
 
         <ScrollViewer Grid.Row="3" VerticalScrollBarVisibility="Auto" Margin="0,12,0,0">
             <ItemsControl ItemsSource="{Binding Points}">

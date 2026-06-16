@@ -5,6 +5,7 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
       xmlns:converters="clr-namespace:SystemCare.Converters"
+      xmlns:controls="clr-namespace:SystemCare.Controls"
       xmlns:vm="clr-namespace:SystemCare.ViewModels"
       mc:Ignorable="d"
       TextElement.Foreground="{StaticResource TextFillColorPrimaryBrush}"
@@ -55,10 +56,8 @@
 
         <!-- Status + progress -->
         <StackPanel Grid.Row="2" Margin="0,0,0,4">
-            <ProgressBar IsIndeterminate="True" Height="4"
-                         Visibility="{Binding IsChecking, Converter={StaticResource VisibleWhenTrue}}" />
-            <ProgressBar Maximum="100" Height="4" Value="{Binding InstallProgress}"
-                         Visibility="{Binding IsInstalling, Converter={StaticResource VisibleWhenTrue}}" />
+            <controls:TaskProgress IsActive="{Binding IsChecking}" />
+            <controls:TaskProgress IsActive="{Binding IsInstalling}" Value="{Binding InstallProgress}" />
             <TextBlock Text="{Binding StatusText}" FontSize="12" Opacity="0.7" Margin="0,6,0,0"
                        TextTrimming="CharacterEllipsis" />
         </StackPanel>

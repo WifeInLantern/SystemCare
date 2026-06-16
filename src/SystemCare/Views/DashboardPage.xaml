@@ -61,8 +61,7 @@
                             </ui:Button.Icon>
                         </ui:Button>
                     </StackPanel>
-                    <ProgressBar IsIndeterminate="True" Margin="0,16,40,0" Height="4"
-                                 Visibility="{Binding IsWorking, Converter={StaticResource VisibleWhenTrue}}" />
+                    <controls:TaskProgress IsActive="{Binding IsWorking}" Margin="0,16,40,0" />
                 </StackPanel>
             </Grid>
 

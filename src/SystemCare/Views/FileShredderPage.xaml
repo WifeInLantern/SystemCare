@@ -5,6 +5,7 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
       xmlns:converters="clr-namespace:SystemCare.Converters"
+      xmlns:controls="clr-namespace:SystemCare.Controls"
       xmlns:vm="clr-namespace:SystemCare.ViewModels"
       mc:Ignorable="d"
       TextElement.Foreground="{StaticResource TextFillColorPrimaryBrush}"
@@ -86,8 +87,7 @@
         </ScrollViewer>
 
         <StackPanel Grid.Row="4" Margin="0,12,0,0">
-            <ProgressBar IsIndeterminate="True" Height="4"
-                         Visibility="{Binding IsBusy, Converter={StaticResource VisibleWhenTrue}}" />
+            <controls:TaskProgress IsActive="{Binding IsBusy}" />
             <TextBlock Text="{Binding ProgressText}" FontSize="11" Opacity="0.6" Margin="0,6,0,8" TextTrimming="CharacterEllipsis" />
             <StackPanel Orientation="Horizontal">
                 <ui:Button Content="Shred permanently" Appearance="Danger" Padding="22,9" FontSize="14"

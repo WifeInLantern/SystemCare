@@ -5,6 +5,7 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
       xmlns:converters="clr-namespace:SystemCare.Converters"
+      xmlns:controls="clr-namespace:SystemCare.Controls"
       xmlns:vm="clr-namespace:SystemCare.ViewModels"
       mc:Ignorable="d"
       TextElement.Foreground="{StaticResource TextFillColorPrimaryBrush}"
@@ -89,8 +90,7 @@
         </ui:ListView>
 
         <StackPanel Grid.Row="3" Margin="0,10,0,0">
-            <ProgressBar IsIndeterminate="True" Height="4"
-                         Visibility="{Binding IsBusy, Converter={StaticResource VisibleWhenTrue}}" />
+            <controls:TaskProgress IsActive="{Binding IsBusy}" />
             <TextBlock Text="{Binding SummaryText}" FontSize="12" Opacity="0.65" Margin="0,6,0,0" />
         </StackPanel>
     </Grid>

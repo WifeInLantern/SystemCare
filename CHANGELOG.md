@@ -2,6 +2,16 @@
 
 All notable changes to SystemCare are documented here. Versions follow [SemVer](https://semver.org/).
 
+## [1.5.5] - 2026-06-16
+
+### Changed
+- **New task loading experience.** The old sideways indeterminate progress bar is replaced everywhere
+  by a modern indicator: a row of vertical bars that fill left-to-right with a live percentage that
+  climbs smoothly. The percentage is honest - it eases toward the high 90s while a task runs and only
+  reaches 100% when the task actually finishes, then shows a success checkmark before fading. Where a
+  real percentage is available (Software/Driver installs) the indicator tracks it directly. Lightweight
+  and on-theme (one shared `TaskProgress` control across all 16 task screens).
+
 ## [1.5.0] - 2026-06-16
 
 ### Added
@@ -111,6 +121,7 @@ A bug-fix and hardening release from a full audit of the services and view-model
 ## [1.0.0]
 - Initial release: cleanup, privacy, duplicates, disk tools, startup, boost, tweaks, security, and more.
 
+[1.5.5]: https://github.com/WifeInLantern/SystemCare/releases/tag/v1.5.5
 [1.5.0]: https://github.com/WifeInLantern/SystemCare/releases/tag/v1.5.0
 [1.4.3]: https://github.com/WifeInLantern/SystemCare/releases/tag/v1.4.3
 [1.4.2]: https://github.com/WifeInLantern/SystemCare/releases/tag/v1.4.2
