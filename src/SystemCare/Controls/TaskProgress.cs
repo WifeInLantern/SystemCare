@@ -1,12 +1,14 @@
+using System.Globalization;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
+using System.Windows.Media.Effects;
 
 namespace SystemCare.Controls;
 
 /// <summary>
-/// Task loading indicator: a horizontal green progress bar that fills left-to-right with a darker
-/// leading block, on a dark rounded track. Replaces the old indeterminate ProgressBar.
+/// Task loading indicator: a neon pill filled with blue-to-cyan vertical tick segments that light up
+/// left-to-right, with a percentage at the end. Replaces the old indeterminate ProgressBar.
 /// Drive it with <see cref="IsActive"/> (the task's busy flag). When no real progress is available the
 /// fill is simulated - it eases toward a ceiling (&lt;100%) while busy and only reaches 100% when the
 /// task finishes. Bind <see cref="Value"/> (0-100) when a real percentage exists.
@@ -15,7 +17,7 @@ public class TaskProgress : FrameworkElement
 {
     private const double Ceiling = 92;      // simulated progress never passes this while busy
     private const double RampSeconds = 9;   // asymptotic climb toward the ceiling
-    private const double HoldSeconds = 0.7; // keep the full bar up after completion
+    private const double HoldSeconds = 0.8; // keep the full bar up after completion
 
     public static readonly DependencyProperty IsActiveProperty = DependencyProperty.Register(
         nameof(IsActive), typeof(bool), typeof(TaskProgress), new PropertyMetadata(false, OnIsActiveChanged));
@@ -36,21 +38,28 @@ public class TaskProgress : FrameworkElement
         new FrameworkPropertyMetadata(0.0, FrameworkPropertyMetadataOptions.AffectsRender));
     private double Pulse { get => (double)GetValue(PulseProperty); set => SetValue(PulseProperty, value); }
 
-    // Lime-green fill (vertical gradient) + a darker leading block, on a near-black track.
-    private static readonly Color LeadColor = Color.FromRgb(0x3E, 0x6B, 0x12);
-    private readonly Brush _track = new SolidColorBrush(Color.FromRgb(0x06, 0x09, 0x0E));
-    private readonly Pen _border = new(new SolidColorBrush(Color.FromRgb(0x2A, 0x3A, 0x55)), 1);
-    private readonly LinearGradientBrush _fill = new(
-        Color.FromRgb(0xB0, 0xEB, 0x3B), Color.FromRgb(0x86, 0xC8, 0x1A), new Point(0, 0), new Point(0, 1));
+    private static readonly Color DeepBlue = Color.FromRgb(0x1E, 0x50, 0xC8);
+    private static readonly Color Cyan = Color.FromRgb(0x00, 0xE5, 0xFF);
+    private static readonly Color HeadColor = Color.FromRgb(0xC8, 0xFB, 0xFF);
+    private static readonly Color Unlit = Color.FromRgb(0x18, 0x32, 0x6E);
+
+    private readonly Brush _track = new SolidColorBrush(Color.FromRgb(0x0A, 0x12, 0x30));
+    private readonly Pen _border = new(new SolidColorBrush(Cyan), 1.4);
+    private readonly Brush _unlit = new SolidColorBrush(Unlit) { Opacity = 0.32 };
+    private readonly Brush _label = new SolidColorBrush(Cyan);
+    private readonly Typeface _num = new(new FontFamily("pack://application:,,,/Assets/Fonts/#Rajdhani"),
+        FontStyles.Normal, FontWeights.SemiBold, FontStretches.Normal);
 
     public TaskProgress()
     {
-        Height = 18;
+        Height = 22;
         HorizontalAlignment = HorizontalAlignment.Stretch;
         Visibility = Visibility.Collapsed;
+        Effect = new DropShadowEffect { Color = Cyan, BlurRadius = 9, ShadowDepth = 0, Opacity = 0.5 };
         _track.Freeze();
         _border.Freeze();
-        _fill.Freeze();
+        _unlit.Freeze();
+        _label.Freeze();
     }
 
     private static void OnIsActiveChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -76,7 +85,7 @@ public class TaskProgress : FrameworkElement
         if (double.IsNaN(Value)) AnimateProgress(Ceiling, TimeSpan.FromSeconds(RampSeconds));
         else AnimateProgress(Math.Clamp(Value, 0, 99), TimeSpan.FromMilliseconds(300));
 
-        BeginAnimation(PulseProperty, new DoubleAnimation(0, 1, TimeSpan.FromSeconds(0.9))
+        BeginAnimation(PulseProperty, new DoubleAnimation(0, 1, TimeSpan.FromSeconds(0.85))
         {
             AutoReverse = true, RepeatBehavior = RepeatBehavior.Forever,
             EasingFunction = new SineEase { EasingMode = EasingMode.EaseInOut },
@@ -86,7 +95,7 @@ public class TaskProgress : FrameworkElement
     private void Finish()
     {
         if (Visibility != Visibility.Visible) return; // never started
-        BeginAnimation(PulseProperty, null); Pulse = 0;
+        BeginAnimation(PulseProperty, null); Pulse = 1;
 
         AnimateProgress(100, TimeSpan.FromMilliseconds(260));
 
@@ -104,29 +113,55 @@ public class TaskProgress : FrameworkElement
         double w = ActualWidth, h = ActualHeight;
         if (w <= 0 || h <= 0) return;
 
-        double r = Math.Min(6, h / 2);
+        const double labelW = 50;
+        double pillW = Math.Max(0, w - labelW);
+        double r = Math.Max(0, (h - 1) / 2);
+
         dc.DrawRoundedRectangle(_track, _border,
-            new Rect(0.5, 0.5, Math.Max(0, w - 1), Math.Max(0, h - 1)), r, r);
+            new Rect(0.7, 0.7, Math.Max(0, pillW - 1.4), Math.Max(0, h - 1.4)), r, r);
 
         double pct = Math.Clamp(DisplayProgress, 0, 100) / 100.0;
-        double fillW = w * pct;
-        if (fillW <= 0.5) return;
 
-        var clip = new RectangleGeometry(new Rect(0, 0, w, h), r, r);
-        clip.Freeze();
-        dc.PushClip(clip);
-
-        dc.DrawRectangle(_fill, null, new Rect(0, 0, fillW, h));
-
-        // darker leading block at the fill head (hidden once the bar is essentially full)
-        if (pct < 0.995)
+        // tick segments inside the pill
+        double padX = h * 0.55, padY = h * 0.26;
+        double innerX = padX, innerY = padY, innerW = pillW - padX * 2, innerH = h - padY * 2;
+        if (innerW > 4 && innerH > 0)
         {
-            double blockW = Math.Min(fillW, 16);
-            var lead = new SolidColorBrush(LeadColor) { Opacity = 0.85 + 0.15 * Pulse };
-            lead.Freeze();
-            dc.DrawRectangle(lead, null, new Rect(fillW - blockW, 0, blockW, h));
+            const double period = 6.0, tickW = 3.0;
+            int count = Math.Max(1, (int)(innerW / period));
+            double tickR = tickW / 2;
+            int headIndex = (int)Math.Floor(pct * count - 0.5); // last lit tick
+
+            for (int i = 0; i < count; i++)
+            {
+                double x = innerX + i * period;
+                var rect = new Rect(x, innerY, tickW, innerH);
+
+                if (i > headIndex)
+                {
+                    dc.DrawRoundedRectangle(_unlit, null, rect, tickR, tickR);
+                    continue;
+                }
+
+                bool head = i == headIndex;
+                double t = headIndex > 0 ? (double)i / headIndex : 1; // blue at left -> cyan at head
+                var brush = new SolidColorBrush(head ? HeadColor : Lerp(DeepBlue, Cyan, t))
+                { Opacity = head ? 0.7 + 0.3 * Pulse : 1.0 };
+                brush.Freeze();
+                dc.DrawRoundedRectangle(brush, null, rect, tickR, tickR);
+            }
         }
 
-        dc.Pop();
+        // percentage at the end
+        double dpi = VisualTreeHelper.GetDpi(this).PixelsPerDip;
+        var ft = new FormattedText($"{(int)Math.Round(pct * 100)}%", CultureInfo.InvariantCulture,
+            FlowDirection.LeftToRight, _num, 14, _label, dpi);
+        dc.DrawText(ft, new Point(pillW + 10, (h - ft.Height) / 2));
+    }
+
+    private static Color Lerp(Color a, Color b, double t)
+    {
+        t = Math.Clamp(t, 0, 1);
+        return Color.FromRgb((byte)(a.R + (b.R - a.R) * t), (byte)(a.G + (b.G - a.G) * t), (byte)(a.B + (b.B - a.B) * t));
     }
 }
