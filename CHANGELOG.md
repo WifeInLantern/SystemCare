@@ -2,6 +2,13 @@
 
 All notable changes to SystemCare are documented here. Versions follow [SemVer](https://semver.org/).
 
+## [1.5.6] - 2026-06-16
+
+### Changed
+- **Loading indicator restyled** to a horizontal green progress bar (lime fill with a darker leading
+  block on a dark rounded track), replacing the vertical-bars look from 1.5.5. Same honest timing -
+  it climbs while a task runs and only fills to 100% when the task actually finishes.
+
 ## [1.5.5] - 2026-06-16
 
 ### Changed
@@ -121,6 +128,7 @@ A bug-fix and hardening release from a full audit of the services and view-model
 ## [1.0.0]
 - Initial release: cleanup, privacy, duplicates, disk tools, startup, boost, tweaks, security, and more.
 
+[1.5.6]: https://github.com/WifeInLantern/SystemCare/releases/tag/v1.5.6
 [1.5.5]: https://github.com/WifeInLantern/SystemCare/releases/tag/v1.5.5
 [1.5.0]: https://github.com/WifeInLantern/SystemCare/releases/tag/v1.5.0
 [1.4.3]: https://github.com/WifeInLantern/SystemCare/releases/tag/v1.4.3
