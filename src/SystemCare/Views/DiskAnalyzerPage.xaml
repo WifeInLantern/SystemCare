@@ -4,7 +4,6 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
-      xmlns:controls="clr-namespace:SystemCare.Controls"
       xmlns:converters="clr-namespace:SystemCare.Converters"
       xmlns:vm="clr-namespace:SystemCare.ViewModels"
       mc:Ignorable="d"
@@ -14,6 +13,7 @@
     <Page.Resources>
         <converters:BoolToVisibilityConverter x:Key="VisibleWhenTrue" />
         <converters:InverseBoolConverter x:Key="Not" />
+        <converters:PercentToBarWidthConverter x:Key="PercentToBarWidth" />
     </Page.Resources>
 
     <Grid Margin="24,12,24,24">
@@ -46,25 +46,25 @@
                        Visibility="{Binding IsBusy, Converter={StaticResource VisibleWhenTrue}}" />
         </StackPanel>
 
-        <!-- Breadcrumbs -->
-        <ItemsControl Grid.Row="2" ItemsSource="{Binding Breadcrumbs}" Margin="0,0,0,8"
-                      Visibility="{Binding HasResult, Converter={StaticResource VisibleWhenTrue}}">
-            <ItemsControl.ItemsPanel>
-                <ItemsPanelTemplate>
-                    <WrapPanel Orientation="Horizontal" />
-                </ItemsPanelTemplate>
-            </ItemsControl.ItemsPanel>
-            <ItemsControl.ItemTemplate>
-                <DataTemplate>
-                    <StackPanel Orientation="Horizontal">
-                        <ui:Button Content="{Binding Name}" Padding="8,4" Appearance="Transparent"
-                                   Command="{Binding DataContext.NavigateBreadcrumbCommand, RelativeSource={RelativeSource AncestorType=Page}}"
-                                   CommandParameter="{Binding}" />
-                        <TextBlock Text="›" VerticalAlignment="Center" Opacity="0.5" Margin="2,0" />
-                    </StackPanel>
-                </DataTemplate>
-            </ItemsControl.ItemTemplate>
-        </ItemsControl>
+        <!-- Column header -->
+        <Grid Grid.Row="2" Margin="6,0,8,6" Visibility="{Binding HasResult, Converter={StaticResource VisibleWhenTrue}}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="320" />
+            </Grid.ColumnDefinitions>
+            <Grid Grid.Column="0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="120" />
+                    <ColumnDefinition Width="88" />
+                    <ColumnDefinition Width="58" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Text="Name" FontSize="11" Opacity="0.55" />
+                <TextBlock Grid.Column="1" Text="Relative size" FontSize="11" Opacity="0.55" Margin="6,0" />
+                <TextBlock Grid.Column="2" Text="Size" FontSize="11" Opacity="0.55" HorizontalAlignment="Right" />
+                <TextBlock Grid.Column="3" Text="%" FontSize="11" Opacity="0.55" HorizontalAlignment="Right" />
+            </Grid>
+        </Grid>
 
         <Grid Grid.Row="3">
             <Grid.ColumnDefinitions>
@@ -72,8 +72,57 @@
                 <ColumnDefinition Width="320" />
             </Grid.ColumnDefinitions>
 
-            <Border Grid.Column="0" CornerRadius="8" ClipToBounds="True" Background="#0A0E14">
-                <controls:TreemapControl x:Name="Treemap" RootNode="{Binding CurrentRoot}" />
+            <!-- TreeSize-style hierarchy: expand folders to see exactly what uses space -->
+            <Border Grid.Column="0" CornerRadius="8" ClipToBounds="True" Background="#0A0E14"
+                    BorderBrush="{StaticResource CyberStrokeBrush}" BorderThickness="1">
+                <TreeView ItemsSource="{Binding TreeRoots}" Background="Transparent" BorderThickness="0"
+                          Padding="4"
+                          ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                          VirtualizingPanel.IsVirtualizing="True"
+                          VirtualizingPanel.VirtualizationMode="Recycling">
+                    <TreeView.ItemContainerStyle>
+                        <Style TargetType="TreeViewItem" BasedOn="{StaticResource {x:Type TreeViewItem}}">
+                            <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
+                            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                        </Style>
+                    </TreeView.ItemContainerStyle>
+                    <TreeView.Resources>
+                        <HierarchicalDataTemplate DataType="{x:Type vm:DiskNodeViewModel}" ItemsSource="{Binding Children}">
+                            <Grid Height="26">
+                                <Grid.ContextMenu>
+                                    <ContextMenu DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}">
+                                        <MenuItem Header="Open in Explorer" Command="{Binding OpenCommand}" />
+                                        <MenuItem Header="Move to Recycle Bin…" Command="{Binding DeleteCommand}" />
+                                    </ContextMenu>
+                                </Grid.ContextMenu>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="120" />
+                                    <ColumnDefinition Width="88" />
+                                    <ColumnDefinition Width="58" />
+                                </Grid.ColumnDefinitions>
+
+                                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                                    <ui:SymbolIcon Symbol="{Binding Icon}" FontSize="15" Margin="0,0,8,0"
+                                                   Foreground="{Binding BarBrush}" VerticalAlignment="Center" />
+                                    <TextBlock Text="{Binding Name}" VerticalAlignment="Center"
+                                               TextTrimming="CharacterEllipsis" ToolTip="{Binding FullPath}" />
+                                </StackPanel>
+
+                                <Border Grid.Column="1" Height="8" Margin="6,0" VerticalAlignment="Center"
+                                        Background="#16202E" CornerRadius="4" ClipToBounds="True">
+                                    <Border HorizontalAlignment="Left" CornerRadius="4" Background="{Binding BarBrush}"
+                                            Width="{Binding Percent, Converter={StaticResource PercentToBarWidth}, ConverterParameter=104}" />
+                                </Border>
+
+                                <TextBlock Grid.Column="2" Text="{Binding SizeText}" VerticalAlignment="Center"
+                                           HorizontalAlignment="Right" FontSize="12" Foreground="{StaticResource WarningBrush}" />
+                                <TextBlock Grid.Column="3" Text="{Binding PercentText}" VerticalAlignment="Center"
+                                           HorizontalAlignment="Right" FontSize="11" Opacity="0.65" />
+                            </Grid>
+                        </HierarchicalDataTemplate>
+                    </TreeView.Resources>
+                </TreeView>
             </Border>
 
             <Grid Grid.Column="1" Margin="14,0,0,0">
@@ -121,8 +170,6 @@
             <ProgressBar IsIndeterminate="True" Height="4"
                          Visibility="{Binding IsBusy, Converter={StaticResource VisibleWhenTrue}}" />
             <TextBlock Text="{Binding ProgressText}" FontSize="11" Opacity="0.6" Margin="0,6,0,0"
-                       TextTrimming="CharacterEllipsis" />
-            <TextBlock Text="{Binding HoverText}" FontSize="11" Opacity="0.8" Margin="0,2,0,0"
                        TextTrimming="CharacterEllipsis" />
         </StackPanel>
     </Grid>

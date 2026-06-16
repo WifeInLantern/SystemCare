@@ -2,6 +2,16 @@
 
 All notable changes to SystemCare are documented here. Versions follow [SemVer](https://semver.org/).
 
+## [1.5.0] - 2026-06-16
+
+### Added
+- **TreeSize-style Disk Analyzer.** The analyzer now shows an expandable folder tree so you can drill
+  from a drive down to any folder or file and see exactly what is using space. Each row has an icon,
+  name, a proportional size bar (colour-coded by file type), its size, and its share of the parent
+  folder, sorted largest-first at every level. Right-click any row to open it in Explorer or move it
+  (files or whole folders) to the Recycle Bin. The tree is built lazily and virtualized, so scanning a
+  whole drive stays responsive. The "Largest files" panel is still there alongside it.
+
 ## [1.4.3] - 2026-06-16
 
 ### Fixed
@@ -101,6 +111,7 @@ A bug-fix and hardening release from a full audit of the services and view-model
 ## [1.0.0]
 - Initial release: cleanup, privacy, duplicates, disk tools, startup, boost, tweaks, security, and more.
 
+[1.5.0]: https://github.com/WifeInLantern/SystemCare/releases/tag/v1.5.0
 [1.4.3]: https://github.com/WifeInLantern/SystemCare/releases/tag/v1.4.3
 [1.4.2]: https://github.com/WifeInLantern/SystemCare/releases/tag/v1.4.2
 [1.4.1]: https://github.com/WifeInLantern/SystemCare/releases/tag/v1.4.1
