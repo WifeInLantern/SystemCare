@@ -14,6 +14,7 @@ public partial class SettingsViewModel : ObservableObject
 {
     private readonly ISettingsService _settings;
     private readonly IScheduledMaintenanceService _maintenance;
+    private readonly IStartupLauncherService _startup;
     private readonly IUpdateService _updates;
     private readonly ISnackbarService _snackbar;
     private readonly ILogService _log;
@@ -25,6 +26,7 @@ public partial class SettingsViewModel : ObservableObject
     [ObservableProperty] private bool _autoMaintenanceEnabled;
     [ObservableProperty] private bool _isWeekly;
     [ObservableProperty] private bool _minimizeToTray;
+    [ObservableProperty] private bool _startWithWindows;
     [ObservableProperty] private bool _createRestorePointBeforeMaintenance;
 
     [ObservableProperty] private bool _checkForUpdatesOnStartup;
@@ -49,10 +51,11 @@ public partial class SettingsViewModel : ObservableObject
     public string ElevationText { get; }
 
     public SettingsViewModel(ISettingsService settings, IScheduledMaintenanceService maintenance,
-        IUpdateService updates, ISnackbarService snackbar, ILogService log)
+        IStartupLauncherService startup, IUpdateService updates, ISnackbarService snackbar, ILogService log)
     {
         _settings = settings;
         _maintenance = maintenance;
+        _startup = startup;
         _updates = updates;
         _snackbar = snackbar;
         _log = log;
@@ -62,6 +65,7 @@ public partial class SettingsViewModel : ObservableObject
         _autoMaintenanceEnabled = settings.Current.AutoMaintenanceEnabled;
         _isWeekly = settings.Current.MaintenanceFrequency != "Daily";
         _minimizeToTray = settings.Current.MinimizeToTray;
+        _startWithWindows = settings.Current.StartWithWindows;
         _createRestorePointBeforeMaintenance = settings.Current.CreateRestorePointBeforeMaintenance;
         _checkForUpdatesOnStartup = settings.Current.CheckForUpdatesOnStartup;
         _updateGitHubToken = settings.Current.UpdateGitHubToken;
@@ -263,6 +267,13 @@ public partial class SettingsViewModel : ObservableObject
     {
         _settings.Current.MinimizeToTray = value;
         _settings.Save();
+    }
+
+    partial void OnStartWithWindowsChanged(bool value)
+    {
+        _settings.Current.StartWithWindows = value;
+        _settings.Save();
+        _startup.Sync(); // create/remove the elevated logon task to match
     }
 
     [RelayCommand]

@@ -71,6 +71,19 @@
                     <ui:ToggleSwitch Grid.Column="1" IsChecked="{Binding MinimizeToTray}" />
                 </Grid>
             </ui:Card>
+            <ui:Card Padding="16,12" Margin="0,0,0,8">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0" Margin="0,0,16,0">
+                        <TextBlock Text="Start with Windows" FontWeight="SemiBold" />
+                        <TextBlock Text="Launch SystemCare minimized to the tray when you sign in (via an elevated logon task, so there's no UAC prompt)" FontSize="12" Opacity="0.65" TextWrapping="Wrap" />
+                    </StackPanel>
+                    <ui:ToggleSwitch Grid.Column="1" IsChecked="{Binding StartWithWindows}" />
+                </Grid>
+            </ui:Card>
             <ui:Card Padding="16,12" Margin="0,8,0,0">
                 <Grid>
                     <Grid.ColumnDefinitions>

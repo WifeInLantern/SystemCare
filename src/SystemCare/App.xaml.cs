@@ -52,6 +52,7 @@ public partial class App : Application
         services.AddSingleton<IProcessService, ProcessService>();
         services.AddSingleton<IServiceControlService, ServiceControlService>();
         services.AddSingleton<IScheduledMaintenanceService, ScheduledMaintenanceService>();
+        services.AddSingleton<IStartupLauncherService, StartupLauncherService>();
         services.AddSingleton<ITrayIconService, TrayIconService>();
         services.AddSingleton<IDiskMaintenanceService, DiskMaintenanceService>();
         services.AddSingleton<IRestorePointService, RestorePointService>();
@@ -211,6 +212,8 @@ public partial class App : Application
 
         // Keep the scheduled task in sync with the persisted setting on every launch.
         _services.GetRequiredService<IScheduledMaintenanceService>().Sync();
+        // Keep the "start with Windows" logon task in sync (and refresh its exe path after upgrades).
+        _services.GetRequiredService<IStartupLauncherService>().Sync();
 
         if (minimized)
         {

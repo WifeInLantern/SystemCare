@@ -16,6 +16,8 @@ public class AppSettings
     public bool AutoMaintenanceEnabled { get; set; }
     public string MaintenanceFrequency { get; set; } = "Weekly"; // Daily | Weekly
     public bool MinimizeToTray { get; set; } = true;
+    /// <summary>Launch SystemCare minimized to the tray when Windows starts (via an elevated logon task).</summary>
+    public bool StartWithWindows { get; set; }
 
     // Safety
     public bool CreateRestorePointBeforeMaintenance { get; set; } = true;

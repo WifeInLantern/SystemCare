@@ -2,6 +2,14 @@
 
 All notable changes to SystemCare are documented here. Versions follow [SemVer](https://semver.org/).
 
+## [1.6.1] - 2026-06-17
+
+### Added
+- **Start with Windows.** A new Settings toggle launches SystemCare minimized to the tray when you sign
+  in. Because the app requires administrator rights, it uses an elevated Task Scheduler logon task
+  (highest privileges) instead of a Run-key entry, so it starts silently with no UAC prompt. The task is
+  kept in sync with the setting and its path is refreshed on each launch (survives in-place upgrades).
+
 ## [1.6.0] - 2026-06-16
 
 ### Added
@@ -156,6 +164,7 @@ A bug-fix and hardening release from a full audit of the services and view-model
 ## [1.0.0]
 - Initial release: cleanup, privacy, duplicates, disk tools, startup, boost, tweaks, security, and more.
 
+[1.6.1]: https://github.com/WifeInLantern/SystemCare/releases/tag/v1.6.1
 [1.6.0]: https://github.com/WifeInLantern/SystemCare/releases/tag/v1.6.0
 [1.5.8]: https://github.com/WifeInLantern/SystemCare/releases/tag/v1.5.8
 [1.5.7]: https://github.com/WifeInLantern/SystemCare/releases/tag/v1.5.7
