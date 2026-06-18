@@ -28,6 +28,35 @@
             <TextBlock Text="Startup Manager" Style="{StaticResource CyberPageTitle}" />
             <TextBlock Text="Programs and tasks that launch when Windows starts. Disabling keeps the entry so you can re-enable it later."
                        FontSize="13" Opacity="0.7" Margin="0,4,0,0" TextWrapping="Wrap" />
+
+            <ui:Card Margin="0,12,0,0" Padding="14,10">
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <ui:SymbolIcon Symbol="Timer24" FontSize="16" Foreground="{StaticResource NeonCyanBrush}" VerticalAlignment="Center" Margin="0,0,8,0" />
+                        <TextBlock Text="Boot performance" FontWeight="SemiBold" VerticalAlignment="Center" />
+                        <TextBlock Text="{Binding BootSummary}" FontSize="12" Opacity="0.7" VerticalAlignment="Center" Margin="10,0,0,0" TextTrimming="CharacterEllipsis" />
+                    </StackPanel>
+                    <ItemsControl ItemsSource="{Binding BootApps}" Margin="24,8,0,0"
+                                  Visibility="{Binding HasBootApps, Converter={StaticResource VisibleWhenTrue}}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Margin="0,0,8,8" Padding="9,4" CornerRadius="4" Background="#12203250"
+                                        BorderBrush="{StaticResource CyberStrokeBrush}" BorderThickness="1">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Ellipse Width="8" Height="8" Fill="{Binding LevelBrush}" VerticalAlignment="Center" Margin="0,0,6,0" />
+                                        <TextBlock Text="{Binding Name}" FontSize="12" VerticalAlignment="Center" />
+                                        <TextBlock Text="{Binding DurationText}" FontSize="12" FontWeight="SemiBold" Opacity="0.85"
+                                                   VerticalAlignment="Center" Margin="8,0,0,0" Foreground="{Binding LevelBrush}" />
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </ui:Card>
         </StackPanel>
 
         <Grid Grid.Row="1" Margin="0,14,0,10">

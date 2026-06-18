@@ -2,6 +2,25 @@
 
 All notable changes to SystemCare are documented here. Versions follow [SemVer](https://semver.org/).
 
+## [1.7.0] - 2026-06-18
+
+### Added
+- **Game / Focus mode.** A new Game Mode page (under Optimize) puts the PC into a low-distraction,
+  high-performance state in one click and fully reverses it on exit. It switches to the High Performance
+  power plan, suspends the background apps you select (browsers, chat, music, launchers are pre-checked),
+  and trims standby RAM — and can optionally silence Windows notification toasts while active. Exit
+  restores the power plan, resumes every app, and turns notifications back on. Built on the existing,
+  suspend-count-safe Boost engine; each session is recorded in History.
+- **Windows Update control.** A new Windows Update page (under Optimize) checks for and installs Windows
+  (non-driver) updates without leaving the app: a checkbox list of pending updates, install with live
+  progress and a reboot-required notice, a "Recently installed" history, and **Pause updates for
+  7 / 14 / 35 days** or **Resume**. A System Restore point is created before installing, and there's a
+  shortcut to the Windows Update settings page.
+- **Boot & startup performance.** The Startup page gains a Boot performance card showing your last boot
+  time, how long boot took, and current uptime, plus the slowest-starting apps and services color-coded
+  by impact (green / yellow / red). Boot timing is read from the Windows Diagnostics-Performance event
+  log; when that log isn't available it still shows last-boot time and uptime.
+
 ## [1.6.1] - 2026-06-17
 
 ### Added
@@ -164,6 +183,7 @@ A bug-fix and hardening release from a full audit of the services and view-model
 ## [1.0.0]
 - Initial release: cleanup, privacy, duplicates, disk tools, startup, boost, tweaks, security, and more.
 
+[1.7.0]: https://github.com/WifeInLantern/SystemCare/releases/tag/v1.7.0
 [1.6.1]: https://github.com/WifeInLantern/SystemCare/releases/tag/v1.6.1
 [1.6.0]: https://github.com/WifeInLantern/SystemCare/releases/tag/v1.6.0
 [1.5.8]: https://github.com/WifeInLantern/SystemCare/releases/tag/v1.5.8

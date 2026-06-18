@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.Windows.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using SystemCare.Models;
@@ -8,6 +9,27 @@ using Wpf.Ui.Controls;
 using Wpf.Ui.Extensions;
 
 namespace SystemCare.ViewModels;
+
+public partial class StartupImpactViewModel(StartupImpact impact)
+{
+    public string Name => impact.Name;
+    public string DurationText => impact.DurationText;
+    public string Kind => impact.Kind;
+
+    public Brush LevelBrush { get; } = impact.Level switch
+    {
+        "High" => Frozen(0xFF, 0x2A, 0x6D),
+        "Medium" => Frozen(0xFF, 0xD3, 0x00),
+        _ => Frozen(0x00, 0xE5, 0xFF),
+    };
+
+    private static Brush Frozen(byte r, byte g, byte b)
+    {
+        var brush = new SolidColorBrush(Color.FromRgb(r, g, b));
+        brush.Freeze();
+        return brush;
+    }
+}
 
 public partial class StartupEntryViewModel(StartupEntry entry, StartupViewModel owner) : ObservableObject
 {
@@ -40,26 +62,33 @@ public partial class StartupViewModel : ObservableObject
     private readonly ISettingsService _settings;
     private readonly ISnackbarService _snackbar;
     private readonly IContentDialogService _dialogs;
+    private readonly IBootPerformanceService _boot;
     private List<StartupEntryViewModel> _allItems = [];
+    private bool _bootLoaded;
 
     public ObservableCollection<StartupEntryViewModel> Items { get; } = [];
+    public ObservableCollection<StartupImpactViewModel> BootApps { get; } = [];
 
     [ObservableProperty] private bool _isBusy;
     [ObservableProperty] private string _searchText = "";
     [ObservableProperty] private int _filterIndex; // 0 all, 1 enabled, 2 disabled
     [ObservableProperty] private bool _showSystemTasks;
     [ObservableProperty] private string _summaryText = "";
+    [ObservableProperty] private string _bootSummary = "Reading boot performance…";
+    [ObservableProperty] private bool _hasBootApps;
 
     public StartupViewModel(
         IStartupManagerService startupManager,
         ISettingsService settings,
         ISnackbarService snackbar,
-        IContentDialogService dialogs)
+        IContentDialogService dialogs,
+        IBootPerformanceService boot)
     {
         _startupManager = startupManager;
         _settings = settings;
         _snackbar = snackbar;
         _dialogs = dialogs;
+        _boot = boot;
         _showSystemTasks = settings.Current.ShowSystemTasks;
     }
 
@@ -87,6 +116,19 @@ public partial class StartupViewModel : ObservableObject
         {
             IsBusy = false;
         }
+
+        if (!_bootLoaded) { _bootLoaded = true; await LoadBootPerformanceAsync(); }
+    }
+
+    private async Task LoadBootPerformanceAsync()
+    {
+        var report = await _boot.GetAsync();
+        BootApps.Clear();
+        foreach (var app in report.Apps) BootApps.Add(new StartupImpactViewModel(app));
+        HasBootApps = BootApps.Count > 0;
+        BootSummary = report.HasBootData
+            ? $"Last boot {report.LastBootText} · took {report.BootDurationText} to start · up {report.UptimeText}"
+            : $"Last boot {report.LastBootText} · up {report.UptimeText} · (boot timing log not available)";
     }
 
     private void ApplyFilter()

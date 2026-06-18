@@ -40,6 +40,7 @@ public partial class App : Application
         services.AddSingleton<IMemoryOptimizerService, MemoryOptimizerService>();
         services.AddSingleton<IHealthScoreService, HealthScoreService>();
         services.AddSingleton<IStartupManagerService, StartupManagerService>();
+        services.AddSingleton<IBootPerformanceService, BootPerformanceService>();
         services.AddSingleton<IPrivacyCleanerService, PrivacyCleanerService>();
         services.AddSingleton<IDiskAnalyzerService, DiskAnalyzerService>();
         services.AddSingleton<IDuplicateFinderService, DuplicateFinderService>();
@@ -68,9 +69,11 @@ public partial class App : Application
         services.AddSingleton<IPowerPlanService, PowerPlanService>();
         services.AddSingleton<ITweaksService, TweaksService>();
         services.AddSingleton<IBoostService, BoostService>();
+        services.AddSingleton<IGameModeService, GameModeService>();
         services.AddSingleton<IFileShredderService, FileShredderService>();
         services.AddSingleton<IDriverUpdateService, DriverUpdateService>();
         services.AddSingleton<ISoftwareUpdateService, SoftwareUpdateService>();
+        services.AddSingleton<IWindowsUpdateService, WindowsUpdateService>();
 
         // Window
         services.AddSingleton<MainWindow>();
@@ -96,9 +99,11 @@ public partial class App : Application
         services.AddSingleton<NetworkToolsViewModel>();
         services.AddSingleton<WindowsTweaksViewModel>();
         services.AddSingleton<BoostViewModel>();
+        services.AddSingleton<GameModeViewModel>();
         services.AddSingleton<FileShredderViewModel>();
         services.AddSingleton<DriverUpdateViewModel>();
         services.AddSingleton<SoftwareUpdateViewModel>();
+        services.AddSingleton<WindowsUpdateViewModel>();
         services.AddSingleton<SettingsViewModel>();
         services.AddSingleton<HistoryViewModel>();
 
@@ -123,9 +128,11 @@ public partial class App : Application
         services.AddTransient<NetworkToolsPage>();
         services.AddTransient<WindowsTweaksPage>();
         services.AddTransient<BoostPage>();
+        services.AddTransient<GameModePage>();
         services.AddTransient<FileShredderPage>();
         services.AddTransient<DriverUpdatePage>();
         services.AddTransient<SoftwareUpdatePage>();
+        services.AddTransient<WindowsUpdatePage>();
         services.AddTransient<SettingsPage>();
         services.AddTransient<HistoryPage>();
 

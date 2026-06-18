@@ -87,6 +87,11 @@
                         <ui:SymbolIcon Symbol="Flash24" />
                     </ui:NavigationViewItem.Icon>
                 </ui:NavigationViewItem>
+                <ui:NavigationViewItem Content="Game Mode" TargetPageType="{x:Type views:GameModePage}" ToolTipService.ToolTip="Game / Focus Mode">
+                    <ui:NavigationViewItem.Icon>
+                        <ui:SymbolIcon Symbol="Games24" />
+                    </ui:NavigationViewItem.Icon>
+                </ui:NavigationViewItem>
                 <ui:NavigationViewItem Content="Startup" TargetPageType="{x:Type views:StartupPage}" ToolTipService.ToolTip="Startup Manager">
                     <ui:NavigationViewItem.Icon>
                         <ui:SymbolIcon Symbol="Rocket24" />
@@ -115,6 +120,11 @@
                 <ui:NavigationViewItem Content="Software Updater" TargetPageType="{x:Type views:SoftwareUpdatePage}" ToolTipService.ToolTip="Update installed apps (winget)">
                     <ui:NavigationViewItem.Icon>
                         <ui:SymbolIcon Symbol="ArrowSync24" />
+                    </ui:NavigationViewItem.Icon>
+                </ui:NavigationViewItem>
+                <ui:NavigationViewItem Content="Windows Update" TargetPageType="{x:Type views:WindowsUpdatePage}" ToolTipService.ToolTip="Check, install, or pause Windows updates">
+                    <ui:NavigationViewItem.Icon>
+                        <ui:SymbolIcon Symbol="ArrowDownload24" />
                     </ui:NavigationViewItem.Icon>
                 </ui:NavigationViewItem>
 
