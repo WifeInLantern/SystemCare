@@ -15,71 +15,128 @@
       Loaded="OnPageLoaded" Unloaded="OnPageUnloaded">
     <Page.Resources>
         <converters:BoolToVisibilityConverter x:Key="VisibleWhenTrue" />
+        <converters:PercentToUsageBrushConverter x:Key="UsageBrush" />
     </Page.Resources>
 
     <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="24,12,24,24">
         <StackPanel MaxWidth="1100">
             <TextBlock Text="System Information" Style="{StaticResource CyberPageTitle}" />
+            <TextBlock Text="{Binding SummaryText}" FontSize="13" Opacity="0.75" Margin="0,6,0,0" TextWrapping="Wrap" />
 
             <!-- Live monitors -->
             <TextBlock Text="Live monitors" FontSize="16" FontWeight="SemiBold" Margin="0,18,0,10" />
             <UniformGrid Columns="3">
-                <ui:Card Margin="0,0,8,0" Padding="18,14" helpers:Animations.HoverLift="True">
+                <ui:Card Margin="0,0,8,0" Padding="18,14" helpers:Animations.HoverLift="True"
+                         ToolTipService.ToolTip="Total processor utilization across all cores">
                     <StackPanel>
                         <TextBlock Text="Processor" FontWeight="SemiBold" Opacity="0.85" />
-                        <TextBlock Text="{Binding CpuText}" FontSize="26" FontWeight="Bold" Margin="0,4,0,6" />
-                        <controls:SparklineChart Height="56" Values="{Binding CpuHistory}" Max="100" Accent="#00E5FF" />
+                        <TextBlock Text="{Binding CpuText}" FontSize="26" FontWeight="Bold" Margin="0,4,0,0" />
+                        <TextBlock Text="{Binding CpuSubText}" FontSize="11" Opacity="0.6" Margin="0,0,0,6" TextTrimming="CharacterEllipsis" />
+                        <controls:SparklineChart Height="52" Values="{Binding CpuHistory}" Max="100" Accent="#00E5FF" />
                     </StackPanel>
                 </ui:Card>
-                <ui:Card Margin="8,0,8,0" Padding="18,14" helpers:Animations.HoverLift="True">
+                <ui:Card Margin="8,0,8,0" Padding="18,14" helpers:Animations.HoverLift="True"
+                         ToolTipService.ToolTip="Physical memory in use">
                     <StackPanel>
                         <TextBlock Text="Memory" FontWeight="SemiBold" Opacity="0.85" />
-                        <TextBlock Text="{Binding RamText}" FontSize="26" FontWeight="Bold" Margin="0,4,0,6" />
-                        <controls:SparklineChart Height="56" Values="{Binding RamHistory}" Max="100" Accent="#00FFA3" />
+                        <TextBlock Text="{Binding RamText}" FontSize="26" FontWeight="Bold" Margin="0,4,0,0" />
+                        <TextBlock Text="{Binding RamSubText}" FontSize="11" Opacity="0.6" Margin="0,0,0,6" />
+                        <controls:SparklineChart Height="52" Values="{Binding RamHistory}" Max="100" Accent="#00FFA3" />
                     </StackPanel>
                 </ui:Card>
-                <ui:Card Margin="8,0,0,0" Padding="18,14" helpers:Animations.HoverLift="True">
+                <ui:Card Margin="8,0,0,0" Padding="18,14" helpers:Animations.HoverLift="True"
+                         ToolTipService.ToolTip="Live network throughput on active adapters">
                     <StackPanel>
                         <TextBlock Text="Network" FontWeight="SemiBold" Opacity="0.85" />
-                        <TextBlock Text="{Binding NetText}" FontSize="15" FontWeight="Bold" Margin="0,8,0,6" />
-                        <controls:SparklineChart Height="56" Values="{Binding NetHistory}" Max="{Binding NetMax}" Accent="#B14CFF" />
+                        <TextBlock Text="{Binding NetText}" FontSize="15" FontWeight="Bold" Margin="0,8,0,0" />
+                        <TextBlock Text="{Binding NetSubText}" FontSize="11" Opacity="0.6" Margin="0,0,0,6" TextTrimming="CharacterEllipsis" />
+                        <controls:SparklineChart Height="52" Values="{Binding NetHistory}" Max="{Binding NetMax}" Accent="#B14CFF" />
                     </StackPanel>
                 </ui:Card>
             </UniformGrid>
 
-            <!-- Hardware specs -->
+            <!-- Hardware sections -->
             <TextBlock Text="Hardware" FontSize="16" FontWeight="SemiBold" Margin="0,22,0,10" />
             <ui:ProgressRing IsIndeterminate="True" Width="28" Height="28" HorizontalAlignment="Left"
                              Visibility="{Binding IsLoadingSpecs, Converter={StaticResource VisibleWhenTrue}}" />
-            <ItemsControl ItemsSource="{Binding Specs}">
+
+            <ItemsControl ItemsSource="{Binding Sections}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <ui:Card Margin="0,0,0,8" Padding="16,12" helpers:Animations.HoverLift="True"
-                                 helpers:Animations.FadeInOnLoad="True">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="130" />
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="Auto" />
-                                </Grid.ColumnDefinitions>
-                                <ui:SymbolIcon Grid.Column="0" Symbol="{Binding Icon}" FontSize="22" VerticalAlignment="Center" />
-                                <TextBlock Grid.Column="1" Text="{Binding Category}" Margin="12,0,0,0"
-                                           VerticalAlignment="Center" Opacity="0.6" FontSize="12" />
-                                <StackPanel Grid.Column="2" VerticalAlignment="Center">
-                                    <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextWrapping="Wrap" />
-                                    <TextBlock Text="{Binding Detail}" FontSize="12" Opacity="0.65" TextWrapping="Wrap" />
+                        <ui:CardExpander Margin="0,0,0,8" IsExpanded="{Binding IsExpanded, Mode=OneTime}"
+                                         helpers:Animations.FadeInOnLoad="True">
+                            <ui:CardExpander.Header>
+                                <StackPanel Orientation="Horizontal">
+                                    <ui:SymbolIcon Symbol="{Binding Icon}" FontSize="20" VerticalAlignment="Center"
+                                                   Foreground="{StaticResource NeonCyanBrush}" Margin="0,0,10,0" />
+                                    <TextBlock Text="{Binding Header}" FontWeight="SemiBold" FontSize="14" VerticalAlignment="Center" />
                                 </StackPanel>
-                                <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center"
-                                            Margin="16,0,4,0" ToolTipService.ToolTip="Current temperature"
-                                            Visibility="{Binding HasTemperature, Converter={StaticResource VisibleWhenTrue}}">
-                                    <ui:SymbolIcon Symbol="Temperature24" FontSize="16" Opacity="0.7" Margin="0,0,5,0"
-                                                   Foreground="{Binding TemperatureColor}" />
-                                    <TextBlock Text="{Binding TemperatureText}" FontSize="19" FontWeight="SemiBold"
-                                               Foreground="{Binding TemperatureColor}" MinWidth="52" TextAlignment="Right" />
-                                </StackPanel>
-                            </Grid>
-                        </ui:Card>
+                            </ui:CardExpander.Header>
+
+                            <StackPanel>
+                                <ItemsControl ItemsSource="{Binding Items}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Padding="14,10" Margin="0,4,0,0" CornerRadius="6"
+                                                    Background="#10203250" ToolTipService.ToolTip="{Binding Tooltip}">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto" />
+                                                        <ColumnDefinition Width="*" />
+                                                        <ColumnDefinition Width="Auto" />
+                                                        <ColumnDefinition Width="Auto" />
+                                                    </Grid.ColumnDefinitions>
+                                                    <ui:SymbolIcon Grid.Column="0" Symbol="{Binding Icon}" FontSize="20"
+                                                                   VerticalAlignment="Center" Opacity="0.85" />
+                                                    <StackPanel Grid.Column="1" Margin="12,0,8,0" VerticalAlignment="Center">
+                                                        <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextWrapping="Wrap" />
+                                                        <TextBlock Text="{Binding Detail}" FontSize="12" Opacity="0.65" TextWrapping="Wrap" />
+                                                    </StackPanel>
+                                                    <Border Grid.Column="2" VerticalAlignment="Center" Margin="0,0,8,0"
+                                                            Background="#22FFFFFF" CornerRadius="4" Padding="8,3"
+                                                            Visibility="{Binding HasHealth, Converter={StaticResource VisibleWhenTrue}}">
+                                                        <TextBlock Text="{Binding Health}" FontSize="11" FontWeight="SemiBold"
+                                                                   Foreground="{Binding HealthBrush}" />
+                                                    </Border>
+                                                    <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center"
+                                                                Margin="4,0,0,0" ToolTipService.ToolTip="Current temperature"
+                                                                Visibility="{Binding HasTemperature, Converter={StaticResource VisibleWhenTrue}}">
+                                                        <ui:SymbolIcon Symbol="Temperature24" FontSize="16" Opacity="0.7" Margin="0,0,5,0"
+                                                                       Foreground="{Binding TemperatureColor}" />
+                                                        <TextBlock Text="{Binding TemperatureText}" FontSize="18" FontWeight="SemiBold"
+                                                                   Foreground="{Binding TemperatureColor}" MinWidth="50" TextAlignment="Right" />
+                                                    </StackPanel>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+
+                                <!-- Live volume capacity (Storage section only) -->
+                                <ItemsControl ItemsSource="{Binding Drives}" Margin="0,8,0,0"
+                                              Visibility="{Binding HasDrives, Converter={StaticResource VisibleWhenTrue}}">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate><UniformGrid Columns="2" /></ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Margin="0,6,8,0" Padding="14,10" CornerRadius="6" Background="#10203250">
+                                                <StackPanel>
+                                                    <TextBlock FontWeight="SemiBold" FontSize="13">
+                                                        <Run Text="{Binding Name, Mode=OneWay}" />
+                                                        <Run Text="{Binding Label, Mode=OneWay}" />
+                                                    </TextBlock>
+                                                    <TextBlock Text="{Binding CapacityText}" Opacity="0.75" FontSize="12" Margin="0,6,0,5" />
+                                                    <ProgressBar Maximum="100" Height="5"
+                                                                 helpers:Animations.SmoothValue="{Binding UsedPercent}"
+                                                                 Foreground="{Binding UsedPercent, Converter={StaticResource UsageBrush}}" />
+                                                </StackPanel>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </ui:CardExpander>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
