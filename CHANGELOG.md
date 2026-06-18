@@ -2,6 +2,22 @@
 
 All notable changes to SystemCare are documented here. Versions follow [SemVer](https://semver.org/).
 
+## [1.8.0] - 2026-06-18
+
+### Added
+- **Disk Health is now a drive-health hub.** The page leads with an overall health score and a plain-English
+  summary, then a per-drive card for each physical disk showing a 0–100 health score ring and live SMART
+  detail — temperature, SSD wear, power-on hours, and bad-sector/uncorrectable-error counts (read from the
+  Windows storage reliability counters, with per-drive temperature from the sensor backend).
+- **Predictive alerts.** Urgency-ranked warnings surface when a drive is at risk (failing SMART, bad sectors,
+  high wear, high temperature, or a nearly-full volume), each with a one-tap action. Critical issues also
+  raise a tray notification and recommend creating a restore point.
+- **One-click maintenance.** "Optimize all drives" creates a restore point, runs the right optimization per
+  media (TRIM for SSDs, defrag for HDDs), does a read-only error check, and clears junk — all streamed live
+  and cancelable.
+- **Free-up-space action center.** Quick cards jump straight to Cleanup, Duplicate Finder, and the Disk
+  Analyzer. The SFC/DISM system-file repairs now live under an "Advanced repair" section.
+
 ## [1.7.3] - 2026-06-18
 
 ### Changed
@@ -243,6 +259,7 @@ A bug-fix and hardening release from a full audit of the services and view-model
 ## [1.0.0]
 - Initial release: cleanup, privacy, duplicates, disk tools, startup, boost, tweaks, security, and more.
 
+[1.8.0]: https://github.com/WifeInLantern/SystemCare/releases/tag/v1.8.0
 [1.7.3]: https://github.com/WifeInLantern/SystemCare/releases/tag/v1.7.3
 [1.7.2]: https://github.com/WifeInLantern/SystemCare/releases/tag/v1.7.2
 [1.7.1]: https://github.com/WifeInLantern/SystemCare/releases/tag/v1.7.1

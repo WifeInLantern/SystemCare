@@ -17,27 +17,36 @@ public interface IDiskMaintenanceService
     Task<int> RunAsync(string fileName, string arguments, Action<string> onOutput, Encoding? encoding, CancellationToken ct);
 }
 
-public class DiskMaintenanceService : IDiskMaintenanceService
+public class DiskMaintenanceService(ITemperatureService temperatures) : IDiskMaintenanceService
 {
     public Task<List<PhysicalDiskHealth>> GetPhysicalDisksAsync() => Task.Run(() =>
     {
         var disks = new List<PhysicalDiskHealth>();
 
-        // Preferred: MSFT_PhysicalDisk (root\Microsoft\Windows\Storage) gives HealthStatus + MediaType.
+        // Preferred: MSFT_PhysicalDisk (root\Microsoft\Windows\Storage) gives HealthStatus + MediaType,
+        // enriched per-disk with its associated MSFT_StorageReliabilityCounter (wear/temp/hours/errors).
         try
         {
             var scope = new ManagementScope(@"\\.\root\Microsoft\Windows\Storage");
             scope.Connect();
             using var searcher = new ManagementObjectSearcher(scope,
                 new ObjectQuery("SELECT FriendlyName, MediaType, HealthStatus, Size FROM MSFT_PhysicalDisk"));
-            foreach (ManagementBaseObject mo in searcher.Get())
+            foreach (ManagementBaseObject baseMo in searcher.Get())
             {
+                var mo = (ManagementObject)baseMo;
+                var r = ReadReliability(mo);
                 disks.Add(new PhysicalDiskHealth
                 {
                     Name = mo["FriendlyName"]?.ToString()?.Trim() ?? "Disk",
                     SizeBytes = ToLong(mo["Size"]),
                     MediaType = MapMedia(ToInt(mo["MediaType"])),
                     Health = MapHealth(ToInt(mo["HealthStatus"])),
+                    WearPercent = r.Wear,
+                    TemperatureC = r.TemperatureC,
+                    PowerOnHours = r.PowerOnHours,
+                    ReadErrors = r.ReadErrors,
+                    WriteErrors = r.WriteErrors,
+                    ReallocatedSectors = r.Uncorrectable,
                 });
             }
         }
@@ -69,8 +78,59 @@ public class DiskMaintenanceService : IDiskMaintenanceService
             catch (Exception) { }
         }
 
+        MergeTemperatures(disks);
         return disks;
     });
+
+    /// <summary>Reads the disk's associated reliability counters; all fields null when unavailable.</summary>
+    private static (int? Wear, double? TemperatureC, long? PowerOnHours, long? ReadErrors, long? WriteErrors, long? Uncorrectable)
+        ReadReliability(ManagementObject disk)
+    {
+        try
+        {
+            foreach (ManagementBaseObject rel in disk.GetRelated("MSFT_StorageReliabilityCounter"))
+            {
+                using (rel)
+                {
+                    long? uncorr = AddN(ToLongN(rel["ReadErrorsUncorrected"]), ToLongN(rel["WriteErrorsUncorrected"]));
+                    return (
+                        ToIntN(rel["Wear"]),
+                        ToDoubleN(rel["Temperature"]),
+                        ToLongN(rel["PowerOnHours"]),
+                        ToLongN(rel["ReadErrorsTotal"]),
+                        ToLongN(rel["WriteErrorsTotal"]),
+                        uncorr);
+                }
+            }
+        }
+        catch (Exception) { }
+        return (null, null, null, null, null, null);
+    }
+
+    /// <summary>Fills in any missing per-disk temperature from the sensor backend (LibreHardwareMonitor).</summary>
+    private void MergeTemperatures(List<PhysicalDiskHealth> disks)
+    {
+        if (disks.Count == 0 || disks.All(d => d.TemperatureC is > 0)) return;
+        List<ComponentTemperature> temps;
+        try { temps = temperatures.Read().Where(t => t.Category == "Disk").ToList(); }
+        catch (Exception) { return; }
+        if (temps.Count == 0) return;
+
+        foreach (var disk in disks)
+        {
+            if (disk.TemperatureC is > 0) continue;
+            var match = temps.Count == 1
+                ? temps[0]
+                : temps.OrderByDescending(t => TokenOverlap(disk.Name, t.HardwareName)).FirstOrDefault();
+            if (match is not null) disk.TemperatureC = match.Celsius;
+        }
+    }
+
+    private static int TokenOverlap(string a, string b)
+    {
+        var tb = b.ToLowerInvariant().Split(' ', '-', '_').Where(t => t.Length >= 2).ToHashSet();
+        return a.ToLowerInvariant().Split(' ', '-', '_').Count(t => t.Length >= 2 && tb.Contains(t));
+    }
 
     public async Task<int> RunAsync(string fileName, string arguments, Action<string> onOutput, Encoding? encoding, CancellationToken ct)
     {
@@ -142,4 +202,21 @@ public class DiskMaintenanceService : IDiskMaintenanceService
     {
         try { return o is null ? -1 : Convert.ToInt32(o); } catch (Exception) { return -1; }
     }
+
+    private static int? ToIntN(object? o)
+    {
+        try { return o is null ? null : Convert.ToInt32(o); } catch (Exception) { return null; }
+    }
+
+    private static long? ToLongN(object? o)
+    {
+        try { return o is null ? null : Convert.ToInt64(o); } catch (Exception) { return null; }
+    }
+
+    private static double? ToDoubleN(object? o)
+    {
+        try { return o is null ? null : Convert.ToDouble(o); } catch (Exception) { return null; }
+    }
+
+    private static long? AddN(long? a, long? b) => a is null && b is null ? null : (a ?? 0) + (b ?? 0);
 }

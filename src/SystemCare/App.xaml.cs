@@ -56,6 +56,7 @@ public partial class App : Application
         services.AddSingleton<IStartupLauncherService, StartupLauncherService>();
         services.AddSingleton<ITrayIconService, TrayIconService>();
         services.AddSingleton<IDiskMaintenanceService, DiskMaintenanceService>();
+        services.AddSingleton<IDiskHealthScoreService, DiskHealthScoreService>();
         services.AddSingleton<IRestorePointService, RestorePointService>();
         services.AddSingleton<IRegistryCleanerService, RegistryCleanerService>();
         services.AddSingleton<IEmptyFolderService, EmptyFolderService>();

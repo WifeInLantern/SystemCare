@@ -4,6 +4,7 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+      xmlns:controls="clr-namespace:SystemCare.Controls"
       xmlns:converters="clr-namespace:SystemCare.Converters"
       xmlns:helpers="clr-namespace:SystemCare.Helpers"
       xmlns:vm="clr-namespace:SystemCare.ViewModels"
@@ -14,68 +15,128 @@
       Loaded="OnPageLoaded">
     <Page.Resources>
         <converters:BoolToVisibilityConverter x:Key="VisibleWhenTrue" />
-        <converters:BytesToReadableConverter x:Key="Bytes" />
         <converters:InverseBoolConverter x:Key="Not" />
+        <converters:PercentToUsageBrushConverter x:Key="UsageBrush" />
     </Page.Resources>
 
     <Grid Margin="24,12,24,16">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <StackPanel Grid.Row="0">
-            <TextBlock Text="Disk Health &amp; Maintenance" Style="{StaticResource CyberPageTitle}" />
-            <TextBlock Text="Check drives for errors, optimize them, and repair Windows system files."
-                       FontSize="13" Opacity="0.7" Margin="0,4,0,0" TextWrapping="Wrap" />
-        </StackPanel>
+        <!-- Header: overall score + summary + primary actions -->
+        <ui:Card Grid.Row="0" Padding="18,14">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <controls:HealthGauge Grid.Column="0" Score="{Binding OverallScore}" Width="108" Height="108" />
+                <StackPanel Grid.Column="1" Margin="18,0,12,0" VerticalAlignment="Center">
+                    <TextBlock Text="Disk Health" Style="{StaticResource CyberPageTitle}" />
+                    <TextBlock Text="{Binding SummaryText}" FontSize="13" Opacity="0.8" Margin="0,4,0,0" TextWrapping="Wrap" />
+                </StackPanel>
+                <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                    <ui:Button Content="Optimize all drives" Appearance="Primary" Padding="16,9" HorizontalAlignment="Stretch"
+                               Command="{Binding MaintainAllCommand}">
+                        <ui:Button.Icon><ui:SymbolIcon Symbol="Flash24" /></ui:Button.Icon>
+                    </ui:Button>
+                    <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                        <ui:Button Content="Restore point" Padding="12,7" Command="{Binding CreateRestorePointCommand}"
+                                   IsEnabled="{Binding IsRunning, Converter={StaticResource Not}}" />
+                        <ui:Button Content="Refresh" Padding="12,7" Margin="8,0,0,0" Appearance="Secondary"
+                                   Command="{Binding RefreshCommand}"
+                                   IsEnabled="{Binding IsRunning, Converter={StaticResource Not}}" />
+                    </StackPanel>
+                </StackPanel>
+            </Grid>
+        </ui:Card>
 
-        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Disabled" MaxHeight="320">
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Margin="0,12,0,0">
             <StackPanel>
-                <!-- Physical disk SMART -->
-                <TextBlock Text="Drive health (SMART)" FontSize="15" FontWeight="SemiBold" Margin="0,16,0,8" />
-                <ItemsControl ItemsSource="{Binding Disks}">
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <WrapPanel Orientation="Horizontal" />
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
+                <ui:ProgressRing IsIndeterminate="True" Width="28" Height="28" HorizontalAlignment="Left" Margin="0,4,0,0"
+                                 Visibility="{Binding IsLoading, Converter={StaticResource VisibleWhenTrue}}" />
+
+                <!-- Alerts -->
+                <ItemsControl ItemsSource="{Binding Alerts}" Margin="0,0,0,4"
+                              Visibility="{Binding HasAlerts, Converter={StaticResource VisibleWhenTrue}}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <ui:Card Margin="0,0,8,8" Padding="14,10" Width="270" helpers:Animations.FadeInOnLoad="True">
+                            <Border CornerRadius="8" Padding="14,10" Margin="0,0,0,8" Background="#12203250"
+                                    BorderBrush="{StaticResource CyberStrokeBrush}" BorderThickness="1"
+                                    helpers:Animations.FadeInOnLoad="True">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="Auto" />
                                         <ColumnDefinition Width="*" />
                                         <ColumnDefinition Width="Auto" />
                                     </Grid.ColumnDefinitions>
-                                    <ui:SymbolIcon Grid.Column="0" Symbol="HardDrive24" FontSize="22" VerticalAlignment="Center" />
-                                    <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center">
-                                        <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="12" TextTrimming="CharacterEllipsis" />
-                                        <TextBlock FontSize="11" Opacity="0.6">
-                                            <Run Text="{Binding MediaType, Mode=OneWay}" /><Run Text=" · " /><Run Text="{Binding SizeBytes, Mode=OneWay, Converter={StaticResource Bytes}}" />
-                                        </TextBlock>
+                                    <ui:SymbolIcon Grid.Column="0" Symbol="{Binding Icon}" FontSize="20" VerticalAlignment="Center"
+                                                   Foreground="{Binding Brush}" Margin="0,0,12,0" />
+                                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                        <TextBlock Text="{Binding Title}" FontWeight="SemiBold" Foreground="{Binding Brush}" />
+                                        <TextBlock Text="{Binding Detail}" FontSize="12" Opacity="0.78" TextWrapping="Wrap" />
                                     </StackPanel>
-                                    <Border Grid.Column="2" CornerRadius="10" Padding="8,3" VerticalAlignment="Center">
-                                        <Border.Style>
-                                            <Style TargetType="Border">
-                                                <Setter Property="Background" Value="#33445566" />
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding HealthText}" Value="Healthy">
-                                                        <Setter Property="Background" Value="#3300FFA3" />
-                                                    </DataTrigger>
-                                                    <DataTrigger Binding="{Binding HealthText}" Value="Warning">
-                                                        <Setter Property="Background" Value="#33FFD300" />
-                                                    </DataTrigger>
-                                                    <DataTrigger Binding="{Binding HealthText}" Value="Failing">
-                                                        <Setter Property="Background" Value="#33FF2A6D" />
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </Border.Style>
-                                        <TextBlock Text="{Binding HealthText}" FontSize="11" FontWeight="SemiBold" />
-                                    </Border>
+                                    <ui:Button Grid.Column="2" Content="{Binding ActionLabel}" Padding="12,6" Margin="12,0,0,0"
+                                               VerticalAlignment="Center"
+                                               Visibility="{Binding HasAction, Converter={StaticResource VisibleWhenTrue}}"
+                                               Command="{Binding DataContext.AlertActionCommand, RelativeSource={RelativeSource AncestorType=Page}}"
+                                               CommandParameter="{Binding}" />
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <!-- Physical drives -->
+                <TextBlock Text="Drives" FontSize="15" FontWeight="SemiBold" Margin="0,10,0,8" />
+                <ItemsControl ItemsSource="{Binding DiskCards}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <ui:Card Width="340" Margin="0,0,10,10" Padding="14,12"
+                                     helpers:Animations.HoverLift="True" helpers:Animations.FadeInOnLoad="True">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <controls:HealthGauge Grid.Column="0" Score="{Binding Score}" Width="92" Height="92"
+                                                          VerticalAlignment="Top" />
+                                    <StackPanel Grid.Column="1" Margin="12,0,0,0">
+                                        <StackPanel Orientation="Horizontal">
+                                            <ui:SymbolIcon Symbol="{Binding MediaIcon}" FontSize="16" VerticalAlignment="Center"
+                                                           Foreground="{StaticResource NeonCyanBrush}" Margin="0,0,6,0" />
+                                            <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="13"
+                                                       TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
+                                        </StackPanel>
+                                        <TextBlock FontSize="11" Opacity="0.6" Margin="0,2,0,0">
+                                            <Run Text="{Binding Media, Mode=OneWay}" /><Run Text=" · " /><Run Text="{Binding SizeText, Mode=OneWay}" /><Run Text=" · " /><Run Text="{Binding HealthText, Mode=OneWay}" />
+                                        </TextBlock>
+                                        <WrapPanel Margin="0,8,0,0">
+                                            <Border Background="#22FFFFFF" CornerRadius="4" Padding="7,3" Margin="0,0,6,6"
+                                                    Visibility="{Binding HasTemp, Converter={StaticResource VisibleWhenTrue}}">
+                                                <TextBlock Text="{Binding TempText}" FontSize="11" />
+                                            </Border>
+                                            <Border Background="#22FFFFFF" CornerRadius="4" Padding="7,3" Margin="0,0,6,6"
+                                                    Visibility="{Binding HasWear, Converter={StaticResource VisibleWhenTrue}}">
+                                                <TextBlock Text="{Binding WearText}" FontSize="11" />
+                                            </Border>
+                                            <Border Background="#22FFFFFF" CornerRadius="4" Padding="7,3" Margin="0,0,6,6"
+                                                    Visibility="{Binding HasHours, Converter={StaticResource VisibleWhenTrue}}">
+                                                <TextBlock Text="{Binding HoursText}" FontSize="11" />
+                                            </Border>
+                                            <Border Background="#33FF2A6D" CornerRadius="4" Padding="7,3" Margin="0,0,6,6"
+                                                    Visibility="{Binding HasErrors, Converter={StaticResource VisibleWhenTrue}}">
+                                                <TextBlock Text="{Binding ErrorsText}" FontSize="11" Foreground="#FF8AA8" />
+                                            </Border>
+                                        </WrapPanel>
+                                    </StackPanel>
                                 </Grid>
                             </ui:Card>
                         </DataTemplate>
@@ -101,7 +162,8 @@
                                         <TextBlock Text="{Binding FreeText}" FontSize="11" Opacity="0.6" />
                                     </StackPanel>
                                     <ProgressBar Grid.Column="1" Value="{Binding UsedPercent, Mode=OneWay}" Maximum="100"
-                                                 Height="6" VerticalAlignment="Center" Margin="0,0,12,0" />
+                                                 Height="6" VerticalAlignment="Center" Margin="0,0,12,0"
+                                                 Foreground="{Binding UsedPercent, Converter={StaticResource UsageBrush}}" />
                                     <StackPanel Grid.Column="2" Orientation="Horizontal">
                                         <ui:Button Content="Check for errors" Padding="12,6"
                                                    Command="{Binding CheckErrorsCommand}"
@@ -116,30 +178,54 @@
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
 
-                <!-- System files -->
-                <TextBlock Text="Windows system files" FontSize="15" FontWeight="SemiBold" Margin="0,8,0,8" />
-                <StackPanel Orientation="Horizontal">
-                    <ui:Button Content="Scan system files (SFC)" Padding="16,8" Command="{Binding RunSfcCommand}">
-                        <ui:Button.Icon>
-                            <ui:SymbolIcon Symbol="DocumentSearch24" />
-                        </ui:Button.Icon>
-                    </ui:Button>
-                    <ui:Button Content="Repair image (DISM)" Padding="16,8" Margin="8,0,0,0" Command="{Binding RunDismCommand}">
-                        <ui:Button.Icon>
-                            <ui:SymbolIcon Symbol="Wrench24" />
-                        </ui:Button.Icon>
-                    </ui:Button>
-                    <ui:Button Content="Refresh" Padding="16,8" Margin="8,0,0,0" Appearance="Secondary" Command="{Binding RefreshCommand}">
-                        <ui:Button.Icon>
-                            <ui:SymbolIcon Symbol="ArrowClockwise24" />
-                        </ui:Button.Icon>
-                    </ui:Button>
-                </StackPanel>
+                <!-- Free up space (deep-links to existing tools) -->
+                <TextBlock Text="Free up space" FontSize="15" FontWeight="SemiBold" Margin="0,8,0,8" />
+                <UniformGrid Columns="3">
+                    <ui:CardAction Margin="0,0,8,0" Command="{Binding NavigateCommand}" CommandParameter="Cleanup">
+                        <ui:CardAction.Icon><ui:SymbolIcon Symbol="Broom24" /></ui:CardAction.Icon>
+                        <StackPanel>
+                            <TextBlock Text="Clean junk &amp; cache" FontWeight="SemiBold" />
+                            <TextBlock Text="Remove temporary and leftover files" FontSize="11" Opacity="0.65" TextWrapping="Wrap" />
+                        </StackPanel>
+                    </ui:CardAction>
+                    <ui:CardAction Margin="8,0,8,0" Command="{Binding NavigateCommand}" CommandParameter="Duplicates">
+                        <ui:CardAction.Icon><ui:SymbolIcon Symbol="DocumentCopy24" /></ui:CardAction.Icon>
+                        <StackPanel>
+                            <TextBlock Text="Find duplicates" FontWeight="SemiBold" />
+                            <TextBlock Text="Reclaim space from repeated files" FontSize="11" Opacity="0.65" TextWrapping="Wrap" />
+                        </StackPanel>
+                    </ui:CardAction>
+                    <ui:CardAction Margin="8,0,0,0" Command="{Binding NavigateCommand}" CommandParameter="Disk">
+                        <ui:CardAction.Icon><ui:SymbolIcon Symbol="DataPie24" /></ui:CardAction.Icon>
+                        <StackPanel>
+                            <TextBlock Text="Find large files" FontWeight="SemiBold" />
+                            <TextBlock Text="See what's using the most space" FontSize="11" Opacity="0.65" TextWrapping="Wrap" />
+                        </StackPanel>
+                    </ui:CardAction>
+                </UniformGrid>
+
+                <!-- Advanced repair -->
+                <ui:CardExpander Margin="0,12,0,0" IsExpanded="False">
+                    <ui:CardExpander.Header>
+                        <StackPanel Orientation="Horizontal">
+                            <ui:SymbolIcon Symbol="Wrench24" FontSize="18" VerticalAlignment="Center" Margin="0,0,10,0" />
+                            <TextBlock Text="Advanced repair (system files)" FontWeight="SemiBold" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </ui:CardExpander.Header>
+                    <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                        <ui:Button Content="Scan system files (SFC)" Padding="16,8" Command="{Binding RunSfcCommand}">
+                            <ui:Button.Icon><ui:SymbolIcon Symbol="DocumentSearch24" /></ui:Button.Icon>
+                        </ui:Button>
+                        <ui:Button Content="Repair image (DISM)" Padding="16,8" Margin="8,0,0,0" Command="{Binding RunDismCommand}">
+                            <ui:Button.Icon><ui:SymbolIcon Symbol="Wrench24" /></ui:Button.Icon>
+                        </ui:Button>
+                    </StackPanel>
+                </ui:CardExpander>
             </StackPanel>
         </ScrollViewer>
 
         <!-- Live output console -->
-        <Grid Grid.Row="2" Margin="0,14,0,0">
+        <Grid Grid.Row="2" Margin="0,12,0,0" Height="200">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
