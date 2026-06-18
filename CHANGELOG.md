@@ -2,6 +2,29 @@
 
 All notable changes to SystemCare are documented here. Versions follow [SemVer](https://semver.org/).
 
+## [1.7.3] - 2026-06-18
+
+### Changed
+- **Redesigned System Information panel.** Hardware is now organized into clear, collapsible sections
+  (Processor, Graphics, Memory, Storage, Operating system, Network) with a device/OS/uptime summary line
+  and prioritized live CPU/RAM/Network monitors. The panel shows richer details — OS version, build and
+  install date; RAM type and per-module info; GPU resolution and driver; disk SMART health; battery
+  charge (laptops); per-adapter network type, link speed and IP; and live per-volume capacity bars — with
+  health indicators and hover tooltips throughout.
+
+### Fixed
+- Detail lines no longer show stray "·" separators when a field is missing, and CPUs that under-report to
+  WMI no longer read as "0 cores"/"0.0 GHz".
+- Virtual and mirror display adapters (Basic Render, Remote Desktop, Parsec, DisplayLink) are no longer
+  listed as graphics cards.
+- The Memory row now shows an icon (the previous icon name didn't exist, so it rendered blank).
+- Unsupported readings (battery, drive health, temperatures) are simply omitted instead of cluttering the
+  panel, and a slow hardware scan can no longer freeze or crash the page.
+
+### Performance
+- The once-per-second usage snapshot (network and drive enumeration) now runs off the UI thread, and disk
+  capacity refreshes on a slower cadence — removing micro-stutter on machines with many adapters or a VPN.
+
 ## [1.7.2] - 2026-06-18
 
 ### Security
@@ -220,6 +243,7 @@ A bug-fix and hardening release from a full audit of the services and view-model
 ## [1.0.0]
 - Initial release: cleanup, privacy, duplicates, disk tools, startup, boost, tweaks, security, and more.
 
+[1.7.3]: https://github.com/WifeInLantern/SystemCare/releases/tag/v1.7.3
 [1.7.2]: https://github.com/WifeInLantern/SystemCare/releases/tag/v1.7.2
 [1.7.1]: https://github.com/WifeInLantern/SystemCare/releases/tag/v1.7.1
 [1.7.0]: https://github.com/WifeInLantern/SystemCare/releases/tag/v1.7.0
