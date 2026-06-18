@@ -26,14 +26,24 @@ public interface IGameModeService
 public class GameModeService(IBoostService boost) : IGameModeService
 {
     private const string PushKey = @"Software\Microsoft\Windows\CurrentVersion\PushNotifications";
+    private const string ToastValue = "ToastEnabled";
     private bool _silenced;
+    private int? _previousToast; // the user's ToastEnabled before we silenced (null = value was absent)
 
     public bool IsActive { get; private set; }
 
     public async Task<GameModeResult> EnterAsync(IEnumerable<int> pidsToSuspend, bool silenceNotifications)
     {
         var b = await boost.BoostAsync(pidsToSuspend);
-        _silenced = silenceNotifications && SetToasts(false);
+
+        _silenced = false;
+        if (silenceNotifications)
+        {
+            // Remember the user's current preference so Exit restores it exactly, instead of
+            // force-enabling toasts (which would clobber the setting of users who keep them off).
+            _previousToast = ReadToast();
+            _silenced = SetToasts(false);
+        }
         IsActive = true;
 
         return new GameModeResult
@@ -49,25 +59,53 @@ public class GameModeService(IBoostService boost) : IGameModeService
     public async Task<GameModeResult> ExitAsync()
     {
         var b = await boost.RestoreAsync();
-        if (_silenced) SetToasts(true);
+        if (_silenced) RestoreToasts();
         _silenced = false;
         IsActive = false;
 
         return new GameModeResult { IsActive = false, PowerPlanName = b.PowerPlanName };
     }
 
-    /// <summary>Toggles toast notifications for the current user (reversible). Returns true if applied.</summary>
+    /// <summary>Disables toast notifications for the current user. Returns true if applied.</summary>
     private static bool SetToasts(bool enabled)
     {
         try
         {
             using var key = Registry.CurrentUser.CreateSubKey(PushKey);
-            key?.SetValue("ToastEnabled", enabled ? 1 : 0, RegistryValueKind.DWord);
+            key?.SetValue(ToastValue, enabled ? 1 : 0, RegistryValueKind.DWord);
             return key is not null;
         }
         catch (Exception)
         {
             return false;
         }
+    }
+
+    /// <summary>Reads the current ToastEnabled value; null if absent or not a DWORD.</summary>
+    private static int? ReadToast()
+    {
+        try
+        {
+            using var key = Registry.CurrentUser.OpenSubKey(PushKey);
+            return key?.GetValue(ToastValue) is int v ? v : null;
+        }
+        catch (Exception)
+        {
+            return null;
+        }
+    }
+
+    /// <summary>Restores the user's notification preference captured at Enter (re-enables, or removes the value if it was absent).</summary>
+    private void RestoreToasts()
+    {
+        try
+        {
+            using var key = Registry.CurrentUser.CreateSubKey(PushKey);
+            if (key is null) return;
+            if (_previousToast is int v) key.SetValue(ToastValue, v, RegistryValueKind.DWord);
+            else key.DeleteValue(ToastValue, throwOnMissingValue: false); // was absent → leave it absent (default = enabled)
+        }
+        catch (Exception) { }
+        finally { _previousToast = null; }
     }
 }

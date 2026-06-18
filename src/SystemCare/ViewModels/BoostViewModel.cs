@@ -42,6 +42,8 @@ public partial class BoostViewModel : ObservableObject
 
     public void OnNavigatedTo()
     {
+        // Boost shares its engine with Game Mode; re-sync so the toggle reflects the real state.
+        IsBoosted = _boost.IsBoosted;
         if (Apps.Count > 0) return;
         int self = Environment.ProcessId;
         // Candidate "background apps" = user apps with a visible window, excluding self + system.

@@ -50,7 +50,6 @@ public class WindowsUpdateService : IWindowsUpdateService
             dynamic searchResult = searcher.Search("IsInstalled=0 and Type='Software' and IsHidden=0");
             dynamic updates = searchResult.Updates;
 
-            int index = 0;
             foreach (dynamic u in updates)
             {
                 ct.ThrowIfCancellationRequested();
@@ -63,16 +62,21 @@ public class WindowsUpdateService : IWindowsUpdateService
                 try { foreach (dynamic id in u.KBArticleIDs) { kb = "KB" + id; break; } } catch (Exception) { }
                 string category = "";
                 try { foreach (dynamic c in u.Categories) { category = (string)c.Name; break; } } catch (Exception) { }
+                string title = "";
+                try { title = ((string?)u.Title)?.Trim() ?? ""; } catch (Exception) { }
+                if (title.Length == 0) title = kb.Length > 0 ? kb : "Windows update";
 
+                // Index must stay in lockstep with _lastUpdates so install can resolve the COM object.
+                int idx = _lastUpdates.Count;
                 _lastUpdates.Add(u);
                 results.Add(new WindowsUpdateItem
                 {
-                    Title = ((string)u.Title).Trim(),
+                    Title = title,
                     Kb = kb,
                     SizeBytes = size,
                     IsMandatory = mandatory,
                     Category = category,
-                    Index = index++,
+                    Index = idx,
                 });
             }
         }

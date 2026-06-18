@@ -42,6 +42,9 @@ public partial class GameModeViewModel : ObservableObject
 
     public void OnNavigatedTo()
     {
+        // Game Mode and Boost drive the same underlying engine; re-sync so the toggle reflects reality
+        // even if the other page changed the state since this (singleton) view-model was last shown.
+        IsActive = _gameMode.IsActive;
         if (Apps.Count > 0) return;
         int self = Environment.ProcessId;
         var candidates = _processes.GetProcesses()
@@ -89,7 +92,7 @@ public partial class GameModeViewModel : ObservableObject
         {
             var result = await _gameMode.ExitAsync();
             IsActive = false;
-            StatusText = $"Exited Game Mode — power plan back to {result.PowerPlanName}, apps resumed and notifications restored.";
+            StatusText = $"Exited Game Mode — power plan back to {result.PowerPlanName}; paused apps resumed and notifications restored.";
         }
         finally
         {

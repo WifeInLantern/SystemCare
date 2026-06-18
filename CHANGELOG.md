@@ -2,6 +2,24 @@
 
 All notable changes to SystemCare are documented here. Versions follow [SemVer](https://semver.org/).
 
+## [1.7.1] - 2026-06-18
+
+### Fixed
+- **Game Mode no longer changes your notification setting.** Exiting Game Mode used to force Windows
+  notification toasts back *on*, overwriting the preference of anyone who keeps them off. It now records
+  your toast setting when you enter and restores exactly that value (or removes it again if it wasn't set)
+  on exit.
+- **Game Mode / Boost toggle could show the wrong state.** Game Mode and Boost drive the same underlying
+  engine; switching from one page to the other could leave a toggle showing "active" after the state had
+  already been reverted. Each page now re-reads the real state when opened, so the toggle is always correct.
+- **A single malformed Windows update no longer hides the rest.** If one pending update reported no title,
+  the whole list could be cut short. Updates with a missing title now fall back to their KB number (or a
+  generic label) and the full list is shown.
+
+### Changed
+- **Windows Update page hardening.** The initial load on opening the page is now fully guarded so a
+  background failure can never bubble up; any problem is logged instead.
+
 ## [1.7.0] - 2026-06-18
 
 ### Added
@@ -183,6 +201,7 @@ A bug-fix and hardening release from a full audit of the services and view-model
 ## [1.0.0]
 - Initial release: cleanup, privacy, duplicates, disk tools, startup, boost, tweaks, security, and more.
 
+[1.7.1]: https://github.com/WifeInLantern/SystemCare/releases/tag/v1.7.1
 [1.7.0]: https://github.com/WifeInLantern/SystemCare/releases/tag/v1.7.0
 [1.6.1]: https://github.com/WifeInLantern/SystemCare/releases/tag/v1.6.1
 [1.6.0]: https://github.com/WifeInLantern/SystemCare/releases/tag/v1.6.0

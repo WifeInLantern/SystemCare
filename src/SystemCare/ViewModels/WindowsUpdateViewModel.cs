@@ -54,8 +54,16 @@ public partial class WindowsUpdateViewModel : ObservableObject
 
     public async void OnNavigatedTo()
     {
-        if (!HasChecked && !IsChecking) await CheckAsync(CancellationToken.None);
-        if (History.Count == 0) await LoadHistoryAsync();
+        // async void: an unobserved exception here would crash the process, so contain it.
+        try
+        {
+            if (!HasChecked && !IsChecking) await CheckAsync(CancellationToken.None);
+            if (History.Count == 0) await LoadHistoryAsync();
+        }
+        catch (Exception ex)
+        {
+            _log.Warn("WindowsUpdate", "Initial load failed: " + ex.Message);
+        }
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
