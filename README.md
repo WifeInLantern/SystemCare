@@ -187,6 +187,19 @@ The installer is an [Inno Setup](https://jrsoftware.org/isinfo.php) script at
 # produces dist\SystemCare-Setup.exe
 ```
 
+### Publish the installer checksum
+
+The in-app updater verifies the SHA-256 of the installer it downloads when the release publishes one.
+After building the installer, generate the checksum and attach **both** files to the GitHub release:
+
+```powershell
+(Get-FileHash dist\SystemCare-Setup.exe -Algorithm SHA256).Hash.ToLower() + " *SystemCare-Setup.exe" `
+  | Out-File dist\SystemCare-Setup.exe.sha256 -Encoding ascii
+# upload dist\SystemCare-Setup.exe AND dist\SystemCare-Setup.exe.sha256 to the release
+```
+
+Older releases without a `.sha256` still update (the updater falls back to verifying the byte count).
+
 ## Project layout
 
 ```

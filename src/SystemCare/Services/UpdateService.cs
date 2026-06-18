@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Reflection;
+using System.Security.Cryptography;
 using System.Text.Json;
 using SystemCare.Models;
 
@@ -15,11 +16,11 @@ public interface IUpdateService
     Task<UpdateInfo?> CheckAsync();
     /// <summary>Downloads the release installer to the Downloads folder; returns the path or null.</summary>
     Task<string?> DownloadAsync(IProgress<double>? progress, CancellationToken ct);
-    /// <summary>Launches a downloaded file (the installer).</summary>
-    void Launch(string path);
+    /// <summary>Launches a downloaded file (the installer). Returns true if the process actually started.</summary>
+    bool Launch(string path);
 }
 
-public class UpdateService(ISettingsService settings) : IUpdateService
+public class UpdateService(ISettingsService settings, ILogService log) : IUpdateService
 {
     // Default to this build's own GitHub repo's latest release.
     private const string DefaultFeedUrl = "https://api.github.com/repos/WifeInLantern/SystemCare/releases/latest";
@@ -55,7 +56,7 @@ public class UpdateService(ISettingsService settings) : IUpdateService
             string releaseUrl = GetStr(root, "html_url") ?? GetStr(root, "url") ?? "";
 
             // Pick the best downloadable asset (prefer the installer, then any .exe).
-            string? assetApi = null, assetDownload = null, assetName = "";
+            string? assetApi = null, assetDownload = null, assetName = "", checksumUrl = null;
             long assetSize = 0;
             bool hasAssetsArray = root.TryGetProperty("assets", out var assets) && assets.ValueKind == JsonValueKind.Array;
             if (hasAssetsArray)
@@ -75,6 +76,15 @@ public class UpdateService(ISettingsService settings) : IUpdateService
                     assetDownload = GetStr(chosen, "browser_download_url");
                     assetName = GetStr(chosen, "name") ?? "SystemCare-Setup.exe";
                     assetSize = chosen.TryGetProperty("size", out var s) && s.ValueKind == JsonValueKind.Number ? s.GetInt64() : 0;
+
+                    // Find the matching SHA-256 checksum asset (prefer "<installer>.sha256", else any *.sha256).
+                    string want = assetName + ".sha256";
+                    foreach (var a in assets.EnumerateArray())
+                    {
+                        string n = GetStr(a, "name") ?? "";
+                        if (n.Equals(want, StringComparison.OrdinalIgnoreCase)) { checksumUrl = GetStr(a, "browser_download_url"); break; }
+                        if (checksumUrl is null && n.EndsWith(".sha256", StringComparison.OrdinalIgnoreCase)) checksumUrl = GetStr(a, "browser_download_url");
+                    }
                 }
             }
             // A simple custom feed (no GitHub-style "assets" array) may put the download url under "url".
@@ -92,6 +102,7 @@ public class UpdateService(ISettingsService settings) : IUpdateService
                     AssetApiUrl = assetApi, AssetDownloadUrl = assetDownload,
                     AssetName = string.IsNullOrEmpty(assetName) ? "SystemCare-Setup.exe" : assetName,
                     AssetSize = assetSize,
+                    ChecksumUrl = checksumUrl,
                 };
                 return LatestAvailable;
             }
@@ -133,19 +144,70 @@ public class UpdateService(ISettingsService settings) : IUpdateService
             string downloads = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads");
             Directory.CreateDirectory(downloads);
             string path = Path.Combine(downloads, info.AssetName);
+            // Stream to a temporary .part file, verify it, then atomically rename — so a truncated or
+            // tampered download is never left under the real name nor launched as the installer.
+            string partPath = path + ".part";
 
             long? total = response.Content.Headers.ContentLength ?? (info.AssetSize > 0 ? info.AssetSize : null);
-            await using var src = await response.Content.ReadAsStreamAsync(ct);
-            await using var dst = new FileStream(path, FileMode.Create, FileAccess.Write, FileShare.None);
-            var buffer = new byte[81920];
+            byte[] hash;
             long read = 0;
-            int n;
-            while ((n = await src.ReadAsync(buffer, ct)) > 0)
+            try
             {
-                await dst.WriteAsync(buffer.AsMemory(0, n), ct);
-                read += n;
-                if (total is > 0) progress?.Report(read * 100.0 / total.Value);
+                await using var src = await response.Content.ReadAsStreamAsync(ct);
+                await using var dst = new FileStream(partPath, FileMode.Create, FileAccess.Write, FileShare.None);
+                using var hasher = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
+                var buffer = new byte[81920];
+                int n;
+                while ((n = await src.ReadAsync(buffer, ct)) > 0)
+                {
+                    await dst.WriteAsync(buffer.AsMemory(0, n), ct);
+                    hasher.AppendData(buffer, 0, n);
+                    read += n;
+                    if (total is > 0) progress?.Report(read * 100.0 / total.Value);
+                }
+                hash = hasher.GetHashAndReset();
             }
+            catch (Exception)
+            {
+                TryDelete(partPath);
+                throw;
+            }
+
+            // 1) Length: a known expected size must match exactly (catches a connection closed mid-stream).
+            if (total is > 0 && read != total.Value)
+            {
+                log.Warn("Updater", $"Download incomplete: got {read} of {total.Value} bytes — discarding.");
+                TryDelete(partPath);
+                return null;
+            }
+
+            // 2) Checksum: when the release publishes a .sha256, the bytes must match it.
+            if (!string.IsNullOrEmpty(info.ChecksumUrl))
+            {
+                string? expected = await VerifyChecksumAsync(info.ChecksumUrl!, ct);
+                string actual = Convert.ToHexString(hash);
+                if (expected is null)
+                {
+                    log.Warn("Updater", "Could not fetch the published checksum — discarding the download.");
+                    TryDelete(partPath);
+                    return null;
+                }
+                if (!expected.Equals(actual, StringComparison.OrdinalIgnoreCase))
+                {
+                    log.Error("Updater", $"Checksum mismatch (expected {expected}, got {actual}) — discarding the download.");
+                    TryDelete(partPath);
+                    return null;
+                }
+                log.Info("Updater", "Installer SHA-256 verified.");
+            }
+            else
+            {
+                log.Info("Updater", total is > 0
+                    ? "Installer size verified (no published checksum)."
+                    : "Installer downloaded (no size or checksum to verify against).");
+            }
+
+            File.Move(partPath, path, overwrite: true);
             progress?.Report(100);
             return path;
         }
@@ -155,10 +217,44 @@ public class UpdateService(ISettingsService settings) : IUpdateService
         }
     }
 
-    public void Launch(string path)
+    /// <summary>Fetches and parses the first SHA-256 hex token from a published .sha256 file, or null.</summary>
+    private async Task<string?> VerifyChecksumAsync(string url, CancellationToken ct)
     {
-        try { Process.Start(new ProcessStartInfo(path) { UseShellExecute = true }); }
-        catch (Exception) { }
+        if (!IsHttps(url)) return null;
+        try
+        {
+            using var request = new HttpRequestMessage(HttpMethod.Get, url);
+            request.Headers.UserAgent.ParseAdd("SystemCare-UpdateCheck");
+            if (!string.IsNullOrWhiteSpace(settings.Current.UpdateGitHubToken) && IsGitHubHost(url))
+            {
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", settings.Current.UpdateGitHubToken);
+                request.Headers.Accept.ParseAdd("application/octet-stream");
+            }
+            using var response = await Http.SendAsync(request, ct);
+            if (!response.IsSuccessStatusCode) return null;
+
+            string text = await response.Content.ReadAsStringAsync(ct);
+            // Accept "<hex>", "<hex> *file", or "<hex>  file" — take the first 64-hex-char run.
+            foreach (var token in text.Split([' ', '\t', '\r', '\n', '*'], StringSplitOptions.RemoveEmptyEntries))
+                if (token.Length == 64 && token.All(Uri.IsHexDigit))
+                    return token;
+            return null;
+        }
+        catch (Exception)
+        {
+            return null;
+        }
+    }
+
+    private static void TryDelete(string path)
+    {
+        try { if (File.Exists(path)) File.Delete(path); } catch (Exception) { }
+    }
+
+    public bool Launch(string path)
+    {
+        try { Process.Start(new ProcessStartInfo(path) { UseShellExecute = true }); return true; }
+        catch (Exception) { return false; } // e.g. the user dismissed the UAC elevation prompt
     }
 
     private void ApplyGitHubHeaders(HttpRequestMessage request)

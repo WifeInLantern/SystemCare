@@ -11,6 +11,8 @@ public class UpdateInfo
     public string? AssetDownloadUrl { get; init; }
     public string AssetName { get; init; } = "";
     public long AssetSize { get; init; }
+    /// <summary>Direct download url of the installer's published SHA-256 checksum (.sha256), if any.</summary>
+    public string? ChecksumUrl { get; init; }
 
     public bool HasAsset => !string.IsNullOrEmpty(AssetDownloadUrl) || !string.IsNullOrEmpty(AssetApiUrl);
 }

@@ -284,9 +284,26 @@ public partial class App : Application
 
             if (choice == Wpf.Ui.Controls.ContentDialogResult.Primary)
             {
-                updates.Launch(installer);
-                if (Current.MainWindow is MainWindow main) main.ForceExit = true; // bypass minimize-to-tray
-                Current.Shutdown();
+                // Safety net before the installer replaces app files.
+                if (_services.GetRequiredService<ISettingsService>().Current.CreateRestorePointBeforeMaintenance)
+                {
+                    var (ok, msg) = await _services.GetRequiredService<IRestorePointService>()
+                        .CreateRestorePointAsync("Before SystemCare app update");
+                    if (!ok) _services.GetRequiredService<ILogService>().Warn("Updater", $"Restore point not created: {msg}");
+                }
+
+                // Only exit if the installer actually started — declining UAC must not close the app silently.
+                if (updates.Launch(installer))
+                {
+                    if (Current.MainWindow is MainWindow main) main.ForceExit = true; // bypass minimize-to-tray
+                    Current.Shutdown();
+                }
+                else
+                {
+                    snackbar.Show("Update not started",
+                        "The installer didn't start. You can install it anytime from Settings → Updates.",
+                        Wpf.Ui.Controls.ControlAppearance.Caution, null, TimeSpan.FromSeconds(7));
+                }
             }
             else
             {

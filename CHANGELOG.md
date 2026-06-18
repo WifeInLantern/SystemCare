@@ -2,6 +2,25 @@
 
 All notable changes to SystemCare are documented here. Versions follow [SemVer](https://semver.org/).
 
+## [1.7.2] - 2026-06-18
+
+### Security
+- **The in-app updater now verifies what it downloads before running it.** Releases publish a SHA-256
+  checksum for the installer; the updater downloads to a temporary file, verifies the byte count and
+  (when published) the SHA-256, and only then promotes and launches it. A truncated download (e.g. a
+  dropped connection) or a checksum mismatch is discarded instead of being launched with administrator
+  rights. Releases without a checksum still update via byte-count verification.
+
+### Added
+- **A System Restore point is created before the app updates itself** (when "create a restore point"
+  is enabled), giving you a rollback point before the installer replaces program files.
+
+### Fixed
+- **Declining the update's elevation prompt no longer closes the app.** Previously, starting an update
+  from the startup prompt and then cancelling the UAC dialog could exit SystemCare without installing
+  anything. The app now stays open if the installer doesn't actually start, and the downloaded installer
+  remains in your Downloads folder to run later.
+
 ## [1.7.1] - 2026-06-18
 
 ### Fixed
@@ -201,6 +220,7 @@ A bug-fix and hardening release from a full audit of the services and view-model
 ## [1.0.0]
 - Initial release: cleanup, privacy, duplicates, disk tools, startup, boost, tweaks, security, and more.
 
+[1.7.2]: https://github.com/WifeInLantern/SystemCare/releases/tag/v1.7.2
 [1.7.1]: https://github.com/WifeInLantern/SystemCare/releases/tag/v1.7.1
 [1.7.0]: https://github.com/WifeInLantern/SystemCare/releases/tag/v1.7.0
 [1.6.1]: https://github.com/WifeInLantern/SystemCare/releases/tag/v1.6.1

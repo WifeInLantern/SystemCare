@@ -16,6 +16,7 @@ public partial class SettingsViewModel : ObservableObject
     private readonly IScheduledMaintenanceService _maintenance;
     private readonly IStartupLauncherService _startup;
     private readonly IUpdateService _updates;
+    private readonly IRestorePointService _restore;
     private readonly ISnackbarService _snackbar;
     private readonly ILogService _log;
 
@@ -51,12 +52,14 @@ public partial class SettingsViewModel : ObservableObject
     public string ElevationText { get; }
 
     public SettingsViewModel(ISettingsService settings, IScheduledMaintenanceService maintenance,
-        IStartupLauncherService startup, IUpdateService updates, ISnackbarService snackbar, ILogService log)
+        IStartupLauncherService startup, IUpdateService updates, IRestorePointService restore,
+        ISnackbarService snackbar, ILogService log)
     {
         _settings = settings;
         _maintenance = maintenance;
         _startup = startup;
         _updates = updates;
+        _restore = restore;
         _snackbar = snackbar;
         _log = log;
         _skipTempNewerThanHours = settings.Current.SkipTempNewerThanHours;
@@ -150,11 +153,28 @@ public partial class SettingsViewModel : ObservableObject
                     ControlAppearance.Danger, null, TimeSpan.FromSeconds(7));
                 return;
             }
+            // Safety net before the installer replaces app files.
+            if (_settings.Current.CreateRestorePointBeforeMaintenance)
+            {
+                UpdateStatus = "Creating a restore point…";
+                var (ok, msg) = await _restore.CreateRestorePointAsync("Before SystemCare app update");
+                if (!ok) _log.Warn("Updater", $"Restore point not created: {msg}");
+            }
+
             UpdateStatus = "Download complete — launching the installer…";
-            _updates.Launch(path);
-            _snackbar.Show("Installer started",
-                "Follow the installer to finish updating. You can close SystemCare.",
-                ControlAppearance.Success, null, TimeSpan.FromSeconds(7));
+            if (_updates.Launch(path))
+            {
+                _snackbar.Show("Installer started",
+                    "Follow the installer to finish updating. You can close SystemCare.",
+                    ControlAppearance.Success, null, TimeSpan.FromSeconds(7));
+            }
+            else
+            {
+                UpdateStatus = "The installer didn't start — it's in your Downloads folder if you want to run it manually.";
+                _snackbar.Show("Installer didn't start",
+                    "The installer was downloaded to your Downloads folder but didn't launch.",
+                    ControlAppearance.Caution, null, TimeSpan.FromSeconds(7));
+            }
         }
         finally
         {
