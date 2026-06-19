@@ -191,6 +191,7 @@ public partial class App : Application
         // cyan accent so every accent-driven Fluent control (buttons, toggles,
         // selection, progress) picks it up.
         var settings = _services.GetRequiredService<ISettingsService>();
+        SystemCare.Helpers.Animations.ReduceMotion = settings.Current.ReduceMotion;
         ApplicationThemeManager.Apply(ApplicationTheme.Dark);
         ApplicationAccentColorManager.Apply(
             System.Windows.Media.Color.FromRgb(0x00, 0xE5, 0xFF), ApplicationTheme.Dark);

@@ -2,6 +2,21 @@
 
 All notable changes to SystemCare are documented here. Versions follow [SemVer](https://semver.org/).
 
+## [1.9.0] - 2026-06-19
+
+### Changed
+- **App-wide visual consistency pass (Design System v2).** The cyberpunk "Night City" theme is now a
+  formal design system — a shared spacing/type/radius scale, semantic surface tokens, and a reusable
+  component library (buttons, cards, chips, list rows, the log console, and inputs with a neon focus
+  glow). Every page was migrated onto it, so section headers, chips, inset panels, consoles and buttons
+  look and behave consistently across the whole app, and keyboard focus is clearly visible on inputs.
+  This is a styling/resources pass only — no functional or backend changes.
+
+### Added
+- **"Reduce motion & effects" accessibility setting.** A new Settings toggle stops the animated backdrop,
+  the looping neon pulses and the health-gauge breathing glow, and settles page entrances to their final
+  state — easier on the eyes and lighter on battery. It applies live, in both directions, without a restart.
+
 ## [1.8.0] - 2026-06-18
 
 ### Added
@@ -259,6 +274,7 @@ A bug-fix and hardening release from a full audit of the services and view-model
 ## [1.0.0]
 - Initial release: cleanup, privacy, duplicates, disk tools, startup, boost, tweaks, security, and more.
 
+[1.9.0]: https://github.com/WifeInLantern/SystemCare/releases/tag/v1.9.0
 [1.8.0]: https://github.com/WifeInLantern/SystemCare/releases/tag/v1.8.0
 [1.7.3]: https://github.com/WifeInLantern/SystemCare/releases/tag/v1.7.3
 [1.7.2]: https://github.com/WifeInLantern/SystemCare/releases/tag/v1.7.2

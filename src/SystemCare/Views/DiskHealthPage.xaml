@@ -65,7 +65,7 @@
                               Visibility="{Binding HasAlerts, Converter={StaticResource VisibleWhenTrue}}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <Border CornerRadius="8" Padding="14,10" Margin="0,0,0,8" Background="#12203250"
+                            <Border CornerRadius="8" Padding="14,10" Margin="0,0,0,8" Background="{StaticResource PanelInsetBrush}"
                                     BorderBrush="{StaticResource CyberStrokeBrush}" BorderThickness="1"
                                     helpers:Animations.FadeInOnLoad="True">
                                 <Grid>
@@ -92,7 +92,7 @@
                 </ItemsControl>
 
                 <!-- Physical drives -->
-                <TextBlock Text="Drives" FontSize="15" FontWeight="SemiBold" Margin="0,10,0,8" />
+                <TextBlock Text="Drives" Style="{StaticResource CyberSectionHeader}" Margin="0,10,0,8" />
                 <ItemsControl ItemsSource="{Binding DiskCards}">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate>
@@ -119,15 +119,15 @@
                                             <Run Text="{Binding Media, Mode=OneWay}" /><Run Text=" · " /><Run Text="{Binding SizeText, Mode=OneWay}" /><Run Text=" · " /><Run Text="{Binding HealthText, Mode=OneWay}" />
                                         </TextBlock>
                                         <WrapPanel Margin="0,8,0,0">
-                                            <Border Background="#22FFFFFF" CornerRadius="4" Padding="7,3" Margin="0,0,6,6"
+                                            <Border Style="{StaticResource CyberChip}" Margin="0,0,6,6"
                                                     Visibility="{Binding HasTemp, Converter={StaticResource VisibleWhenTrue}}">
                                                 <TextBlock Text="{Binding TempText}" FontSize="11" />
                                             </Border>
-                                            <Border Background="#22FFFFFF" CornerRadius="4" Padding="7,3" Margin="0,0,6,6"
+                                            <Border Style="{StaticResource CyberChip}" Margin="0,0,6,6"
                                                     Visibility="{Binding HasWear, Converter={StaticResource VisibleWhenTrue}}">
                                                 <TextBlock Text="{Binding WearText}" FontSize="11" />
                                             </Border>
-                                            <Border Background="#22FFFFFF" CornerRadius="4" Padding="7,3" Margin="0,0,6,6"
+                                            <Border Style="{StaticResource CyberChip}" Margin="0,0,6,6"
                                                     Visibility="{Binding HasHours, Converter={StaticResource VisibleWhenTrue}}">
                                                 <TextBlock Text="{Binding HoursText}" FontSize="11" />
                                             </Border>
@@ -144,7 +144,7 @@
                 </ItemsControl>
 
                 <!-- Volumes -->
-                <TextBlock Text="Volumes" FontSize="15" FontWeight="SemiBold" Margin="0,8,0,8" />
+                <TextBlock Text="Volumes" Style="{StaticResource CyberSectionHeader}" Margin="0,8,0,8" />
                 <ItemsControl ItemsSource="{Binding Volumes}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
@@ -179,7 +179,7 @@
                 </ItemsControl>
 
                 <!-- Free up space (deep-links to existing tools) -->
-                <TextBlock Text="Free up space" FontSize="15" FontWeight="SemiBold" Margin="0,8,0,8" />
+                <TextBlock Text="Free up space" Style="{StaticResource CyberSectionHeader}" Margin="0,8,0,8" />
                 <UniformGrid Columns="3">
                     <ui:CardAction Margin="0,0,8,0" Command="{Binding NavigateCommand}" CommandParameter="Cleanup">
                         <ui:CardAction.Icon><ui:SymbolIcon Symbol="Broom24" /></ui:CardAction.Icon>
@@ -245,12 +245,9 @@
                            Command="{Binding CancelCommand}"
                            Visibility="{Binding IsRunning, Converter={StaticResource VisibleWhenTrue}}" />
             </Grid>
-            <Border Grid.Row="1" Background="#070C14" CornerRadius="6" BorderBrush="{StaticResource CyberStrokeBrush}" BorderThickness="1">
-                <TextBox x:Name="OutputBox" Text="{Binding OutputText, Mode=OneWay}" IsReadOnly="True"
-                         Background="Transparent" BorderThickness="0" Foreground="#9FE8FF"
-                         FontFamily="Consolas, Cascadia Mono, monospace" FontSize="12"
-                         TextWrapping="NoWrap" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"
-                         Padding="10" TextChanged="OnOutputChanged" />
+            <Border Grid.Row="1" Background="{StaticResource ConsoleBackgroundBrush}" CornerRadius="6" BorderBrush="{StaticResource CyberStrokeBrush}" BorderThickness="1">
+                <TextBox x:Name="OutputBox" Style="{StaticResource CyberConsole}"
+                         Text="{Binding OutputText, Mode=OneWay}" TextChanged="OnOutputChanged" />
             </Border>
         </Grid>
     </Grid>

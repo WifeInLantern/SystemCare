@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
@@ -16,6 +17,31 @@ public static class Animations
 {
     private const int ScaleIndex = 0;
     private const int TranslateIndex = 1;
+
+    private static bool _reduceMotion;
+
+    /// <summary>
+    /// When true (driven by the "Reduce motion &amp; effects" setting), looping/ambient animations are
+    /// skipped and entrances settle to their final state immediately. Set at startup and on toggle.
+    /// Changing it raises <see cref="ReduceMotionChanged"/> so ambient hosts (the animated backdrop,
+    /// neon pulses, the health gauge) can start or freeze in place instead of waiting for their next
+    /// trigger — otherwise turning the setting back off would leave them dormant until a reload.
+    /// </summary>
+    public static bool ReduceMotion
+    {
+        get => _reduceMotion;
+        set
+        {
+            if (_reduceMotion == value) return;
+            _reduceMotion = value;
+            ReduceMotionChanged?.Invoke();
+        }
+    }
+
+    /// <summary>Raised on the UI thread whenever <see cref="ReduceMotion"/> changes.</summary>
+    public static event Action? ReduceMotionChanged;
+
+    static Animations() => ReduceMotionChanged += ReapplyNeonPulses;
 
     /// <summary>Neon cyan used for hover/reveal/pulse glows across the cyberpunk theme.</summary>
     private static readonly Color NeonCyan = Color.FromRgb(0x00, 0xE5, 0xFF);
@@ -67,6 +93,7 @@ public static class Animations
 
     private static void PlayFadeIn(FrameworkElement element)
     {
+        if (ReduceMotion) { element.Opacity = 1; return; }
         var (_, translate) = GetTransforms(element);
         element.Opacity = 0;
 
@@ -157,6 +184,12 @@ public static class Animations
     {
         if (d is not System.Windows.Controls.Primitives.RangeBase range) return;
         double to = (double)e.NewValue;
+        if (ReduceMotion)
+        {
+            range.BeginAnimation(System.Windows.Controls.Primitives.RangeBase.ValueProperty, null);
+            range.Value = to;
+            return;
+        }
         range.BeginAnimation(System.Windows.Controls.Primitives.RangeBase.ValueProperty,
             new DoubleAnimation(range.Value, to, TimeSpan.FromMilliseconds(700))
             {
@@ -174,24 +207,55 @@ public static class Animations
     public static bool GetNeonPulse(DependencyObject o) => (bool)o.GetValue(NeonPulseProperty);
     public static void SetNeonPulse(DependencyObject o, bool v) => o.SetValue(NeonPulseProperty, v);
 
+    // Live hosts of a NeonPulse glow, tracked so a Reduce-motion toggle can restart or freeze their
+    // loop in place (weak refs so unloaded elements are collected; pruned lazily on reapply).
+    private static readonly List<WeakReference<FrameworkElement>> NeonPulseHosts = new();
+
     private static void OnNeonPulseChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
         if (d is not FrameworkElement element) return;
         if ((bool)e.NewValue)
         {
-            var glow = new DropShadowEffect { Color = NeonCyan, ShadowDepth = 0, BlurRadius = 24, Opacity = 0.4 };
-            element.Effect = glow;
-            glow.BeginAnimation(DropShadowEffect.OpacityProperty,
-                new DoubleAnimation(0.3, 0.8, TimeSpan.FromSeconds(1.6))
-                {
-                    AutoReverse = true,
-                    RepeatBehavior = RepeatBehavior.Forever,
-                    EasingFunction = new SineEase { EasingMode = EasingMode.EaseInOut },
-                });
+            bool tracked = false;
+            foreach (var w in NeonPulseHosts)
+                if (w.TryGetTarget(out var t) && ReferenceEquals(t, element)) { tracked = true; break; }
+            if (!tracked) NeonPulseHosts.Add(new WeakReference<FrameworkElement>(element));
+            ApplyNeonPulse(element);
         }
         else
         {
             element.Effect = null;
+        }
+    }
+
+    /// <summary>Applies the cyan glow: a forever-breathing loop, or a static glow under reduced motion.</summary>
+    private static void ApplyNeonPulse(FrameworkElement element)
+    {
+        var glow = new DropShadowEffect { Color = NeonCyan, ShadowDepth = 0, BlurRadius = 24, Opacity = 0.4 };
+        element.Effect = glow;
+        if (ReduceMotion) return; // keep a static glow, skip the forever-breathing loop
+        glow.BeginAnimation(DropShadowEffect.OpacityProperty,
+            new DoubleAnimation(0.3, 0.8, TimeSpan.FromSeconds(1.6))
+            {
+                AutoReverse = true,
+                RepeatBehavior = RepeatBehavior.Forever,
+                EasingFunction = new SineEase { EasingMode = EasingMode.EaseInOut },
+            });
+    }
+
+    /// <summary>On a Reduce-motion toggle, restart or freeze every still-living NeonPulse host in place.</summary>
+    private static void ReapplyNeonPulses()
+    {
+        for (int i = NeonPulseHosts.Count - 1; i >= 0; i--)
+        {
+            if (NeonPulseHosts[i].TryGetTarget(out var element))
+            {
+                if (GetNeonPulse(element)) ApplyNeonPulse(element);
+            }
+            else
+            {
+                NeonPulseHosts.RemoveAt(i);
+            }
         }
     }
 
@@ -223,6 +287,7 @@ public static class Animations
 
     private static void PlayReveal(FrameworkElement element)
     {
+        if (ReduceMotion) { element.Opacity = 1; return; }
         var (_, translate) = GetTransforms(element);
         element.Opacity = 0;
 
@@ -295,9 +360,10 @@ public static class Animations
         if (double.IsNaN(to)) return;
 
         double from = (double)tb.GetValue(CountUpCurrentProperty);
-        if (double.IsNaN(from))
+        if (double.IsNaN(from) || ReduceMotion)
         {
-            // First value: set instantly so the screen doesn't count up from zero on load.
+            // First value (or reduced motion): set instantly instead of counting up.
+            tb.BeginAnimation(CountUpCurrentProperty, null);
             tb.SetValue(CountUpCurrentProperty, to);
             return;
         }

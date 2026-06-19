@@ -74,7 +74,7 @@
             </Grid.ColumnDefinitions>
 
             <!-- TreeSize-style hierarchy: expand folders to see exactly what uses space -->
-            <Border Grid.Column="0" CornerRadius="8" ClipToBounds="True" Background="#0A0E14"
+            <Border Grid.Column="0" CornerRadius="8" ClipToBounds="True" Background="{StaticResource CyberBackgroundBrush}"
                     BorderBrush="{StaticResource CyberStrokeBrush}" BorderThickness="1">
                 <TreeView ItemsSource="{Binding TreeRoots}" Background="Transparent" BorderThickness="0"
                           Padding="4"
@@ -131,7 +131,7 @@
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
-                <TextBlock Grid.Row="0" Text="Largest files" FontSize="15" FontWeight="SemiBold" Margin="0,0,0,8" />
+                <TextBlock Grid.Row="0" Text="Largest files" Style="{StaticResource CyberSectionHeader}" Margin="0,0,0,8" />
                 <ui:ListView Grid.Row="1" ItemsSource="{Binding LargeFiles}"
                              VirtualizingPanel.IsVirtualizing="True">
                     <ui:ListView.ItemTemplate>

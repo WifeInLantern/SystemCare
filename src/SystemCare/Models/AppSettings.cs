@@ -19,6 +19,9 @@ public class AppSettings
     /// <summary>Launch SystemCare minimized to the tray when Windows starts (via an elevated logon task).</summary>
     public bool StartWithWindows { get; set; }
 
+    /// <summary>Disables the animated backdrop and looping glows (accessibility / battery).</summary>
+    public bool ReduceMotion { get; set; }
+
     // Safety
     public bool CreateRestorePointBeforeMaintenance { get; set; } = true;
     public List<string> CleanupExclusions { get; set; } = [];

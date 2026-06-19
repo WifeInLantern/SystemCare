@@ -75,7 +75,7 @@
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
                         <StackPanel Margin="0,0,0,14">
-                            <TextBlock Text="{Binding Name}" FontSize="15" FontWeight="SemiBold" Margin="0,0,0,6" />
+                            <TextBlock Text="{Binding Name}" Style="{StaticResource CyberSectionHeader}" Margin="0,0,0,6" />
                             <ItemsControl ItemsSource="{Binding Items}">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>

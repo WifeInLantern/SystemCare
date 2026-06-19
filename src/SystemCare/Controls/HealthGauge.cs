@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
+using SystemCare.Helpers;
 
 namespace SystemCare.Controls;
 
@@ -31,6 +32,39 @@ public class HealthGauge : FrameworkElement
 
     private double AnimatedScore => (double)GetValue(AnimatedScoreProperty);
 
+    public HealthGauge()
+    {
+        Loaded += OnLoaded;
+        Unloaded += OnUnloaded;
+    }
+
+    private void OnLoaded(object sender, RoutedEventArgs e)
+    {
+        Animations.ReduceMotionChanged -= OnReduceMotionChanged; // avoid a double subscription on reload
+        Animations.ReduceMotionChanged += OnReduceMotionChanged;
+    }
+
+    private void OnUnloaded(object sender, RoutedEventArgs e)
+        => Animations.ReduceMotionChanged -= OnReduceMotionChanged;
+
+    // Reduce-motion toggled live: freeze the glow to a static band color, or resume the breathing pulse.
+    private void OnReduceMotionChanged()
+    {
+        double score = Score;
+        if (score < 0) return; // unscored: no glow either way
+        if (Animations.ReduceMotion)
+        {
+            Effect = new System.Windows.Media.Effects.DropShadowEffect
+            {
+                Color = BandColor(score), ShadowDepth = 0, BlurRadius = 24, Opacity = 0.45,
+            };
+        }
+        else
+        {
+            UpdateGlow(score);
+        }
+    }
+
     private static void OnScoreChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
         var gauge = (HealthGauge)d;
@@ -40,6 +74,17 @@ public class HealthGauge : FrameworkElement
             gauge.BeginAnimation(AnimatedScoreProperty, null);
             gauge.SetValue(AnimatedScoreProperty, -1.0);
             gauge.Effect = null;
+            return;
+        }
+        if (Animations.ReduceMotion)
+        {
+            // Snap to the value and use a static band-colored glow (no count-up, no breathing).
+            gauge.BeginAnimation(AnimatedScoreProperty, null);
+            gauge.SetValue(AnimatedScoreProperty, target);
+            gauge.Effect = new System.Windows.Media.Effects.DropShadowEffect
+            {
+                Color = BandColor(target), ShadowDepth = 0, BlurRadius = 24, Opacity = 0.45,
+            };
             return;
         }
         double from = Math.Max(0, gauge.AnimatedScore);

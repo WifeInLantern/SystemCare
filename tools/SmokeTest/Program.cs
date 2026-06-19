@@ -1,0 +1,130 @@
+using System;
+using System.Collections.Generic;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
+using SystemCare.Controls;
+using SystemCare.Helpers;
+using Wpf.Ui.Appearance;
+using Wpf.Ui.Markup;
+
+// Headless smoke test for Design System v2. Loads the real SystemCare dictionaries, resolves every new
+// token/style, and instantiates + lays out the controls that use the app-wide implicit styles and the
+// reduced-motion code paths. No window is shown and no admin rights are needed; any exception = FAIL.
+internal static class Program
+{
+    private static readonly List<string> Failures = new();
+    private static int _checks;
+
+    [STAThread]
+    private static int Main()
+    {
+        var app = new Application();
+
+        Try("merge design-system dictionaries (like App.xaml)", () =>
+        {
+            app.Resources.MergedDictionaries.Add(new ThemesDictionary { Theme = ApplicationTheme.Dark });
+            app.Resources.MergedDictionaries.Add(new ControlsDictionary());
+            app.Resources.MergedDictionaries.Add(Load("Styles/Theme.xaml"));
+            app.Resources.MergedDictionaries.Add(Load("Styles/Cyberpunk.xaml"));
+            app.Resources.MergedDictionaries.Add(Load("Styles/Components.xaml"));
+        });
+
+        foreach (var key in new[]
+        {
+            "SpaceXs","SpaceSm","SpaceMd","SpaceLg","SpaceXl","Space2Xl","PagePadding","PadCard","PadChip",
+            "RadiusMd","RadiusPill","PanelInsetBrush","ChipFillBrush","ConsoleBackgroundBrush",
+            "ConsoleForegroundBrush","HairlineBrush","OverlayScrimBrush","FocusGlowBrush","GlowSm","GlowMd","GlowLg",
+        })
+            Try($"token '{key}' resolves", () => { if (app.Resources[key] is null) throw new Exception("not found"); });
+
+        foreach (var key in new[]
+        {
+            "TextH2","TextBody","TextCaption","CyberSectionHeader","CyberPageTitle","CyberDisplayText",
+            "CyberPrimaryButton","CyberGhostButton","CyberDangerButton","CyberCard","CyberInteractiveCard",
+            "CyberChip","CyberListRow","CyberConsole",
+        })
+            Try($"style '{key}' resolves", () => { if (app.Resources[key] is not Style) throw new Exception("missing or not a Style"); });
+
+        // Build + lay out the real controls under both motion modes (exercises implicit styles, BasedOn
+        // resolution, template application, and the ReduceMotion branches).
+        foreach (var reduce in new[] { false, true })
+        {
+            Animations.ReduceMotion = reduce;
+            Try($"instantiate + lay out controls (ReduceMotion={reduce})", () => BuildAndLayout(app));
+        }
+
+        Console.WriteLine();
+        Console.WriteLine($"Smoke test: {_checks - Failures.Count}/{_checks} checks passed.");
+        if (Failures.Count > 0)
+        {
+            Console.WriteLine("FAILURES:");
+            foreach (var f in Failures) Console.WriteLine("  - " + f);
+            return 1;
+        }
+        Console.WriteLine("ALL PASSED");
+        return 0;
+    }
+
+    private static ResourceDictionary Load(string rel) =>
+        new() { Source = new Uri($"pack://application:,,,/SystemCare;component/{rel}") };
+
+    private static void BuildAndLayout(Application app)
+    {
+        var panel = new StackPanel();
+
+        foreach (var k in new[] { "TextH2", "TextBody", "TextCaption", "CyberSectionHeader", "CyberPageTitle", "CyberDisplayText" })
+            panel.Children.Add(new TextBlock { Text = k, Style = (Style)app.Resources[k] });
+
+        foreach (var k in new[] { "CyberPrimaryButton", "CyberGhostButton", "CyberDangerButton" })
+            panel.Children.Add(new Wpf.Ui.Controls.Button { Content = k, Style = (Style)app.Resources[k] });
+
+        // Implicit styles (no explicit Style set) — must resolve their BasedOn at runtime.
+        panel.Children.Add(new Wpf.Ui.Controls.TextBox { Text = "focus glow" });
+        panel.Children.Add(new ComboBox());
+
+        foreach (var k in new[] { "CyberCard", "CyberInteractiveCard" })
+            panel.Children.Add(new Wpf.Ui.Controls.Card { Style = (Style)app.Resources[k] });
+
+        panel.Children.Add(new Border { Style = (Style)app.Resources["CyberChip"], Child = new TextBlock { Text = "chip" } });
+        panel.Children.Add(new Border { Style = (Style)app.Resources["CyberListRow"] });
+        panel.Children.Add(new TextBox { Style = (Style)app.Resources["CyberConsole"], Text = "log line" });
+
+        // Custom controls — HealthGauge.Score set exercises the ReduceMotion branch immediately.
+        panel.Children.Add(new HealthGauge { Width = 120, Height = 120, Score = 82 });
+        panel.Children.Add(new CyberBackground { Width = 200, Height = 120 });
+
+        // Attached behaviors that fire synchronously on set (NeonPulse/SmoothValue/CountUpText).
+        var pulse = new Border { Width = 40, Height = 40 };
+        Animations.SetNeonPulse(pulse, true);
+        Animations.SetHoverLift(pulse, true);
+        panel.Children.Add(pulse);
+
+        var bar = new ProgressBar { Maximum = 100, Width = 120, Height = 8 };
+        Animations.SetSmoothValue(bar, 60);
+        panel.Children.Add(bar);
+
+        var count = new TextBlock();
+        Animations.SetCountUpText(count, 42);
+        panel.Children.Add(count);
+
+        // Root in a Page so the implicit Page text style is exercised, then force layout without a window.
+        var page = new Page { Content = panel };
+        page.Measure(new Size(1000, 800));
+        page.Arrange(new Rect(0, 0, 1000, 800));
+        page.UpdateLayout();
+        foreach (var child in panel.Children)
+            if (child is FrameworkElement fe) fe.ApplyTemplate();
+    }
+
+    private static void Try(string name, Action action)
+    {
+        _checks++;
+        try { action(); Console.WriteLine($"[ok]   {name}"); }
+        catch (Exception ex)
+        {
+            Failures.Add($"{name}: {ex.GetType().Name}: {ex.Message}");
+            Console.WriteLine($"[FAIL] {name}: {ex.GetType().Name}: {ex.Message}");
+        }
+    }
+}

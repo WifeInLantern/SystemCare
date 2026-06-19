@@ -10,6 +10,7 @@
                 <ui:ControlsDictionary />
                 <ResourceDictionary Source="pack://application:,,,/Styles/Theme.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/Styles/Cyberpunk.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/Styles/Components.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

@@ -50,7 +50,7 @@
         </StackPanel>
 
         <TextBlock Grid.Row="2" Text="Pause background apps while boosted (optional)"
-                   FontSize="15" FontWeight="SemiBold" Margin="0,22,0,8" />
+                   Style="{StaticResource CyberSectionHeader}" Margin="0,22,0,8" />
 
         <ScrollViewer Grid.Row="3" VerticalScrollBarVisibility="Auto">
             <ItemsControl ItemsSource="{Binding Apps}">

@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Media;
+using SystemCare.Helpers;
 
 namespace SystemCare.Controls;
 
@@ -44,8 +45,29 @@ public class CyberBackground : FrameworkElement
         _glowMagenta = MakeGlow(Color.FromRgb(0xFF, 0x2A, 0x6D));
         _scanlines = MakeScanlines();
 
-        Loaded += (_, _) => Hook();
-        Unloaded += (_, _) => Unhook();
+        Loaded += OnLoaded;
+        Unloaded += OnUnloaded;
+    }
+
+    private void OnLoaded(object sender, RoutedEventArgs e)
+    {
+        Hook();
+        Animations.ReduceMotionChanged -= OnReduceMotionChanged; // avoid a double subscription on reload
+        Animations.ReduceMotionChanged += OnReduceMotionChanged;
+    }
+
+    private void OnUnloaded(object sender, RoutedEventArgs e)
+    {
+        Unhook();
+        Animations.ReduceMotionChanged -= OnReduceMotionChanged;
+    }
+
+    // Reduce-motion toggled live: settle to a static frame, or resume the animated backdrop.
+    private void OnReduceMotionChanged()
+    {
+        if (!IsLoaded) return;
+        if (Animations.ReduceMotion) { Unhook(); InvalidateVisual(); }
+        else Hook();
     }
 
     private static RadialGradientBrush MakeGlow(Color c)
@@ -82,6 +104,7 @@ public class CyberBackground : FrameworkElement
     private void Hook()
     {
         if (_hooked) return;
+        if (Animations.ReduceMotion) { InvalidateVisual(); return; } // draw one static frame, don't animate
         CompositionTarget.Rendering += OnRendering;
         _hooked = true;
     }
@@ -95,6 +118,7 @@ public class CyberBackground : FrameworkElement
 
     private void OnRendering(object? sender, EventArgs e)
     {
+        if (Animations.ReduceMotion) { Unhook(); return; } // settle to a static frame if toggled on live
         double now = _clock.Elapsed.TotalMilliseconds;
         if (now - _lastRenderMs < 33) return; // ~30 fps
         _lastRenderMs = now;

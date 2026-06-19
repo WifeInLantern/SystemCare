@@ -54,7 +54,7 @@
                   IsChecked="{Binding SilenceNotifications}" IsEnabled="{Binding IsActive, Converter={StaticResource Not}}" />
 
         <TextBlock Grid.Row="3" Text="Background apps to pause (well-known apps are pre-selected)"
-                   FontSize="15" FontWeight="SemiBold" Margin="0,18,0,8" />
+                   Style="{StaticResource CyberSectionHeader}" Margin="0,18,0,8" />
 
         <ScrollViewer Grid.Row="4" VerticalScrollBarVisibility="Auto">
             <ItemsControl ItemsSource="{Binding Apps}">

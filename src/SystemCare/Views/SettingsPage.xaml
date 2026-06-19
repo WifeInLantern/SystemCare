@@ -17,7 +17,7 @@
         <StackPanel MaxWidth="760" HorizontalAlignment="Left">
             <TextBlock Text="Settings" Style="{StaticResource CyberPageTitle}" />
 
-            <TextBlock Text="Appearance" FontSize="15" FontWeight="SemiBold" Margin="0,20,0,8" />
+            <TextBlock Text="Appearance" Style="{StaticResource CyberSectionHeader}" Margin="0,20,0,8" />
             <ui:Card Padding="16,12">
                 <StackPanel Orientation="Horizontal">
                     <ui:SymbolIcon Symbol="Color24" FontSize="20" Foreground="{StaticResource NeonCyanBrush}" VerticalAlignment="Center" />
@@ -28,7 +28,7 @@
                 </StackPanel>
             </ui:Card>
 
-            <TextBlock Text="Automatic maintenance" FontSize="15" FontWeight="SemiBold" Margin="0,20,0,8" />
+            <TextBlock Text="Automatic maintenance" Style="{StaticResource CyberSectionHeader}" Margin="0,20,0,8" />
             <ui:Card Padding="16,12" Margin="0,0,0,8">
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -98,7 +98,21 @@
                 </Grid>
             </ui:Card>
 
-            <TextBlock Text="Cleaning" FontSize="15" FontWeight="SemiBold" Margin="0,20,0,8" />
+            <ui:Card Padding="16,12" Margin="0,0,0,8">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0" Margin="0,0,16,0">
+                        <TextBlock Text="Reduce motion &amp; effects" FontWeight="SemiBold" />
+                        <TextBlock Text="Turns off the animated background and looping neon glows for better accessibility and battery life" FontSize="12" Opacity="0.65" TextWrapping="Wrap" />
+                    </StackPanel>
+                    <ui:ToggleSwitch Grid.Column="1" IsChecked="{Binding ReduceMotion}" />
+                </Grid>
+            </ui:Card>
+
+            <TextBlock Text="Cleaning" Style="{StaticResource CyberSectionHeader}" Margin="0,20,0,8" />
             <ui:Card Padding="16,12" Margin="0,0,0,8">
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -168,7 +182,7 @@
                 </StackPanel>
             </ui:Card>
 
-            <TextBlock Text="Disk tools" FontSize="15" FontWeight="SemiBold" Margin="0,14,0,8" />
+            <TextBlock Text="Disk tools" Style="{StaticResource CyberSectionHeader}" Margin="0,14,0,8" />
             <ui:Card Padding="16,12" Margin="0,0,0,8">
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -198,7 +212,7 @@
                 </Grid>
             </ui:Card>
 
-            <TextBlock Text="Dashboard quick-actions" FontSize="15" FontWeight="SemiBold" Margin="0,20,0,8" />
+            <TextBlock Text="Dashboard quick-actions" Style="{StaticResource CyberSectionHeader}" Margin="0,20,0,8" />
             <ui:Card Padding="16,12">
                 <StackPanel>
                     <TextBlock Text="Choose which one-click tiles appear on the dashboard." FontSize="12" Opacity="0.65" Margin="0,0,0,8" />
@@ -212,7 +226,7 @@
                 </StackPanel>
             </ui:Card>
 
-            <TextBlock Text="Updates" FontSize="15" FontWeight="SemiBold" Margin="0,20,0,8" />
+            <TextBlock Text="Updates" Style="{StaticResource CyberSectionHeader}" Margin="0,20,0,8" />
             <ui:Card Padding="16,12" Margin="0,0,0,8">
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -250,7 +264,7 @@
                 </StackPanel>
             </ui:Card>
 
-            <TextBlock Text="About" FontSize="15" FontWeight="SemiBold" Margin="0,20,0,8" />
+            <TextBlock Text="About" Style="{StaticResource CyberSectionHeader}" Margin="0,20,0,8" />
             <ui:Card Padding="16,12">
                 <StackPanel>
                     <TextBlock Text="{Binding VersionText}" FontWeight="SemiBold" />

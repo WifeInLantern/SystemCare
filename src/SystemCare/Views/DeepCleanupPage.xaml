@@ -65,12 +65,9 @@
                              Visibility="{Binding IsRunning, Converter={StaticResource VisibleWhenTrue}}" />
         </StackPanel>
 
-        <Border Grid.Row="3" Margin="0,12,0,0" Background="#070C14" CornerRadius="6" BorderBrush="{StaticResource CyberStrokeBrush}" BorderThickness="1">
-            <TextBox x:Name="OutputBox" Text="{Binding OutputText, Mode=OneWay}" IsReadOnly="True"
-                     Background="Transparent" BorderThickness="0" Foreground="#9FE8FF"
-                     FontFamily="Consolas, Cascadia Mono, monospace" FontSize="12"
-                     TextWrapping="NoWrap" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"
-                     Padding="10" TextChanged="OnOutputChanged" />
+        <Border Grid.Row="3" Margin="0,12,0,0" Background="{StaticResource ConsoleBackgroundBrush}" CornerRadius="6" BorderBrush="{StaticResource CyberStrokeBrush}" BorderThickness="1">
+            <TextBox x:Name="OutputBox" Style="{StaticResource CyberConsole}"
+                     Text="{Binding OutputText, Mode=OneWay}" TextChanged="OnOutputChanged" />
         </Border>
     </Grid>
 </Page>

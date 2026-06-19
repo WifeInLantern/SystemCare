@@ -65,7 +65,7 @@
                         </StackPanel>
                         <StackPanel Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Right">
                             <TextBlock Text="{Binding Detail}" FontSize="13" FontWeight="SemiBold"
-                                       HorizontalAlignment="Right" Foreground="#00FFA3"
+                                       HorizontalAlignment="Right" Foreground="{StaticResource SuccessBrush}"
                                        Visibility="{Binding HasDetail, Converter={StaticResource VisibleWhenTrue}}" />
                             <TextBlock Text="{Binding When}" FontSize="11" Opacity="0.55" HorizontalAlignment="Right" />
                         </StackPanel>

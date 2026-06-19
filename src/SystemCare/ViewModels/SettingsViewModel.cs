@@ -29,6 +29,7 @@ public partial class SettingsViewModel : ObservableObject
     [ObservableProperty] private bool _minimizeToTray;
     [ObservableProperty] private bool _startWithWindows;
     [ObservableProperty] private bool _createRestorePointBeforeMaintenance;
+    [ObservableProperty] private bool _reduceMotion;
 
     [ObservableProperty] private bool _checkForUpdatesOnStartup;
     [ObservableProperty] private string _updateGitHubToken = "";
@@ -70,6 +71,7 @@ public partial class SettingsViewModel : ObservableObject
         _minimizeToTray = settings.Current.MinimizeToTray;
         _startWithWindows = settings.Current.StartWithWindows;
         _createRestorePointBeforeMaintenance = settings.Current.CreateRestorePointBeforeMaintenance;
+        _reduceMotion = settings.Current.ReduceMotion;
         _checkForUpdatesOnStartup = settings.Current.CheckForUpdatesOnStartup;
         _updateGitHubToken = settings.Current.UpdateGitHubToken;
         Exclusions = new ObservableCollection<string>(settings.Current.CleanupExclusions);
@@ -205,6 +207,13 @@ public partial class SettingsViewModel : ObservableObject
     {
         _settings.Current.CreateRestorePointBeforeMaintenance = value;
         _settings.Save();
+    }
+
+    partial void OnReduceMotionChanged(bool value)
+    {
+        _settings.Current.ReduceMotion = value;
+        _settings.Save();
+        Helpers.Animations.ReduceMotion = value; // applies live to looping/ambient animations
     }
 
     [RelayCommand]
