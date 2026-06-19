@@ -3,6 +3,11 @@ bin/
 obj/
 *.user
 
+# Test run output / code-coverage artifacts
+TestResults/
+coverage-report/
+*.cobertura.xml
+
 # Visual Studio / VS Code
 .vs/
 
