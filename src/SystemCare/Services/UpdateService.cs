@@ -25,6 +25,10 @@ public class UpdateService(ISettingsService settings, ILogService log) : IUpdate
     // Default to this build's own GitHub repo's latest release.
     private const string DefaultFeedUrl = "https://api.github.com/repos/WifeInLantern/SystemCare/releases/latest";
 
+    // Once releases are code-signed, set this to the signing certificate's subject CN (e.g. "SystemCare")
+    // to pin the publisher. Empty = no pinning (a tampered/untrusted signature is still always rejected).
+    private const string ExpectedPublisher = "";
+
     private static readonly HttpClient Http = new() { Timeout = TimeSpan.FromMinutes(10) };
 
     public string CurrentVersion { get; } =
@@ -206,6 +210,19 @@ public class UpdateService(ISettingsService settings, ILogService log) : IUpdate
                     ? "Installer size verified (no published checksum)."
                     : "Installer downloaded (no size or checksum to verify against).");
             }
+
+            // 3) Authenticode: this installer is about to be launched elevated, so never run one whose
+            // signature is tampered/untrusted, and (when RequireSignedUpdate is on) require a valid
+            // signature from the expected publisher. Unsigned is allowed today — integrity is covered by (1)/(2).
+            var signature = Helpers.Authenticode.Verify(partPath);
+            var decision = UpdateSignaturePolicy.Evaluate(signature, settings.Current.RequireSignedUpdate, ExpectedPublisher);
+            if (!decision.Allowed)
+            {
+                log.Error("Updater", $"Refusing the update — {decision.Reason}; discarding the download.");
+                TryDelete(partPath);
+                return null;
+            }
+            log.Info("Updater", decision.Reason);
 
             File.Move(partPath, path, overwrite: true);
             progress?.Report(100);

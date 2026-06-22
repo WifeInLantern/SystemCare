@@ -48,6 +48,13 @@ public class AppSettings
         get => DataProtection.Unprotect(GitHubTokenProtected);
         set => GitHubTokenProtected = DataProtection.Protect(value);
     }
+
+    /// <summary>
+    /// Refuse to launch a downloaded update installer unless it carries a valid Authenticode signature.
+    /// Default off because releases are not code-signed yet; a tampered/untrusted signature is rejected
+    /// regardless. Turn on (and pin the publisher) once releases are signed.
+    /// </summary>
+    public bool RequireSignedUpdate { get; set; }
     public DateTime? LastUpdateCheckUtc { get; set; }
 
     /// <summary>winget package Ids the user has chosen to skip in the Software Updater.</summary>
