@@ -256,7 +256,7 @@
                                  Visibility="{Binding IsDownloadingUpdate, Converter={StaticResource VisibleWhenTrue}}" />
                     <StackPanel Margin="0,14,0,0">
                         <TextBlock Text="GitHub access token" FontSize="12" FontWeight="SemiBold" />
-                        <TextBlock Text="Only needed when the update repo is private. Stored locally in settings.json on this PC."
+                        <TextBlock Text="Only needed when the update repo is private. Stored encrypted on this PC (Windows DPAPI, tied to your account); clear the box to remove it."
                                    FontSize="11" Opacity="0.6" TextWrapping="Wrap" Margin="0,2,0,4" />
                         <ui:TextBox PlaceholderText="github_pat_…"
                                     Text="{Binding UpdateGitHubToken, UpdateSourceTrigger=LostFocus}" />

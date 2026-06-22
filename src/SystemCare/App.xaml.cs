@@ -144,6 +144,12 @@ public partial class App : Application
     {
         base.OnStartup(e);
 
+        // Catch faults off the UI thread too (the XAML wires only DispatcherUnhandledException). Without
+        // these, an exception on a background thread or an unobserved Task can tear the process down with
+        // nothing logged. Subscribed before the headless/interactive split so both run modes are covered.
+        AppDomain.CurrentDomain.UnhandledException += OnAppDomainUnhandledException;
+        TaskScheduler.UnobservedTaskException += OnUnobservedTaskException;
+
         // Headless scheduled-maintenance run: no window, balloon, then exit.
         if (e.Args.Contains("--run-maintenance"))
         {
@@ -364,18 +370,30 @@ public partial class App : Application
 
     private void OnDispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
     {
-        try
-        {
-            File.WriteAllText(Path.Combine(Path.GetTempPath(), "systemcare_error.log"), e.Exception.ToString());
-        }
-        catch (Exception) { }
-        try
-        {
-            _services.GetRequiredService<ILogService>().Error("App", "Unhandled UI exception", e.Exception);
-        }
-        catch (Exception) { }
+        LogCrash("UI", e.Exception);
         MessageBox.Show(e.Exception.Message, "SystemCare — Unexpected error",
             MessageBoxButton.OK, MessageBoxImage.Error);
         e.Handled = true;
+    }
+
+    // A faulted background thread; the runtime is usually tearing down, so we can only record it.
+    private void OnAppDomainUnhandledException(object sender, UnhandledExceptionEventArgs e)
+        => LogCrash("AppDomain", e.ExceptionObject as Exception);
+
+    // A faulted Task that was never awaited/observed; mark it observed so it can't escalate.
+    private void OnUnobservedTaskException(object? sender, UnobservedTaskExceptionEventArgs e)
+    {
+        LogCrash("Task", e.Exception);
+        e.SetObserved();
+    }
+
+    /// <summary>Records an unhandled exception to the rolling log plus a last-resort temp-file marker.</summary>
+    private static void LogCrash(string source, Exception? ex)
+    {
+        if (ex is null) return;
+        try { _services.GetRequiredService<ILogService>().Error(source, "Unhandled exception", ex); }
+        catch (Exception) { }
+        try { File.WriteAllText(Path.Combine(Path.GetTempPath(), "systemcare_error.log"), ex.ToString()); }
+        catch (Exception) { }
     }
 }

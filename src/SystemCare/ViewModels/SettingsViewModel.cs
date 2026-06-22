@@ -149,7 +149,7 @@ public partial class SettingsViewModel : ObservableObject
             string? path = await _updates.DownloadAsync(progress, CancellationToken.None);
             if (path is null)
             {
-                UpdateStatus = "Download failed. For a private repo, set a GitHub token in settings.json (UpdateGitHubToken).";
+                UpdateStatus = "Download failed. For a private repo, set a GitHub token below (Settings → Updates).";
                 _snackbar.Show("Update download failed",
                     "Could not download the installer. If the repo is private, add a token (see Settings).",
                     ControlAppearance.Danger, null, TimeSpan.FromSeconds(7));

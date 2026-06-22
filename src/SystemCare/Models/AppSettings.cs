@@ -1,3 +1,6 @@
+using System.Text.Json.Serialization;
+using SystemCare.Helpers;
+
 namespace SystemCare.Models;
 
 public class AppSettings
@@ -31,8 +34,20 @@ public class AppSettings
     public bool CheckForUpdatesOnStartup { get; set; } = true;
     /// <summary>GitHub releases API (or a custom JSON feed). Empty = use the built-in default repo.</summary>
     public string UpdateFeedUrl { get; set; } = "";
-    /// <summary>Optional GitHub token so the updater can read a PRIVATE repo's releases/assets.</summary>
-    public string UpdateGitHubToken { get; set; } = "";
+    /// <summary>DPAPI-encrypted (CurrentUser) GitHub token blob — the only token form ever written to disk.</summary>
+    public string? GitHubTokenProtected { get; set; }
+
+    /// <summary>
+    /// Optional GitHub token so the updater can read a PRIVATE repo's releases/assets. Encrypted at rest
+    /// via DPAPI (see <see cref="GitHubTokenProtected"/>); never serialized in clear. Setting it to an
+    /// empty string clears the stored token.
+    /// </summary>
+    [JsonIgnore]
+    public string UpdateGitHubToken
+    {
+        get => DataProtection.Unprotect(GitHubTokenProtected);
+        set => GitHubTokenProtected = DataProtection.Protect(value);
+    }
     public DateTime? LastUpdateCheckUtc { get; set; }
 
     /// <summary>winget package Ids the user has chosen to skip in the Software Updater.</summary>

@@ -24,21 +24,58 @@ public class SettingsService : ISettingsService
 
     public SettingsService()
     {
-        Current = Load();
+        Current = Load(out bool migratedLegacyToken);
+        // Rewrite immediately so a migrated plaintext token is replaced on disk by its encrypted form.
+        if (migratedLegacyToken) Save();
     }
 
-    private AppSettings Load()
+    private AppSettings Load(out bool migratedLegacyToken)
     {
+        migratedLegacyToken = false;
         try
         {
             if (File.Exists(SettingsPath))
-                return JsonSerializer.Deserialize<AppSettings>(File.ReadAllText(SettingsPath)) ?? new AppSettings();
+            {
+                string json = File.ReadAllText(SettingsPath);
+                var settings = JsonSerializer.Deserialize<AppSettings>(json) ?? new AppSettings();
+                migratedLegacyToken = MigrateLegacyToken(settings, json);
+                return settings;
+            }
         }
         catch (Exception)
         {
             // corrupted settings — fall back to defaults
         }
         return new AppSettings();
+    }
+
+    /// <summary>
+    /// Pre-1.10 settings stored the GitHub token in clear under "UpdateGitHubToken". If we find one and no
+    /// encrypted token exists yet, move it into the DPAPI-protected field (the setter encrypts it) so the
+    /// next save rewrites the file without the plaintext. Returns true if a migration happened.
+    /// </summary>
+    private static bool MigrateLegacyToken(AppSettings settings, string rawJson)
+    {
+        if (!string.IsNullOrEmpty(settings.GitHubTokenProtected)) return false;
+        try
+        {
+            using var doc = JsonDocument.Parse(rawJson);
+            if (doc.RootElement.TryGetProperty("UpdateGitHubToken", out var legacy) &&
+                legacy.ValueKind == JsonValueKind.String)
+            {
+                string token = legacy.GetString() ?? "";
+                if (!string.IsNullOrWhiteSpace(token))
+                {
+                    settings.UpdateGitHubToken = token; // setter encrypts into GitHubTokenProtected
+                    return true;
+                }
+            }
+        }
+        catch (Exception)
+        {
+            // malformed legacy field — nothing to migrate
+        }
+        return false;
     }
 
     public void Save()
