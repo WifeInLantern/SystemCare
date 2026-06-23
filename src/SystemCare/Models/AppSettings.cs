@@ -25,6 +25,14 @@ public class AppSettings
     /// <summary>Disables the animated backdrop and looping glows (accessibility / battery).</summary>
     public bool ReduceMotion { get; set; }
 
+    // Live monitor (tray stats + floating mini-widget)
+    /// <summary>Show live CPU/RAM in the system-tray icon and tooltip.</summary>
+    public bool ShowTrayStats { get; set; }
+    /// <summary>Show the always-on-top mini live-monitor widget.</summary>
+    public bool ShowMiniMonitor { get; set; }
+    public double? MiniMonitorLeft { get; set; }
+    public double? MiniMonitorTop { get; set; }
+
     // Safety
     public bool CreateRestorePointBeforeMaintenance { get; set; } = true;
     public List<string> CleanupExclusions { get; set; } = [];

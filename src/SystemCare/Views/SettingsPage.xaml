@@ -112,6 +112,34 @@
                 </Grid>
             </ui:Card>
 
+            <TextBlock Text="Live monitor" Style="{StaticResource CyberSectionHeader}" Margin="0,20,0,8" />
+            <ui:Card Padding="16,12" Margin="0,0,0,8">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0" Margin="0,0,16,0">
+                        <TextBlock Text="Live stats in the tray icon" FontWeight="SemiBold" />
+                        <TextBlock Text="Shows live CPU load on the tray icon, with CPU/RAM in its tooltip" FontSize="12" Opacity="0.65" TextWrapping="Wrap" />
+                    </StackPanel>
+                    <ui:ToggleSwitch Grid.Column="1" IsChecked="{Binding ShowTrayStats}" />
+                </Grid>
+            </ui:Card>
+            <ui:Card Padding="16,12">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0" Margin="0,0,16,0">
+                        <TextBlock Text="Floating mini-widget" FontWeight="SemiBold" />
+                        <TextBlock Text="A small always-on-top panel with live CPU/RAM/network sparklines and temperature. Drag to move; close with the ✕." FontSize="12" Opacity="0.65" TextWrapping="Wrap" />
+                    </StackPanel>
+                    <ui:ToggleSwitch Grid.Column="1" IsChecked="{Binding ShowMiniMonitor}" />
+                </Grid>
+            </ui:Card>
+
             <TextBlock Text="Cleaning" Style="{StaticResource CyberSectionHeader}" Margin="0,20,0,8" />
             <ui:Card Padding="16,12" Margin="0,0,0,8">
                 <Grid>

@@ -2,6 +2,33 @@
 
 All notable changes to SystemCare are documented here. Versions follow [SemVer](https://semver.org/).
 
+## [2.0.0] - 2026-06-23
+
+### Added
+- **Live system monitor — tray stats + a floating mini-widget.** Two new opt-in tools under
+  **Settings → Live monitor**. *Tray stats* turns the system-tray icon into a live neon CPU meter and shows
+  current CPU/RAM in its tooltip, refreshed every second. The *mini-widget* is a small always-on-top neon
+  panel with live CPU / RAM / network sparklines and the hottest component temperature; it's draggable,
+  remembers its position, stays out of Alt-Tab, and can be dismissed from its own close button, the tray
+  menu, or Settings. Both default off and, like everything else, run fully on your PC with no network
+  telemetry. The monitor samples on its own isolated source, so it never disturbs the live readouts on the
+  Dashboard or System Information pages.
+
+### Security
+- **GitHub update token is now encrypted at rest.** Any token entered for private-repo updates is sealed
+  with Windows DPAPI (per-user) and never written to disk in clear text; existing plaintext tokens are
+  migrated automatically on first run.
+- **Update installers are signature-checked before launch.** A downloaded installer's Authenticode
+  signature is verified after the SHA-256 check — a tampered or untrusted signature is always rejected, and
+  an optional "require signed update" setting can additionally refuse unsigned installers and pin the
+  publisher.
+- **Background failures are now logged.** Unhandled exceptions on background threads and unobserved task
+  exceptions are captured to the crash log instead of being lost.
+
+### Internal
+- Added an automated CI pipeline (build + test on every push) with dependency update monitoring, and a
+  unit-test suite covering the pure-logic units.
+
 ## [1.9.0] - 2026-06-19
 
 ### Changed

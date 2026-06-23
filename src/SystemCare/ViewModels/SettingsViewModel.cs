@@ -19,6 +19,8 @@ public partial class SettingsViewModel : ObservableObject
     private readonly IRestorePointService _restore;
     private readonly ISnackbarService _snackbar;
     private readonly ILogService _log;
+    private readonly ITrayIconService _tray;
+    private readonly IMiniMonitorService _miniMonitor;
 
     [ObservableProperty] private int _skipTempNewerThanHours;
     [ObservableProperty] private int _largeFileMinMB;
@@ -30,6 +32,8 @@ public partial class SettingsViewModel : ObservableObject
     [ObservableProperty] private bool _startWithWindows;
     [ObservableProperty] private bool _createRestorePointBeforeMaintenance;
     [ObservableProperty] private bool _reduceMotion;
+    [ObservableProperty] private bool _showTrayStats;
+    [ObservableProperty] private bool _showMiniMonitor;
 
     [ObservableProperty] private bool _checkForUpdatesOnStartup;
     [ObservableProperty] private string _updateGitHubToken = "";
@@ -54,7 +58,7 @@ public partial class SettingsViewModel : ObservableObject
 
     public SettingsViewModel(ISettingsService settings, IScheduledMaintenanceService maintenance,
         IStartupLauncherService startup, IUpdateService updates, IRestorePointService restore,
-        ISnackbarService snackbar, ILogService log)
+        ISnackbarService snackbar, ILogService log, ITrayIconService tray, IMiniMonitorService miniMonitor)
     {
         _settings = settings;
         _maintenance = maintenance;
@@ -63,6 +67,8 @@ public partial class SettingsViewModel : ObservableObject
         _restore = restore;
         _snackbar = snackbar;
         _log = log;
+        _tray = tray;
+        _miniMonitor = miniMonitor;
         _skipTempNewerThanHours = settings.Current.SkipTempNewerThanHours;
         _largeFileMinMB = settings.Current.LargeFileMinMB;
         _largeFileTopN = settings.Current.LargeFileTopN;
@@ -72,6 +78,8 @@ public partial class SettingsViewModel : ObservableObject
         _startWithWindows = settings.Current.StartWithWindows;
         _createRestorePointBeforeMaintenance = settings.Current.CreateRestorePointBeforeMaintenance;
         _reduceMotion = settings.Current.ReduceMotion;
+        _showTrayStats = settings.Current.ShowTrayStats;
+        _showMiniMonitor = settings.Current.ShowMiniMonitor;
         _checkForUpdatesOnStartup = settings.Current.CheckForUpdatesOnStartup;
         _updateGitHubToken = settings.Current.UpdateGitHubToken;
         Exclusions = new ObservableCollection<string>(settings.Current.CleanupExclusions);
@@ -102,6 +110,20 @@ public partial class SettingsViewModel : ObservableObject
     {
         _settings.Current.CheckForUpdatesOnStartup = value;
         _settings.Save();
+    }
+
+    partial void OnShowTrayStatsChanged(bool value)
+    {
+        _settings.Current.ShowTrayStats = value;
+        _settings.Save();
+        _tray.EnableLiveStats(value);
+    }
+
+    partial void OnShowMiniMonitorChanged(bool value)
+    {
+        // MiniMonitorService is the source of truth for the ShowMiniMonitor setting; just drive the window.
+        if (value) _miniMonitor.Show();
+        else _miniMonitor.Hide();
     }
 
     partial void OnUpdateGitHubTokenChanged(string value)

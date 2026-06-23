@@ -54,6 +54,8 @@ public partial class App : Application
         services.AddSingleton<IServiceControlService, ServiceControlService>();
         services.AddSingleton<IScheduledMaintenanceService, ScheduledMaintenanceService>();
         services.AddSingleton<IStartupLauncherService, StartupLauncherService>();
+        services.AddSingleton<ILiveMetricsService, LiveMetricsService>();
+        services.AddSingleton<IMiniMonitorService, MiniMonitorService>();
         services.AddSingleton<ITrayIconService, TrayIconService>();
         services.AddSingleton<IDiskMaintenanceService, DiskMaintenanceService>();
         services.AddSingleton<IDiskHealthScoreService, DiskHealthScoreService>();
@@ -230,6 +232,10 @@ public partial class App : Application
         // Keep the "start with Windows" logon task in sync (and refresh its exe path after upgrades).
         _services.GetRequiredService<IStartupLauncherService>().Sync();
 
+        // Restore the live monitor (tray stats + mini-widget) if the user left them on.
+        if (settings.Current.ShowTrayStats) trayIcon.EnableLiveStats(true);
+        if (settings.Current.ShowMiniMonitor) _services.GetRequiredService<IMiniMonitorService>().Show();
+
         if (minimized)
         {
             window.WindowState = WindowState.Minimized;
@@ -360,6 +366,7 @@ public partial class App : Application
 
     protected override void OnExit(ExitEventArgs e)
     {
+        try { _services.GetRequiredService<IMiniMonitorService>().Shutdown(); } catch (Exception) { }
         try { _services.GetRequiredService<ITrayIconService>().Dispose(); } catch (Exception) { }
         try { _services.GetRequiredService<ITemperatureService>().Dispose(); } catch (Exception) { } // unload the sensor driver
         try { _services.GetRequiredService<INetworkUsageService>().Dispose(); } catch (Exception) { } // stop the ETW session
