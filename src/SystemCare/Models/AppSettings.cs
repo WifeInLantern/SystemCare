@@ -35,6 +35,11 @@ public class AppSettings
 
     // Safety
     public bool CreateRestorePointBeforeMaintenance { get; set; } = true;
+    /// <summary>
+    /// When a restore point would be created before a maintenance action, ask first (Yes/No) instead of
+    /// creating it silently. Only applies when <see cref="CreateRestorePointBeforeMaintenance"/> is on.
+    /// </summary>
+    public bool AskBeforeBackup { get; set; } = true;
     public List<string> CleanupExclusions { get; set; } = [];
     public List<string> CustomJunkFolders { get; set; } = [];
 

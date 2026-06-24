@@ -23,6 +23,7 @@ public partial class SoftwareUpdateViewModel : ObservableObject
 {
     private readonly ISoftwareUpdateService _software;
     private readonly IRestorePointService _restore;
+    private readonly IBackupConfirmationService _backup;
     private readonly ISettingsService _settings;
     private readonly ISnackbarService _snackbar;
     private readonly IContentDialogService _dialogs;
@@ -42,10 +43,11 @@ public partial class SoftwareUpdateViewModel : ObservableObject
 
     public SoftwareUpdateViewModel(ISoftwareUpdateService software, IRestorePointService restore,
         ISettingsService settings, ISnackbarService snackbar, IContentDialogService dialogs,
-        IHistoryService history, ILogService log)
+        IHistoryService history, ILogService log, IBackupConfirmationService backup)
     {
         _software = software;
         _restore = restore;
+        _backup = backup;
         _settings = settings;
         _snackbar = snackbar;
         _dialogs = dialogs;
@@ -122,7 +124,7 @@ public partial class SoftwareUpdateViewModel : ObservableObject
         {
             Title = "Update selected apps?",
             Content = $"{selected.Count} app(s) will be updated via winget."
-                + (_settings.Current.CreateRestorePointBeforeMaintenance ? "\n\nA system restore point will be created first." : "")
+                + (_settings.Current.CreateRestorePointBeforeMaintenance ? "\n\nYou can choose to create a restore point first." : "")
                 + "\n\nSome apps may briefly show their own installer.",
             PrimaryButtonText = "Update",
             CloseButtonText = "Cancel",
@@ -134,7 +136,7 @@ public partial class SoftwareUpdateViewModel : ObservableObject
         _log.Info("SoftwareUpdate", $"Starting update of {selected.Count} app(s).");
         try
         {
-            if (_settings.Current.CreateRestorePointBeforeMaintenance)
+            if (await _backup.ConfirmRestorePointAsync("updating your apps"))
             {
                 StatusText = "Creating a restore point…";
                 await _restore.CreateRestorePointAsync("Before SystemCare app updates");

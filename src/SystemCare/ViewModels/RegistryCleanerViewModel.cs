@@ -87,8 +87,7 @@ public partial class RegistryCleanerViewModel : ObservableObject
         {
             Title = "Clean registry entries?",
             Content = $"{Issues.Count} invalid entr{(Issues.Count == 1 ? "y" : "ies")} will be removed.\n\n" +
-                      "A backup (.reg) is saved first and a restore point is created — you can undo with " +
-                      "\"Restore last backup\".",
+                      "A backup (.reg) is saved first, so you can undo with \"Restore last backup\".",
             PrimaryButtonText = "Clean now",
             CloseButtonText = "Cancel",
         });

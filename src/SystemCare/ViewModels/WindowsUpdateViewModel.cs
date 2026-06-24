@@ -24,6 +24,7 @@ public partial class WindowsUpdateViewModel : ObservableObject
 {
     private readonly IWindowsUpdateService _wu;
     private readonly IRestorePointService _restore;
+    private readonly IBackupConfirmationService _backup;
     private readonly ISettingsService _settings;
     private readonly ISnackbarService _snackbar;
     private readonly IContentDialogService _dialogs;
@@ -41,10 +42,12 @@ public partial class WindowsUpdateViewModel : ObservableObject
     [ObservableProperty] private string _pauseStatus = "";
 
     public WindowsUpdateViewModel(IWindowsUpdateService wu, IRestorePointService restore, ISettingsService settings,
-        ISnackbarService snackbar, IContentDialogService dialogs, IHistoryService history, ILogService log)
+        ISnackbarService snackbar, IContentDialogService dialogs, IHistoryService history, ILogService log,
+        IBackupConfirmationService backup)
     {
         _wu = wu;
         _restore = restore;
+        _backup = backup;
         _settings = settings;
         _snackbar = snackbar;
         _dialogs = dialogs;
@@ -106,7 +109,7 @@ public partial class WindowsUpdateViewModel : ObservableObject
         {
             Title = "Install selected updates?",
             Content = $"{selected.Count} Windows update(s) will be downloaded and installed."
-                + (_settings.Current.CreateRestorePointBeforeMaintenance ? "\n\nA system restore point will be created first." : "")
+                + (_settings.Current.CreateRestorePointBeforeMaintenance ? "\n\nYou can choose to create a restore point first." : "")
                 + "\n\nSome updates may require a restart to finish.",
             PrimaryButtonText = "Install",
             CloseButtonText = "Cancel",
@@ -118,7 +121,7 @@ public partial class WindowsUpdateViewModel : ObservableObject
         _log.Info("WindowsUpdate", $"Installing {selected.Count} update(s).");
         try
         {
-            if (_settings.Current.CreateRestorePointBeforeMaintenance)
+            if (await _backup.ConfirmRestorePointAsync("installing Windows updates"))
             {
                 StatusText = "Creating a restore point…";
                 await _restore.CreateRestorePointAsync("Before SystemCare Windows updates");

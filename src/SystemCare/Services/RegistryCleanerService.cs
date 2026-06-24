@@ -19,7 +19,7 @@ public interface IRegistryCleanerService
 /// longer exist. Every clean run is exported to a timestamped .reg backup first (and a System
 /// Restore point if enabled), so anything removed can be restored.
 /// </summary>
-public class RegistryCleanerService(IRestorePointService restore, ISettingsService settings) : IRegistryCleanerService
+public class RegistryCleanerService(IRestorePointService restore, IBackupConfirmationService backup) : IRegistryCleanerService
 {
     public string BackupRoot { get; } = Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "SystemCare", "RegistryBackups");
@@ -259,7 +259,7 @@ public class RegistryCleanerService(IRestorePointService restore, ISettingsServi
         var result = new RegistryCleanResult();
         if (list.Count == 0) return result;
 
-        if (settings.Current.CreateRestorePointBeforeMaintenance)
+        if (await backup.ConfirmRestorePointAsync("cleaning the registry"))
         {
             progress?.Report("Creating a restore point…");
             try { await restore.CreateRestorePointAsync("Before SystemCare registry clean"); } catch (Exception) { }

@@ -97,6 +97,19 @@
                     <ui:ToggleSwitch Grid.Column="1" IsChecked="{Binding CreateRestorePointBeforeMaintenance}" />
                 </Grid>
             </ui:Card>
+            <ui:Card Padding="16,12" Margin="0,8,0,0">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0" Margin="0,0,16,0">
+                        <TextBlock Text="Ask before each backup" FontWeight="SemiBold" />
+                        <TextBlock Text="Confirm with a Yes/No prompt each time, instead of creating the restore point automatically" FontSize="12" Opacity="0.65" TextWrapping="Wrap" />
+                    </StackPanel>
+                    <ui:ToggleSwitch Grid.Column="1" IsChecked="{Binding AskBeforeBackup}" IsEnabled="{Binding CreateRestorePointBeforeMaintenance}" />
+                </Grid>
+            </ui:Card>
 
             <ui:Card Padding="16,12" Margin="0,0,0,8">
                 <Grid>

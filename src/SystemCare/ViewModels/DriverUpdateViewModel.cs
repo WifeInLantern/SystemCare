@@ -24,6 +24,7 @@ public partial class DriverUpdateViewModel : ObservableObject
 {
     private readonly IDriverUpdateService _drivers;
     private readonly IRestorePointService _restore;
+    private readonly IBackupConfirmationService _backup;
     private readonly ISettingsService _settings;
     private readonly ISnackbarService _snackbar;
     private readonly IContentDialogService _dialogs;
@@ -43,10 +44,11 @@ public partial class DriverUpdateViewModel : ObservableObject
 
     public DriverUpdateViewModel(IDriverUpdateService drivers, IRestorePointService restore,
         ISettingsService settings, ISnackbarService snackbar, IContentDialogService dialogs,
-        IHistoryService history)
+        IHistoryService history, IBackupConfirmationService backup)
     {
         _drivers = drivers;
         _restore = restore;
+        _backup = backup;
         _settings = settings;
         _snackbar = snackbar;
         _dialogs = dialogs;
@@ -119,7 +121,7 @@ public partial class DriverUpdateViewModel : ObservableObject
             Title = "Install selected driver updates?",
             Content = $"{selected.Count} driver update(s) will be downloaded and installed from Windows Update."
                 + (_settings.Current.CreateRestorePointBeforeMaintenance
-                    ? "\n\nA system restore point will be created first."
+                    ? "\n\nYou can choose to create a restore point first."
                     : "")
                 + "\n\nSome drivers may require a restart to finish.",
             PrimaryButtonText = "Install",
@@ -131,7 +133,7 @@ public partial class DriverUpdateViewModel : ObservableObject
         InstallProgress = 0;
         try
         {
-            if (_settings.Current.CreateRestorePointBeforeMaintenance)
+            if (await _backup.ConfirmRestorePointAsync("installing driver updates"))
             {
                 StatusText = "Creating a restore point…";
                 await _restore.CreateRestorePointAsync("Before SystemCare driver update");

@@ -19,6 +19,7 @@ public partial class DashboardViewModel : ObservableObject
     private readonly ISettingsService _settings;
     private readonly ISnackbarService _snackbar;
     private readonly IRestorePointService _restore;
+    private readonly IBackupConfirmationService _backup;
     private readonly INetworkToolsService _network;
     private readonly IHistoryService _history;
     private readonly ISecurityCheckService _security;
@@ -62,6 +63,7 @@ public partial class DashboardViewModel : ObservableObject
         ISettingsService settings,
         ISnackbarService snackbar,
         IRestorePointService restore,
+        IBackupConfirmationService backup,
         INetworkToolsService network,
         IHistoryService history,
         ISecurityCheckService security)
@@ -74,6 +76,7 @@ public partial class DashboardViewModel : ObservableObject
         _settings = settings;
         _snackbar = snackbar;
         _restore = restore;
+        _backup = backup;
         _network = network;
         _history = history;
         _security = security;
@@ -203,7 +206,7 @@ public partial class DashboardViewModel : ObservableObject
         IsWorking = true;
         try
         {
-            if (_settings.Current.CreateRestorePointBeforeMaintenance)
+            if (await _backup.ConfirmRestorePointAsync("the one-click fix"))
             {
                 LastScanSummary = "Creating a restore point…";
                 await _restore.CreateRestorePointAsync("Before SystemCare Fix all");

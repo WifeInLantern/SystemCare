@@ -17,6 +17,7 @@ public partial class SettingsViewModel : ObservableObject
     private readonly IStartupLauncherService _startup;
     private readonly IUpdateService _updates;
     private readonly IRestorePointService _restore;
+    private readonly IBackupConfirmationService _backup;
     private readonly ISnackbarService _snackbar;
     private readonly ILogService _log;
     private readonly ITrayIconService _tray;
@@ -31,6 +32,7 @@ public partial class SettingsViewModel : ObservableObject
     [ObservableProperty] private bool _minimizeToTray;
     [ObservableProperty] private bool _startWithWindows;
     [ObservableProperty] private bool _createRestorePointBeforeMaintenance;
+    [ObservableProperty] private bool _askBeforeBackup;
     [ObservableProperty] private bool _reduceMotion;
     [ObservableProperty] private bool _showTrayStats;
     [ObservableProperty] private bool _showMiniMonitor;
@@ -58,13 +60,15 @@ public partial class SettingsViewModel : ObservableObject
 
     public SettingsViewModel(ISettingsService settings, IScheduledMaintenanceService maintenance,
         IStartupLauncherService startup, IUpdateService updates, IRestorePointService restore,
-        ISnackbarService snackbar, ILogService log, ITrayIconService tray, IMiniMonitorService miniMonitor)
+        ISnackbarService snackbar, ILogService log, ITrayIconService tray, IMiniMonitorService miniMonitor,
+        IBackupConfirmationService backup)
     {
         _settings = settings;
         _maintenance = maintenance;
         _startup = startup;
         _updates = updates;
         _restore = restore;
+        _backup = backup;
         _snackbar = snackbar;
         _log = log;
         _tray = tray;
@@ -77,6 +81,7 @@ public partial class SettingsViewModel : ObservableObject
         _minimizeToTray = settings.Current.MinimizeToTray;
         _startWithWindows = settings.Current.StartWithWindows;
         _createRestorePointBeforeMaintenance = settings.Current.CreateRestorePointBeforeMaintenance;
+        _askBeforeBackup = settings.Current.AskBeforeBackup;
         _reduceMotion = settings.Current.ReduceMotion;
         _showTrayStats = settings.Current.ShowTrayStats;
         _showMiniMonitor = settings.Current.ShowMiniMonitor;
@@ -178,7 +183,7 @@ public partial class SettingsViewModel : ObservableObject
                 return;
             }
             // Safety net before the installer replaces app files.
-            if (_settings.Current.CreateRestorePointBeforeMaintenance)
+            if (await _backup.ConfirmRestorePointAsync("updating SystemCare"))
             {
                 UpdateStatus = "Creating a restore point…";
                 var (ok, msg) = await _restore.CreateRestorePointAsync("Before SystemCare app update");
@@ -228,6 +233,12 @@ public partial class SettingsViewModel : ObservableObject
     partial void OnCreateRestorePointBeforeMaintenanceChanged(bool value)
     {
         _settings.Current.CreateRestorePointBeforeMaintenance = value;
+        _settings.Save();
+    }
+
+    partial void OnAskBeforeBackupChanged(bool value)
+    {
+        _settings.Current.AskBeforeBackup = value;
         _settings.Save();
     }
 

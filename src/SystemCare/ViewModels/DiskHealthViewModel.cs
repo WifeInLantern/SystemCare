@@ -79,7 +79,7 @@ public partial class DiskHealthViewModel : ObservableObject
     private readonly IDiskHealthScoreService _score;
     private readonly IScheduledMaintenanceService _maintenance;
     private readonly IRestorePointService _restore;
-    private readonly ISettingsService _settings;
+    private readonly IBackupConfirmationService _backup;
     private readonly ISnackbarService _snackbar;
     private readonly ITrayIconService _tray;
     private readonly IHistoryService _history;
@@ -103,14 +103,15 @@ public partial class DiskHealthViewModel : ObservableObject
     [ObservableProperty] private bool _hasAlerts;
 
     public DiskHealthViewModel(IDiskMaintenanceService service, IDiskHealthScoreService score,
-        IScheduledMaintenanceService maintenance, IRestorePointService restore, ISettingsService settings,
-        ISnackbarService snackbar, ITrayIconService tray, IHistoryService history)
+        IScheduledMaintenanceService maintenance, IRestorePointService restore,
+        ISnackbarService snackbar, ITrayIconService tray, IHistoryService history,
+        IBackupConfirmationService backup)
     {
         _service = service;
         _score = score;
         _maintenance = maintenance;
         _restore = restore;
-        _settings = settings;
+        _backup = backup;
         _snackbar = snackbar;
         _tray = tray;
         _history = history;
@@ -271,7 +272,7 @@ public partial class DiskHealthViewModel : ObservableObject
         long bytesFreed = 0;
         try
         {
-            if (_settings.Current.CreateRestorePointBeforeMaintenance)
+            if (await _backup.ConfirmRestorePointAsync("one-click disk maintenance"))
             {
                 AppendLine("Creating a restore point first…");
                 var (ok, message) = await _restore.CreateRestorePointAsync("Before SystemCare — one-click disk maintenance");
@@ -344,7 +345,7 @@ public partial class DiskHealthViewModel : ObservableObject
 
         try
         {
-            if (restorePoint && _settings.Current.CreateRestorePointBeforeMaintenance)
+            if (restorePoint && await _backup.ConfirmRestorePointAsync(title))
             {
                 AppendLine("Creating a restore point first…");
                 var (ok, message) = await _restore.CreateRestorePointAsync($"Before SystemCare — {title}");

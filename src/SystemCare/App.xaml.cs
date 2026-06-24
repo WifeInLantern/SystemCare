@@ -60,6 +60,7 @@ public partial class App : Application
         services.AddSingleton<IDiskMaintenanceService, DiskMaintenanceService>();
         services.AddSingleton<IDiskHealthScoreService, DiskHealthScoreService>();
         services.AddSingleton<IRestorePointService, RestorePointService>();
+        services.AddSingleton<IBackupConfirmationService, BackupConfirmationService>();
         services.AddSingleton<IRegistryCleanerService, RegistryCleanerService>();
         services.AddSingleton<IEmptyFolderService, EmptyFolderService>();
         services.AddSingleton<IDeepCleanupService, DeepCleanupService>();
@@ -299,7 +300,7 @@ public partial class App : Application
             if (choice == Wpf.Ui.Controls.ContentDialogResult.Primary)
             {
                 // Safety net before the installer replaces app files.
-                if (_services.GetRequiredService<ISettingsService>().Current.CreateRestorePointBeforeMaintenance)
+                if (await _services.GetRequiredService<IBackupConfirmationService>().ConfirmRestorePointAsync("updating SystemCare"))
                 {
                     var (ok, msg) = await _services.GetRequiredService<IRestorePointService>()
                         .CreateRestorePointAsync("Before SystemCare app update");
