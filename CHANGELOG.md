@@ -2,6 +2,17 @@
 
 All notable changes to SystemCare are documented here. Versions follow [SemVer](https://semver.org/).
 
+## [2.1.0] - 2026-06-25
+
+### Added
+- **"Ask before each backup" — confirm restore points per action.** When SystemCare is about to create a
+  System Restore point before a maintenance action — "Fix all", Windows/app/driver updates, disk
+  maintenance, registry clean, or the app's own self-update — it now asks first with a Yes/No prompt
+  instead of creating one silently. Choose **Create restore point** to make one, or **Skip** to continue
+  without. A new **Settings → Safety → "Ask before each backup"** toggle (on by default) controls this;
+  turn it off to go back to creating restore points automatically, or turn restore points off entirely to
+  skip them. Explicit "Create restore point" buttons stay one-click.
+
 ## [2.0.0] - 2026-06-23
 
 ### Added
