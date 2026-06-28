@@ -154,6 +154,11 @@
                         <ui:SymbolIcon Symbol="History24" />
                     </ui:NavigationViewItem.Icon>
                 </ui:NavigationViewItem>
+                <ui:NavigationViewItem Content="Benchmark" TargetPageType="{x:Type views:BenchmarkPage}" ToolTipService.ToolTip="PC Benchmark &amp; Score">
+                    <ui:NavigationViewItem.Icon>
+                        <ui:SymbolIcon Symbol="Gauge24" />
+                    </ui:NavigationViewItem.Icon>
+                </ui:NavigationViewItem>
 
                 <ui:NavigationViewItemHeader Text="Protect" />
                 <ui:NavigationViewItem Content="Bloatware" TargetPageType="{x:Type views:BloatwarePage}" ToolTipService.ToolTip="Bloatware &amp; Store Apps">

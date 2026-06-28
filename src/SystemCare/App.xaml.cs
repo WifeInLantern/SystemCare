@@ -62,6 +62,8 @@ public partial class App : Application
         services.AddSingleton<IRestorePointService, RestorePointService>();
         services.AddSingleton<IBackupConfirmationService, BackupConfirmationService>();
         services.AddSingleton<IRegistryCleanerService, RegistryCleanerService>();
+        services.AddSingleton<IBenchmarkService, BenchmarkService>();
+        services.AddSingleton<IBenchmarkHistoryService, BenchmarkHistoryService>();
         services.AddSingleton<IEmptyFolderService, EmptyFolderService>();
         services.AddSingleton<IDeepCleanupService, DeepCleanupService>();
         services.AddSingleton<IAppPackageService, AppPackageService>();
@@ -110,6 +112,7 @@ public partial class App : Application
         services.AddSingleton<WindowsUpdateViewModel>();
         services.AddSingleton<SettingsViewModel>();
         services.AddSingleton<HistoryViewModel>();
+        services.AddSingleton<BenchmarkViewModel>();
 
         // Pages
         services.AddTransient<DashboardPage>();
@@ -139,6 +142,7 @@ public partial class App : Application
         services.AddTransient<WindowsUpdatePage>();
         services.AddTransient<SettingsPage>();
         services.AddTransient<HistoryPage>();
+        services.AddTransient<BenchmarkPage>();
 
         return services.BuildServiceProvider();
     }

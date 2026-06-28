@@ -24,10 +24,22 @@ public class HealthGauge : FrameworkElement
         nameof(AnimatedScore), typeof(double), typeof(HealthGauge),
         new FrameworkPropertyMetadata(-1.0, FrameworkPropertyMetadataOptions.AffectsRender));
 
+    /// <summary>Optional replacement for the band caption under the score (e.g. a benchmark tier). When
+    /// empty, the health band text (Excellent/Good/…) is used.</summary>
+    public static readonly DependencyProperty BandLabelOverrideProperty = DependencyProperty.Register(
+        nameof(BandLabelOverride), typeof(string), typeof(HealthGauge),
+        new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender));
+
     public double Score
     {
         get => (double)GetValue(ScoreProperty);
         set => SetValue(ScoreProperty, value);
+    }
+
+    public string? BandLabelOverride
+    {
+        get => (string?)GetValue(BandLabelOverrideProperty);
+        set => SetValue(BandLabelOverrideProperty, value);
     }
 
     private double AnimatedScore => (double)GetValue(AnimatedScoreProperty);
@@ -198,8 +210,11 @@ public class HealthGauge : FrameworkElement
             size * 0.30, new SolidColorBrush(color), dpi);
         dc.DrawText(scoreText, new Point(center.X - scoreText.Width / 2, center.Y - scoreText.Height * 0.62));
 
+        string caption = hasScore
+            ? (string.IsNullOrEmpty(BandLabelOverride) ? BandText(score) : BandLabelOverride!).ToUpperInvariant()
+            : "NOT SCANNED YET";
         var label = new FormattedText(
-            hasScore ? BandText(score).ToUpperInvariant() : "NOT SCANNED YET",
+            caption,
             CultureInfo.InvariantCulture, FlowDirection.LeftToRight,
             new Typeface(NumberFont, FontStyles.Normal, FontWeights.SemiBold, FontStretches.Normal), size * 0.06,
             new SolidColorBrush(Color.FromRgb(0x8F, 0xA6, 0xC0)), dpi);

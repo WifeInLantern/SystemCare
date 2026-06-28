@@ -2,6 +2,16 @@
 
 All notable changes to SystemCare are documented here. Versions follow [SemVer](https://semver.org/).
 
+## [2.2.0] - 2026-06-28
+
+### Added
+- **PC Benchmark & Score.** A new **Analyze → Benchmark** page that runs a quick, fully-local CPU, memory,
+  and disk benchmark and rolls the results into a single "Night City" score (0–100 index + headline points)
+  shown on a neon gauge, with a performance tier (Entry / Mainstream / Fast / Elite), per-test cards (CPU
+  multi-thread compute, memory copy bandwidth, disk sequential write) and a score-history trend. Runs on a
+  background thread, is cancellable, and writes nothing to the network — results stay on your PC. Handy for
+  "how fast is my PC?" and for checking whether a cleanup or tweak actually helped.
+
 ## [2.1.0] - 2026-06-25
 
 ### Added
