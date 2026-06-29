@@ -2,6 +2,14 @@
 
 All notable changes to SystemCare are documented here. Versions follow [SemVer](https://semver.org/).
 
+## [2.3.1] - 2026-06-29
+
+### Added
+- **Installation agreement.** The installer now presents a license agreement (EULA) that must be accepted
+  before installing — free, source-available terms with the standard no-warranty / use-at-your-own-risk and
+  "runs as administrator and changes system settings" notice. The project also gained contributor guidance
+  (CONTRIBUTING, issue/PR templates); contributions are welcome and reviewed by the maintainer.
+
 ## [2.3.0] - 2026-06-29
 
 ### Added
