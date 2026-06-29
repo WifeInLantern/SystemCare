@@ -2,6 +2,19 @@
 
 All notable changes to SystemCare are documented here. Versions follow [SemVer](https://semver.org/).
 
+## [2.3.0] - 2026-06-29
+
+### Added
+- **Sensors & Thermals hub.** A new **Analyze → Sensors** page consolidates live hardware monitoring into one
+  cyberpunk dashboard: temperatures, fan speeds, voltages, clocks, per-component load and power, grouped by
+  device, with live CPU/GPU temperature and load graphs. Hot sensors are highlighted and a tray notification
+  fires once when a component crosses a critical temperature. Polls only while the page is open; fully local.
+- **Reliability Center.** A new **Protect → Reliability** page reads the Windows Event Log to surface recent
+  blue screens, unexpected shutdowns, app crashes/hangs, disk errors and service failures from the last 14
+  days, rolled into a 0–100 stability score with per-category counts and a recent-issues list. Includes
+  one-tap fixes — run system repair, create a restore point, open the Rescue Center, or open Event Viewer.
+  Reads the local log only; nothing leaves your PC.
+
 ## [2.2.0] - 2026-06-28
 
 ### Added

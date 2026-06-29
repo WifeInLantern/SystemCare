@@ -56,6 +56,8 @@ public partial class App : Application
         services.AddSingleton<IStartupLauncherService, StartupLauncherService>();
         services.AddSingleton<ILiveMetricsService, LiveMetricsService>();
         services.AddSingleton<IMiniMonitorService, MiniMonitorService>();
+        services.AddSingleton<ISensorMonitorService, SensorMonitorService>();
+        services.AddSingleton<IReliabilityService, ReliabilityService>();
         services.AddSingleton<ITrayIconService, TrayIconService>();
         services.AddSingleton<IDiskMaintenanceService, DiskMaintenanceService>();
         services.AddSingleton<IDiskHealthScoreService, DiskHealthScoreService>();
@@ -113,6 +115,8 @@ public partial class App : Application
         services.AddSingleton<SettingsViewModel>();
         services.AddSingleton<HistoryViewModel>();
         services.AddSingleton<BenchmarkViewModel>();
+        services.AddSingleton<SensorsViewModel>();
+        services.AddSingleton<ReliabilityViewModel>();
 
         // Pages
         services.AddTransient<DashboardPage>();
@@ -143,6 +147,8 @@ public partial class App : Application
         services.AddTransient<SettingsPage>();
         services.AddTransient<HistoryPage>();
         services.AddTransient<BenchmarkPage>();
+        services.AddTransient<SensorsPage>();
+        services.AddTransient<ReliabilityPage>();
 
         return services.BuildServiceProvider();
     }

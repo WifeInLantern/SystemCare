@@ -159,6 +159,11 @@
                         <ui:SymbolIcon Symbol="Gauge24" />
                     </ui:NavigationViewItem.Icon>
                 </ui:NavigationViewItem>
+                <ui:NavigationViewItem Content="Sensors" TargetPageType="{x:Type views:SensorsPage}" ToolTipService.ToolTip="Sensors &amp; Thermals">
+                    <ui:NavigationViewItem.Icon>
+                        <ui:SymbolIcon Symbol="Temperature24" />
+                    </ui:NavigationViewItem.Icon>
+                </ui:NavigationViewItem>
 
                 <ui:NavigationViewItemHeader Text="Protect" />
                 <ui:NavigationViewItem Content="Bloatware" TargetPageType="{x:Type views:BloatwarePage}" ToolTipService.ToolTip="Bloatware &amp; Store Apps">
@@ -174,6 +179,11 @@
                 <ui:NavigationViewItem Content="Security" TargetPageType="{x:Type views:SecurityCheckupPage}" ToolTipService.ToolTip="Security Checkup">
                     <ui:NavigationViewItem.Icon>
                         <ui:SymbolIcon Symbol="ShieldCheckmark24" />
+                    </ui:NavigationViewItem.Icon>
+                </ui:NavigationViewItem>
+                <ui:NavigationViewItem Content="Reliability" TargetPageType="{x:Type views:ReliabilityPage}" ToolTipService.ToolTip="Reliability Center (crashes &amp; errors)">
+                    <ui:NavigationViewItem.Icon>
+                        <ui:SymbolIcon Symbol="Heart24" />
                     </ui:NavigationViewItem.Icon>
                 </ui:NavigationViewItem>
                 <ui:NavigationViewItem Content="Rescue Center" TargetPageType="{x:Type views:RescueCenterPage}" ToolTipService.ToolTip="Rescue Center (restore points)">

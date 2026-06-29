@@ -1,0 +1,140 @@
+<Page x:Class="SystemCare.Views.SensorsPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+      xmlns:controls="clr-namespace:SystemCare.Controls"
+      xmlns:converters="clr-namespace:SystemCare.Converters"
+      xmlns:vm="clr-namespace:SystemCare.ViewModels"
+      mc:Ignorable="d"
+      TextElement.Foreground="{StaticResource TextFillColorPrimaryBrush}"
+      d:DataContext="{d:DesignInstance Type=vm:SensorsViewModel}"
+      Title="Sensors"
+      Loaded="OnPageLoaded" Unloaded="OnPageUnloaded">
+    <Page.Resources>
+        <converters:BoolToVisibilityConverter x:Key="VisibleWhenTrue" />
+        <converters:BoolToVisibilityConverter x:Key="VisibleWhenFalse" Invert="True" />
+    </Page.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <Grid Margin="24,12,24,24">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <!-- Title -->
+            <StackPanel Grid.Row="0">
+                <TextBlock Text="Sensors &amp; Thermals" Style="{StaticResource CyberPageTitle}" />
+                <TextBlock Text="{Binding StatusText}" FontSize="13" Opacity="0.75" Margin="0,4,0,0" TextWrapping="Wrap" />
+            </StackPanel>
+
+            <!-- Headline graphs -->
+            <Grid Grid.Row="1" Margin="0,16,0,0"
+                  Visibility="{Binding HasData, Converter={StaticResource VisibleWhenTrue}}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <ui:Card Grid.Column="0" Margin="0,0,6,0" Padding="16,12">
+                    <StackPanel>
+                        <TextBlock Text="CPU TEMP" FontSize="11" Opacity="0.65" />
+                        <TextBlock Text="{Binding CpuTempText}" FontSize="22" Style="{StaticResource CyberDisplayText}" />
+                        <controls:SparklineChart Height="44" Margin="0,4,0,0" Max="100"
+                                                 Values="{Binding CpuTempHistory}" Accent="#00E5FF" />
+                    </StackPanel>
+                </ui:Card>
+
+                <ui:Card Grid.Column="1" Margin="6,0,6,0" Padding="16,12">
+                    <StackPanel>
+                        <TextBlock Text="CPU LOAD" FontSize="11" Opacity="0.65" />
+                        <TextBlock Text="{Binding CpuLoadText}" FontSize="22" Style="{StaticResource CyberDisplayText}" />
+                        <controls:SparklineChart Height="44" Margin="0,4,0,0" Max="100"
+                                                 Values="{Binding CpuLoadHistory}" Accent="#00FFA3" />
+                    </StackPanel>
+                </ui:Card>
+
+                <ui:Card Grid.Column="2" Margin="6,0,6,0" Padding="16,12"
+                         Visibility="{Binding HasGpu, Converter={StaticResource VisibleWhenTrue}}">
+                    <StackPanel>
+                        <TextBlock Text="GPU TEMP" FontSize="11" Opacity="0.65" />
+                        <TextBlock Text="{Binding GpuTempText}" FontSize="22" Style="{StaticResource CyberDisplayText}" />
+                        <controls:SparklineChart Height="44" Margin="0,4,0,0" Max="100"
+                                                 Values="{Binding GpuTempHistory}" Accent="#B14CFF" />
+                    </StackPanel>
+                </ui:Card>
+
+                <ui:Card Grid.Column="3" Margin="6,0,0,0" Padding="16,12"
+                         Visibility="{Binding HasGpu, Converter={StaticResource VisibleWhenTrue}}">
+                    <StackPanel>
+                        <TextBlock Text="GPU LOAD" FontSize="11" Opacity="0.65" />
+                        <TextBlock Text="{Binding GpuLoadText}" FontSize="22" Style="{StaticResource CyberDisplayText}" />
+                        <controls:SparklineChart Height="44" Margin="0,4,0,0" Max="100"
+                                                 Values="{Binding GpuLoadHistory}" Accent="#FFD300" />
+                    </StackPanel>
+                </ui:Card>
+            </Grid>
+
+            <!-- Unavailable state -->
+            <ui:Card Grid.Row="2" Margin="0,16,0,0" Padding="20,28"
+                     Visibility="{Binding HasData, Converter={StaticResource VisibleWhenFalse}}">
+                <StackPanel HorizontalAlignment="Center">
+                    <ui:SymbolIcon Symbol="Temperature24" FontSize="32" Opacity="0.5" HorizontalAlignment="Center" />
+                    <TextBlock Text="{Binding StatusText}" Margin="0,10,0,0" TextWrapping="Wrap"
+                               TextAlignment="Center" Opacity="0.7" MaxWidth="520" />
+                </StackPanel>
+            </ui:Card>
+
+            <!-- Per-component sensor groups -->
+            <ItemsControl Grid.Row="3" Margin="0,16,0,0" ItemsSource="{Binding Components}"
+                          Visibility="{Binding HasData, Converter={StaticResource VisibleWhenTrue}}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <ui:Card Margin="0,0,0,10" Padding="16,12">
+                            <StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                                    <ui:SymbolIcon Symbol="{Binding Icon}" />
+                                    <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="15"
+                                               Margin="8,0,0,0" VerticalAlignment="Center" />
+                                </StackPanel>
+                                <ItemsControl ItemsSource="{Binding Groups}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Margin="0,6,0,0">
+                                                <TextBlock Text="{Binding Header}" Style="{StaticResource CyberSectionHeader}"
+                                                           FontSize="12" Opacity="0.65" />
+                                                <ItemsControl ItemsSource="{Binding Rows}">
+                                                    <ItemsControl.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <Grid Margin="0,2,0,2">
+                                                                <Grid.ColumnDefinitions>
+                                                                    <ColumnDefinition Width="*" />
+                                                                    <ColumnDefinition Width="Auto" />
+                                                                </Grid.ColumnDefinitions>
+                                                                <TextBlock Grid.Column="0" Text="{Binding Name}"
+                                                                           Opacity="0.8" FontSize="13" />
+                                                                <TextBlock Grid.Column="1" Text="{Binding ValueText}"
+                                                                           Foreground="{Binding ValueBrush}"
+                                                                           FontWeight="SemiBold" FontSize="13" />
+                                                            </Grid>
+                                                        </DataTemplate>
+                                                    </ItemsControl.ItemTemplate>
+                                                </ItemsControl>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </ui:Card>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </Grid>
+    </ScrollViewer>
+</Page>

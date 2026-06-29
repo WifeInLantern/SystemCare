@@ -11,6 +11,12 @@ public interface ITemperatureService : IDisposable
     /// are unavailable (e.g. the kernel driver is blocked by HVCI/Memory Integrity). Never throws.
     /// </summary>
     IReadOnlyList<ComponentTemperature> Read();
+
+    /// <summary>
+    /// Reads <b>all</b> live sensors (temperatures, fans, voltages, clocks, loads, power) across every
+    /// component, for the Sensors hub. Shares the same backend as <see cref="Read"/>. Never throws.
+    /// </summary>
+    IReadOnlyList<SensorReading> ReadSensors();
 }
 
 /// <summary>
@@ -51,6 +57,58 @@ public sealed class TemperatureService : ITemperatureService
             return results;
         }
     }
+
+    public IReadOnlyList<SensorReading> ReadSensors()
+    {
+        lock (_gate)
+        {
+            var computer = EnsureOpen();
+            if (computer is null) return [];
+
+            var results = new List<SensorReading>();
+            try
+            {
+                computer.Accept(_visitor);
+                foreach (var hw in computer.Hardware)
+                {
+                    string? category = CategoryFor(hw.HardwareType);
+                    if (category is null) continue;
+                    CollectSensors(hw, hw.Name, category, results);
+                }
+            }
+            catch (Exception)
+            {
+                // a failed update shouldn't take the page down — return what we have
+            }
+            return results;
+        }
+    }
+
+    private static void CollectSensors(IHardware hw, string component, string category, List<SensorReading> into)
+    {
+        foreach (var s in hw.Sensors)
+        {
+            if (MapKind(s.SensorType) is not SensorKind kind) continue;
+            if (s.Value is not float v || float.IsNaN(v) || float.IsInfinity(v)) continue;
+            if (kind == SensorKind.Temperature &&
+                (v <= 0 || v >= 200 || ThresholdNames.Any(t => s.Name.Contains(t, StringComparison.OrdinalIgnoreCase))))
+                continue; // skip fixed limits / bogus temps, matching PickTemperature
+            into.Add(new SensorReading(component, category, kind, s.Name, Math.Round((double)v, 2)));
+        }
+        foreach (var sub in hw.SubHardware) CollectSensors(sub, component, category, into);
+    }
+
+    private static SensorKind? MapKind(SensorType type) => type switch
+    {
+        SensorType.Temperature => SensorKind.Temperature,
+        SensorType.Fan => SensorKind.Fan,
+        SensorType.Voltage => SensorKind.Voltage,
+        SensorType.Clock => SensorKind.Clock,
+        SensorType.Load => SensorKind.Load,
+        SensorType.Power => SensorKind.Power,
+        SensorType.Control => SensorKind.Control,
+        _ => null,
+    };
 
     private Computer? EnsureOpen()
     {

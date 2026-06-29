@@ -116,6 +116,7 @@ public partial class MainWindow
             "DiskHealth" => typeof(DiskHealthPage),
             "RescueCenter" => typeof(RescueCenterPage),
             "Security" => typeof(SecurityCheckupPage),
+            "Reliability" => typeof(ReliabilityPage),
             "Network" => typeof(NetworkToolsPage),
             "WindowsTweaks" => typeof(WindowsTweaksPage),
             "Boost" => typeof(BoostPage),
