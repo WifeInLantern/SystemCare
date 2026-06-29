@@ -1,0 +1,51 @@
+SystemCare - End User License Agreement
+
+Copyright (c) 2026 SystemCare. All rights reserved.
+
+Please read this agreement carefully before installing or using SystemCare ("the
+Software"). By selecting "I accept the agreement" and installing or using the
+Software, you agree to be bound by these terms. If you do not agree, do not
+install or use the Software.
+
+1. LICENSE
+   The Software is provided free of charge for personal and commercial use. You
+   may install and run it on any number of devices that you own or administer.
+
+2. RESTRICTIONS
+   You may not sell, rent, lease, sublicense, or charge a fee for the Software,
+   and you may not rebrand it, misrepresent its origin, or remove its identifying
+   notices. The name "SystemCare" and its logo remain the property of the author.
+
+3. SOURCE CODE AND CONTRIBUTIONS
+   The Software's source code is made available for review, learning, and
+   contribution. This is NOT an OSI-approved open-source license; all rights are
+   reserved by the author except as expressly granted here. Any contribution you
+   submit (for example, a pull request) is licensed to the author for use in the
+   Software and may be included, modified, or removed at the author's discretion.
+
+4. ADMINISTRATOR RIGHTS AND SYSTEM CHANGES
+   The Software runs with administrator privileges and can modify system settings,
+   the Windows registry, installed applications, drivers, and files (for example:
+   cleanup, debloat, tweaks, repairs, and updates). You are responsible for
+   reviewing each action before confirming it and for keeping your own backups.
+   The Software can create a System Restore point before risky operations.
+
+5. PRIVACY
+   The Software runs entirely on your computer and does not transmit your data
+   over the network. It contains no telemetry.
+
+6. NO WARRANTY
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+   FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT.
+
+7. LIMITATION OF LIABILITY
+   TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, THE AUTHOR SHALL NOT BE
+   LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER LIABILITY (INCLUDING, WITHOUT
+   LIMITATION, DATA LOSS OR SYSTEM DAMAGE) ARISING FROM OR IN CONNECTION WITH THE
+   SOFTWARE OR THE USE OR INABILITY TO USE THE SOFTWARE.
+
+8. ACCEPTANCE
+   By selecting "I accept the agreement" and installing the Software, you
+   acknowledge that you have read this agreement, understand it, and agree to be
+   bound by its terms.

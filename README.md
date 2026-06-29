@@ -271,11 +271,18 @@ See [CHANGELOG.md](CHANGELOG.md) for the full version history. Recent highlights
 - **1.2.0** - Software Updater (winget), diagnostic logging, security-aware health score, and updater
   hardening.
 
+## Contributing
+
+Contributions are welcome — see [CONTRIBUTING.md](CONTRIBUTING.md). Anyone can fork the repo and open a pull
+request (or file a bug/feature issue); **every change to `main` requires the maintainer's review and approval
+before it can be merged.**
+
 ## License
 
-No license file is currently included, so the work is under **default copyright** (all rights reserved) -
-you may view the source, but reuse/redistribution rights are not granted until a license is added.
-If you intend this to be open source, add a `LICENSE` file (e.g. [MIT](https://choosealicense.com/licenses/mit/)).
+SystemCare is **free to use** (personal and commercial) and **source-available**, under the terms in
+[EULA.txt](EULA.txt) — which you accept during installation. You may not sell or rebrand it, and it is not an
+OSI-approved open-source license (all rights reserved except as granted there). It runs locally with no
+telemetry and is provided **as is, without warranty**.
 
 ## Disclaimer
 

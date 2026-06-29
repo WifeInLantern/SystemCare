@@ -13,6 +13,8 @@ AppId={{B8E7C3A2-9F41-4D6E-A5C1-7E2F8B3D4A60}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
 AppPublisher={#MyAppPublisher}
+; Agreement shown on the wizard's License page; user must accept it to continue installing.
+LicenseFile=..\EULA.txt
 DefaultDirName={autopf}\{#MyAppName}
 DefaultGroupName={#MyAppName}
 DisableProgramGroupPage=yes
