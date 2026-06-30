@@ -141,20 +141,8 @@ public class JunkScanService(ISettingsService settings) : IJunkScanService
     ];
 
     /// <summary>True when a path sits inside any user-configured exclusion.</summary>
-    private bool IsExcluded(string fullPath)
-    {
-        var exclusions = settings.Current.CleanupExclusions;
-        if (exclusions.Count == 0) return false;
-        foreach (var ex in exclusions)
-        {
-            if (string.IsNullOrWhiteSpace(ex)) continue;
-            string normalized = ex.TrimEnd('\\');
-            if (fullPath.StartsWith(normalized + "\\", StringComparison.OrdinalIgnoreCase) ||
-                fullPath.Equals(normalized, StringComparison.OrdinalIgnoreCase))
-                return true;
-        }
-        return false;
-    }
+    private bool IsExcluded(string fullPath) =>
+        PathExclusionMatcher.IsExcluded(fullPath, settings.Current.CleanupExclusions);
 
     public Task<JunkScanResult> ScanAsync(
         IEnumerable<string> categoryIds, IProgress<ScanProgress>? progress, CancellationToken ct) => Task.Run(() =>

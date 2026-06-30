@@ -28,8 +28,40 @@ jobs:
       - name: Build (Release)
         run: dotnet build SystemCare.sln -c Release --no-restore
 
-      - name: Test
-        run: dotnet test SystemCare.sln -c Release --no-build --verbosity normal
+      - name: Test (with coverage)
+        run: >
+          dotnet test SystemCare.sln -c Release --no-build --verbosity normal
+          --collect:"XPlat Code Coverage" --results-directory ./TestResults
+
+      - name: Coverage summary
+        if: always()
+        shell: pwsh
+        run: |
+          $reportFile = Get-ChildItem -Path ./TestResults -Filter coverage.cobertura.xml -Recurse | Select-Object -First 1
+          if (-not $reportFile) {
+            Write-Host "No coverage report found."
+            exit 0
+          }
+          [xml]$xml = Get-Content $reportFile.FullName
+          $lineRate = [double]$xml.coverage.'line-rate' * 100
+          $branchRate = [double]$xml.coverage.'branch-rate' * 100
+          $summary = "Line coverage: $([math]::Round($lineRate, 1))% - Branch coverage: $([math]::Round($branchRate, 1))%"
+          Write-Host $summary
+          Add-Content -Path $env:GITHUB_STEP_SUMMARY -Value "## Code coverage`n$summary"
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: ./TestResults/**/coverage.cobertura.xml
+          if-no-files-found: ignore
+
+      - name: Design-system smoke test
+        # Not part of SystemCare.sln (it's a standalone diagnostic tool), so build/run it directly.
+        run: |
+          dotnet build tools/SmokeTest/SmokeTest.csproj -c Release
+          dotnet run --project tools/SmokeTest/SmokeTest.csproj -c Release --no-build
 
       - name: Vulnerable dependency scan (informational)
         continue-on-error: true

@@ -1,8 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <!-- Unit tests for SystemCare's pure-logic units (scoring, formatting, parsing, value converters).
-       Targets net8.0-windows with WPF enabled because several IValueConverters reference WPF types
-       (Visibility, Color/SolidColorBrush). Non-elevated: references the SystemCare assembly only. -->
+  <!-- Unit tests for SystemCare's pure-logic units (scoring, formatting, parsing, value converters)
+       and ViewModels (mocking injected service interfaces with NSubstitute). Targets net8.0-windows
+       with WPF enabled because several IValueConverters and ViewModels reference WPF/WPF-UI types
+       (Visibility, Color/SolidColorBrush, ISnackbarService). Non-elevated: references the SystemCare
+       assembly only. -->
   <PropertyGroup>
     <TargetFramework>net8.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
@@ -17,6 +19,7 @@
     <PackageReference Include="xunit" Version="2.9.2" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2" />
     <PackageReference Include="coverlet.collector" Version="6.0.2" />
+    <PackageReference Include="NSubstitute" Version="5.3.0" />
   </ItemGroup>
 
   <ItemGroup>
