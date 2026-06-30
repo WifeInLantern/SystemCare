@@ -153,6 +153,77 @@
                 </Grid>
             </ui:Card>
 
+            <TextBlock Text="Resource alerts" Style="{StaticResource CyberSectionHeader}" Margin="0,20,0,8" />
+            <ui:Card Padding="16,12" Margin="0,0,0,8">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0" Margin="0,0,16,0">
+                        <TextBlock Text="Alert on sustained high usage" FontWeight="SemiBold" />
+                        <TextBlock Text="Toast + tray notification when CPU, RAM, or disk space stays above its threshold for too long" FontSize="12" Opacity="0.65" TextWrapping="Wrap" />
+                    </StackPanel>
+                    <ui:ToggleSwitch Grid.Column="1" IsChecked="{Binding ResourceAlertsEnabled}" />
+                </Grid>
+            </ui:Card>
+            <ui:Card Padding="16,12" Margin="0,0,0,8" IsEnabled="{Binding ResourceAlertsEnabled}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0" Margin="0,0,16,0">
+                        <TextBlock Text="CPU threshold (%)" FontWeight="SemiBold" />
+                        <TextBlock Text="Alert when CPU usage stays at or above this" FontSize="12" Opacity="0.65" />
+                    </StackPanel>
+                    <ui:NumberBox Grid.Column="1" Value="{Binding CpuAlertThresholdPercent}" Minimum="1" Maximum="100" Width="130"
+                                  SpinButtonPlacementMode="Compact" />
+                </Grid>
+            </ui:Card>
+            <ui:Card Padding="16,12" Margin="0,0,0,8" IsEnabled="{Binding ResourceAlertsEnabled}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0" Margin="0,0,16,0">
+                        <TextBlock Text="RAM threshold (%)" FontWeight="SemiBold" />
+                        <TextBlock Text="Alert when memory usage stays at or above this" FontSize="12" Opacity="0.65" />
+                    </StackPanel>
+                    <ui:NumberBox Grid.Column="1" Value="{Binding RamAlertThresholdPercent}" Minimum="1" Maximum="100" Width="130"
+                                  SpinButtonPlacementMode="Compact" />
+                </Grid>
+            </ui:Card>
+            <ui:Card Padding="16,12" Margin="0,0,0,8" IsEnabled="{Binding ResourceAlertsEnabled}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0" Margin="0,0,16,0">
+                        <TextBlock Text="Disk space threshold (%)" FontWeight="SemiBold" />
+                        <TextBlock Text="Alert when a fixed drive's usage stays at or above this" FontSize="12" Opacity="0.65" />
+                    </StackPanel>
+                    <ui:NumberBox Grid.Column="1" Value="{Binding DiskAlertThresholdPercent}" Minimum="1" Maximum="100" Width="130"
+                                  SpinButtonPlacementMode="Compact" />
+                </Grid>
+            </ui:Card>
+            <ui:Card Padding="16,12" IsEnabled="{Binding ResourceAlertsEnabled}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0" Margin="0,0,16,0">
+                        <TextBlock Text="Sustained for (minutes)" FontWeight="SemiBold" />
+                        <TextBlock Text="How long usage must stay above the threshold before alerting" FontSize="12" Opacity="0.65" />
+                    </StackPanel>
+                    <ui:NumberBox Grid.Column="1" Value="{Binding AlertSustainedMinutes}" Minimum="1" Maximum="120" Width="130"
+                                  SpinButtonPlacementMode="Compact" />
+                </Grid>
+            </ui:Card>
+
             <TextBlock Text="Cleaning" Style="{StaticResource CyberSectionHeader}" Margin="0,20,0,8" />
             <ui:Card Padding="16,12" Margin="0,0,0,8">
                 <Grid>

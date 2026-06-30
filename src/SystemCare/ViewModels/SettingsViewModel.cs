@@ -22,6 +22,7 @@ public partial class SettingsViewModel : ObservableObject
     private readonly ILogService _log;
     private readonly ITrayIconService _tray;
     private readonly IMiniMonitorService _miniMonitor;
+    private readonly IResourceAlertService _resourceAlerts;
 
     [ObservableProperty] private int _skipTempNewerThanHours;
     [ObservableProperty] private int _largeFileMinMB;
@@ -36,6 +37,12 @@ public partial class SettingsViewModel : ObservableObject
     [ObservableProperty] private bool _reduceMotion;
     [ObservableProperty] private bool _showTrayStats;
     [ObservableProperty] private bool _showMiniMonitor;
+
+    [ObservableProperty] private bool _resourceAlertsEnabled;
+    [ObservableProperty] private int _cpuAlertThresholdPercent;
+    [ObservableProperty] private int _ramAlertThresholdPercent;
+    [ObservableProperty] private int _diskAlertThresholdPercent;
+    [ObservableProperty] private int _alertSustainedMinutes;
 
     [ObservableProperty] private bool _checkForUpdatesOnStartup;
     [ObservableProperty] private string _updateGitHubToken = "";
@@ -61,7 +68,7 @@ public partial class SettingsViewModel : ObservableObject
     public SettingsViewModel(ISettingsService settings, IScheduledMaintenanceService maintenance,
         IStartupLauncherService startup, IUpdateService updates, IRestorePointService restore,
         ISnackbarService snackbar, ILogService log, ITrayIconService tray, IMiniMonitorService miniMonitor,
-        IBackupConfirmationService backup)
+        IBackupConfirmationService backup, IResourceAlertService resourceAlerts)
     {
         _settings = settings;
         _maintenance = maintenance;
@@ -73,6 +80,7 @@ public partial class SettingsViewModel : ObservableObject
         _log = log;
         _tray = tray;
         _miniMonitor = miniMonitor;
+        _resourceAlerts = resourceAlerts;
         _skipTempNewerThanHours = settings.Current.SkipTempNewerThanHours;
         _largeFileMinMB = settings.Current.LargeFileMinMB;
         _largeFileTopN = settings.Current.LargeFileTopN;
@@ -85,6 +93,11 @@ public partial class SettingsViewModel : ObservableObject
         _reduceMotion = settings.Current.ReduceMotion;
         _showTrayStats = settings.Current.ShowTrayStats;
         _showMiniMonitor = settings.Current.ShowMiniMonitor;
+        _resourceAlertsEnabled = settings.Current.ResourceAlertsEnabled;
+        _cpuAlertThresholdPercent = settings.Current.CpuAlertThresholdPercent;
+        _ramAlertThresholdPercent = settings.Current.RamAlertThresholdPercent;
+        _diskAlertThresholdPercent = settings.Current.DiskAlertThresholdPercent;
+        _alertSustainedMinutes = settings.Current.AlertSustainedMinutes;
         _checkForUpdatesOnStartup = settings.Current.CheckForUpdatesOnStartup;
         _updateGitHubToken = settings.Current.UpdateGitHubToken;
         Exclusions = new ObservableCollection<string>(settings.Current.CleanupExclusions);
@@ -129,6 +142,38 @@ public partial class SettingsViewModel : ObservableObject
         // MiniMonitorService is the source of truth for the ShowMiniMonitor setting; just drive the window.
         if (value) _miniMonitor.Show();
         else _miniMonitor.Hide();
+    }
+
+    partial void OnResourceAlertsEnabledChanged(bool value)
+    {
+        _settings.Current.ResourceAlertsEnabled = value;
+        _settings.Save();
+        if (value) _resourceAlerts.Start();
+        else _resourceAlerts.Stop();
+    }
+
+    partial void OnCpuAlertThresholdPercentChanged(int value)
+    {
+        _settings.Current.CpuAlertThresholdPercent = Math.Clamp(value, 1, 100);
+        _settings.Save();
+    }
+
+    partial void OnRamAlertThresholdPercentChanged(int value)
+    {
+        _settings.Current.RamAlertThresholdPercent = Math.Clamp(value, 1, 100);
+        _settings.Save();
+    }
+
+    partial void OnDiskAlertThresholdPercentChanged(int value)
+    {
+        _settings.Current.DiskAlertThresholdPercent = Math.Clamp(value, 1, 100);
+        _settings.Save();
+    }
+
+    partial void OnAlertSustainedMinutesChanged(int value)
+    {
+        _settings.Current.AlertSustainedMinutes = Math.Max(1, value);
+        _settings.Save();
     }
 
     partial void OnUpdateGitHubTokenChanged(string value)

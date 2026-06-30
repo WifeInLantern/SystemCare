@@ -55,6 +55,7 @@ public partial class App : Application
         services.AddSingleton<IScheduledMaintenanceService, ScheduledMaintenanceService>();
         services.AddSingleton<IStartupLauncherService, StartupLauncherService>();
         services.AddSingleton<ILiveMetricsService, LiveMetricsService>();
+        services.AddSingleton<IResourceAlertService, ResourceAlertService>();
         services.AddSingleton<IMiniMonitorService, MiniMonitorService>();
         services.AddSingleton<ISensorMonitorService, SensorMonitorService>();
         services.AddSingleton<IReliabilityService, ReliabilityService>();
@@ -246,6 +247,7 @@ public partial class App : Application
         // Restore the live monitor (tray stats + mini-widget) if the user left them on.
         if (settings.Current.ShowTrayStats) trayIcon.EnableLiveStats(true);
         if (settings.Current.ShowMiniMonitor) _services.GetRequiredService<IMiniMonitorService>().Show();
+        if (settings.Current.ResourceAlertsEnabled) _services.GetRequiredService<IResourceAlertService>().Start();
 
         if (minimized)
         {
@@ -377,6 +379,7 @@ public partial class App : Application
 
     protected override void OnExit(ExitEventArgs e)
     {
+        try { _services.GetRequiredService<IResourceAlertService>().Stop(); } catch (Exception) { }
         try { _services.GetRequiredService<IMiniMonitorService>().Shutdown(); } catch (Exception) { }
         try { _services.GetRequiredService<ITrayIconService>().Dispose(); } catch (Exception) { }
         try { _services.GetRequiredService<ITemperatureService>().Dispose(); } catch (Exception) { } // unload the sensor driver

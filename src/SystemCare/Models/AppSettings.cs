@@ -33,6 +33,15 @@ public class AppSettings
     public double? MiniMonitorLeft { get; set; }
     public double? MiniMonitorTop { get; set; }
 
+    // Proactive resource alerts
+    /// <summary>Toast + tray balloon when CPU/RAM/disk usage stays above its threshold for too long.</summary>
+    public bool ResourceAlertsEnabled { get; set; }
+    public int CpuAlertThresholdPercent { get; set; } = 90;
+    public int RamAlertThresholdPercent { get; set; } = 90;
+    public int DiskAlertThresholdPercent { get; set; } = 95;
+    /// <summary>How long a metric must stay at or above its threshold before an alert fires.</summary>
+    public int AlertSustainedMinutes { get; set; } = 5;
+
     // Safety
     public bool CreateRestorePointBeforeMaintenance { get; set; } = true;
     /// <summary>
