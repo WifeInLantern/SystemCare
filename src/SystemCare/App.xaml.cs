@@ -84,6 +84,7 @@ public partial class App : Application
         services.AddSingleton<IGameModeService, GameModeService>();
         services.AddSingleton<IFileShredderService, FileShredderService>();
         services.AddSingleton<IDriverUpdateService, DriverUpdateService>();
+        services.AddSingleton<IWingetRunner, WingetRunner>();
         services.AddSingleton<ISoftwareUpdateService, SoftwareUpdateService>();
         services.AddSingleton<IWindowsUpdateService, WindowsUpdateService>();
 

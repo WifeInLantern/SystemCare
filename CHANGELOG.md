@@ -2,6 +2,22 @@
 
 All notable changes to SystemCare are documented here. Versions follow [SemVer](https://semver.org/).
 
+## [2.3.3] - 2026-07-01
+
+### Fixed
+- **Software Updater now detects updates again.** The Optimize → Software Updater page could silently report
+  "All your apps are up to date" even when updates were available. winget renders its progress spinner using
+  carriage returns on the same line as the results-table header; the parser stripped those carriage returns,
+  which fused the spinner text in front of the column headers and pushed every column offset past the end of
+  the data rows, so nothing was parsed. The parser now normalises carriage returns to newlines (keeping the
+  header aligned), strips a stray BOM, and logs a warning if winget returns output that yields no rows so the
+  failure is no longer silent. Verified against winget 1.28 with eight pending updates.
+
+### Changed
+- winget process launching and discovery were extracted behind an `IWingetRunner` abstraction, and the
+  upgrade-table parser into `WingetUpgradeParser`, so the Software Updater is now covered by unit tests
+  (parser, service, and view-model) using captured real-world winget output.
+
 ## [2.3.2] - 2026-06-30
 
 ### Added

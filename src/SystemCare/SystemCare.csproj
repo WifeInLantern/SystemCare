@@ -12,8 +12,13 @@
     <ApplicationIcon>Assets\app.ico</ApplicationIcon>
     <AssemblyTitle>SystemCare</AssemblyTitle>
     <Product>SystemCare</Product>
-    <Version>2.3.2</Version>
+    <Version>2.3.3</Version>
   </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Expose internal pure-logic helpers (e.g. WingetUpgradeParser) to the unit-test project. -->
+    <InternalsVisibleTo Include="SystemCare.Tests" />
+  </ItemGroup>
 
   <ItemGroup>
     <Resource Include="Assets\app.png" />
