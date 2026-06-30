@@ -12,7 +12,7 @@ public partial class NetworkSecurityAuditViewModel : ObservableObject
 {
     private readonly INetworkToolsService _network;
     private readonly IFirewallService _firewall;
-    private readonly IContentDialogService _dialogs;
+    private readonly IConfirmDialogService _confirm;
     private readonly ISnackbarService _snackbar;
     private readonly IHistoryService _history;
 
@@ -25,13 +25,13 @@ public partial class NetworkSecurityAuditViewModel : ObservableObject
     public NetworkSecurityAuditViewModel(
         INetworkToolsService network,
         IFirewallService firewall,
-        IContentDialogService dialogs,
+        IConfirmDialogService confirm,
         ISnackbarService snackbar,
         IHistoryService history)
     {
         _network = network;
         _firewall = firewall;
-        _dialogs = dialogs;
+        _confirm = confirm;
         _snackbar = snackbar;
         _history = history;
     }
@@ -73,15 +73,12 @@ public partial class NetworkSecurityAuditViewModel : ObservableObject
             return;
         }
 
-        var confirm = await _dialogs.ShowSimpleDialogAsync(new SimpleContentDialogCreateOptions
-        {
-            Title = $"Block {port.ProcessName} from the network?",
-            Content = $"Adds a Windows Firewall rule blocking all inbound and outbound traffic for " +
-                      $"\"{port.ProcessPath}\". You can remove this later from the Blocked apps list.",
-            PrimaryButtonText = "Block",
-            CloseButtonText = "Cancel",
-        });
-        if (confirm != ContentDialogResult.Primary) return;
+        bool confirmed = await _confirm.ConfirmAsync(
+            $"Block {port.ProcessName} from the network?",
+            $"Adds a Windows Firewall rule blocking all inbound and outbound traffic for " +
+            $"\"{port.ProcessPath}\". You can remove this later from the Blocked apps list.",
+            "Block");
+        if (!confirmed) return;
 
         IsBusy = true;
         try
@@ -109,14 +106,11 @@ public partial class NetworkSecurityAuditViewModel : ObservableObject
     [RelayCommand]
     private async Task UnblockAppAsync(BlockedApp app)
     {
-        var confirm = await _dialogs.ShowSimpleDialogAsync(new SimpleContentDialogCreateOptions
-        {
-            Title = $"Unblock {app.DisplayName}?",
-            Content = "This removes the firewall rule SystemCare created, restoring normal network access.",
-            PrimaryButtonText = "Unblock",
-            CloseButtonText = "Cancel",
-        });
-        if (confirm != ContentDialogResult.Primary) return;
+        bool confirmed = await _confirm.ConfirmAsync(
+            $"Unblock {app.DisplayName}?",
+            "This removes the firewall rule SystemCare created, restoring normal network access.",
+            "Unblock");
+        if (!confirmed) return;
 
         IsBusy = true;
         try

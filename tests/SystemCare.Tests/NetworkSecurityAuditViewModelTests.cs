@@ -2,8 +2,6 @@ using NSubstitute;
 using SystemCare.Models;
 using SystemCare.Services;
 using SystemCare.ViewModels;
-using Wpf.Ui;
-using Wpf.Ui.Controls;
 using Xunit;
 
 namespace SystemCare.Tests;
@@ -12,24 +10,24 @@ namespace SystemCare.Tests;
 /// <see cref="NetworkSecurityAuditViewModel"/> lists listening ports and SystemCare-created firewall
 /// block rules, gating both block and unblock behind an explicit confirm dialog (not a restore-point
 /// gate, since firewall rules aren't part of System Restore's tracked state). These tests mock
-/// <see cref="INetworkToolsService"/>, <see cref="IFirewallService"/>, and <see cref="IContentDialogService"/>
+/// <see cref="INetworkToolsService"/>, <see cref="IFirewallService"/>, and <see cref="IConfirmDialogService"/>
 /// so no real firewall rule or socket table is touched.
 /// </summary>
 public class NetworkSecurityAuditViewModelTests
 {
     private static (NetworkSecurityAuditViewModel Vm, INetworkToolsService Network, IFirewallService Firewall,
-        IContentDialogService Dialogs, IHistoryService History) Build(bool confirm = true)
+        IConfirmDialogService Confirm, IHistoryService History) Build(bool confirm = true)
     {
         var network = Substitute.For<INetworkToolsService>();
         var firewall = Substitute.For<IFirewallService>();
-        var dialogs = Substitute.For<IContentDialogService>();
-        dialogs.ShowSimpleDialogAsync(Arg.Any<SimpleContentDialogCreateOptions>())
-            .ReturnsForAnyArgs(Task.FromResult(confirm ? ContentDialogResult.Primary : ContentDialogResult.None));
+        var confirmDialog = Substitute.For<IConfirmDialogService>();
+        confirmDialog.ConfirmAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>())
+            .ReturnsForAnyArgs(Task.FromResult(confirm));
         var snackbar = Substitute.For<ISnackbarService>();
         var history = Substitute.For<IHistoryService>();
 
-        var vm = new NetworkSecurityAuditViewModel(network, firewall, dialogs, snackbar, history);
-        return (vm, network, firewall, dialogs, history);
+        var vm = new NetworkSecurityAuditViewModel(network, firewall, confirmDialog, snackbar, history);
+        return (vm, network, firewall, confirmDialog, history);
     }
 
     private static ListeningPort Port(string proc = "chrome", string? path = @"C:\chrome.exe") => new()
@@ -85,11 +83,11 @@ public class NetworkSecurityAuditViewModelTests
     [Fact]
     public async Task BlockAppCommand_WhenProcessPathUnresolved_DoesNotPromptOrCallFirewall()
     {
-        var (vm, _, firewall, dialogs, _) = Build();
+        var (vm, _, firewall, confirmDialog, _) = Build();
 
         await vm.BlockAppCommand.ExecuteAsync(Port(path: null));
 
-        await dialogs.DidNotReceive().ShowSimpleDialogAsync(Arg.Any<SimpleContentDialogCreateOptions>());
+        await confirmDialog.DidNotReceive().ConfirmAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>());
         await firewall.DidNotReceive().BlockApplicationAsync(Arg.Any<string>(), Arg.Any<string>());
     }
 

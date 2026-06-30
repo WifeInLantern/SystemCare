@@ -76,6 +76,7 @@ public partial class App : Application
         services.AddSingleton<INetworkToolsService, NetworkToolsService>();
         services.AddSingleton<INetworkUsageService, NetworkUsageService>();
         services.AddSingleton<IFirewallService, FirewallService>();
+        services.AddSingleton<IConfirmDialogService, ConfirmDialogService>();
         services.AddSingleton<IDebloatService, DebloatService>();
         services.AddSingleton<IPowerPlanService, PowerPlanService>();
         services.AddSingleton<ITweaksService, TweaksService>();
