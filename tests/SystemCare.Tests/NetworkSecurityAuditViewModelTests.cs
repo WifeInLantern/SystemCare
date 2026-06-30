@@ -2,6 +2,7 @@ using NSubstitute;
 using SystemCare.Models;
 using SystemCare.Services;
 using SystemCare.ViewModels;
+using Wpf.Ui;
 using Xunit;
 
 namespace SystemCare.Tests;
