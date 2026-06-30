@@ -55,12 +55,14 @@ public partial class App : Application
         services.AddSingleton<IScheduledMaintenanceService, ScheduledMaintenanceService>();
         services.AddSingleton<IStartupLauncherService, StartupLauncherService>();
         services.AddSingleton<ILiveMetricsService, LiveMetricsService>();
+        services.AddSingleton<IResourceAlertService, ResourceAlertService>();
         services.AddSingleton<IMiniMonitorService, MiniMonitorService>();
         services.AddSingleton<ISensorMonitorService, SensorMonitorService>();
         services.AddSingleton<IReliabilityService, ReliabilityService>();
         services.AddSingleton<ITrayIconService, TrayIconService>();
         services.AddSingleton<IDiskMaintenanceService, DiskMaintenanceService>();
         services.AddSingleton<IDiskHealthScoreService, DiskHealthScoreService>();
+        services.AddSingleton<ISystemRepairService, SystemRepairService>();
         services.AddSingleton<IRestorePointService, RestorePointService>();
         services.AddSingleton<IBackupConfirmationService, BackupConfirmationService>();
         services.AddSingleton<IRegistryCleanerService, RegistryCleanerService>();
@@ -73,6 +75,8 @@ public partial class App : Application
         services.AddSingleton<ISecurityCheckService, SecurityCheckService>();
         services.AddSingleton<INetworkToolsService, NetworkToolsService>();
         services.AddSingleton<INetworkUsageService, NetworkUsageService>();
+        services.AddSingleton<IFirewallService, FirewallService>();
+        services.AddSingleton<IConfirmDialogService, ConfirmDialogService>();
         services.AddSingleton<IDebloatService, DebloatService>();
         services.AddSingleton<IPowerPlanService, PowerPlanService>();
         services.AddSingleton<ITweaksService, TweaksService>();
@@ -105,6 +109,7 @@ public partial class App : Application
         services.AddSingleton<DebloatViewModel>();
         services.AddSingleton<SecurityCheckupViewModel>();
         services.AddSingleton<NetworkToolsViewModel>();
+        services.AddSingleton<NetworkSecurityAuditViewModel>();
         services.AddSingleton<WindowsTweaksViewModel>();
         services.AddSingleton<BoostViewModel>();
         services.AddSingleton<GameModeViewModel>();
@@ -117,6 +122,7 @@ public partial class App : Application
         services.AddSingleton<BenchmarkViewModel>();
         services.AddSingleton<SensorsViewModel>();
         services.AddSingleton<ReliabilityViewModel>();
+        services.AddSingleton<RepairToolkitViewModel>();
 
         // Pages
         services.AddTransient<DashboardPage>();
@@ -137,6 +143,7 @@ public partial class App : Application
         services.AddTransient<DebloatPage>();
         services.AddTransient<SecurityCheckupPage>();
         services.AddTransient<NetworkToolsPage>();
+        services.AddTransient<NetworkSecurityAuditPage>();
         services.AddTransient<WindowsTweaksPage>();
         services.AddTransient<BoostPage>();
         services.AddTransient<GameModePage>();
@@ -149,6 +156,7 @@ public partial class App : Application
         services.AddTransient<BenchmarkPage>();
         services.AddTransient<SensorsPage>();
         services.AddTransient<ReliabilityPage>();
+        services.AddTransient<RepairToolkitPage>();
 
         return services.BuildServiceProvider();
     }
@@ -246,6 +254,7 @@ public partial class App : Application
         // Restore the live monitor (tray stats + mini-widget) if the user left them on.
         if (settings.Current.ShowTrayStats) trayIcon.EnableLiveStats(true);
         if (settings.Current.ShowMiniMonitor) _services.GetRequiredService<IMiniMonitorService>().Show();
+        if (settings.Current.ResourceAlertsEnabled) _services.GetRequiredService<IResourceAlertService>().Start();
 
         if (minimized)
         {
@@ -377,6 +386,7 @@ public partial class App : Application
 
     protected override void OnExit(ExitEventArgs e)
     {
+        try { _services.GetRequiredService<IResourceAlertService>().Stop(); } catch (Exception) { }
         try { _services.GetRequiredService<IMiniMonitorService>().Shutdown(); } catch (Exception) { }
         try { _services.GetRequiredService<ITrayIconService>().Dispose(); } catch (Exception) { }
         try { _services.GetRequiredService<ITemperatureService>().Dispose(); } catch (Exception) { } // unload the sensor driver

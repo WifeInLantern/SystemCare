@@ -2,6 +2,26 @@
 
 All notable changes to SystemCare are documented here. Versions follow [SemVer](https://semver.org/).
 
+## [2.3.2] - 2026-06-30
+
+### Added
+- **Network Security Audit.** A new **Analyze → Network Security** page lists every process holding an open
+  TCP or UDP socket, and lets you block any app from the network with one click via a Windows Firewall rule.
+  SystemCare-created block rules are listed separately so they can be removed just as easily. No traffic is
+  inspected; it only adds or removes named firewall rules for the selected executable.
+- **System Repair Toolkit.** A new **Protect → Repair Toolkit** page provides guided SFC, DISM, and
+  CHKDSK repair — individually or as a sequenced "run all three" pass. Each step streams live output to
+  a console, is cancellable, and is gated behind a restore-point prompt. Plain-language result summaries
+  are shown on completion (CHKDSK on the system volume reports "scheduled for next restart" rather than
+  silently deferring).
+- **Proactive Resource Alerts.** SystemCare now watches CPU, RAM, and disk-space usage in the background
+  and fires a tray notification + snackbar once per sustained breach (configurable threshold and duration,
+  defaults: 90 % CPU/RAM and 95 % disk for 5 minutes). Controlled via a new **Settings → Resource alerts**
+  card with per-metric threshold and duration sliders. Alerts reset automatically when the metric recovers.
+
+### Fixed
+- Improved test coverage and reliability across all ViewModel and service tests.
+
 ## [2.3.1] - 2026-06-29
 
 ### Added

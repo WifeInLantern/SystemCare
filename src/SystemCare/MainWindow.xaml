@@ -144,6 +144,11 @@
                         <ui:SymbolIcon Symbol="Globe24" />
                     </ui:NavigationViewItem.Icon>
                 </ui:NavigationViewItem>
+                <ui:NavigationViewItem Content="Security Audit" TargetPageType="{x:Type views:NetworkSecurityAuditPage}" ToolTipService.ToolTip="Network Security Audit (listening ports &amp; firewall)">
+                    <ui:NavigationViewItem.Icon>
+                        <ui:SymbolIcon Symbol="Shield24" />
+                    </ui:NavigationViewItem.Icon>
+                </ui:NavigationViewItem>
                 <ui:NavigationViewItem Content="System Info" TargetPageType="{x:Type views:SystemInfoPage}" ToolTipService.ToolTip="System Info &amp; Monitor">
                     <ui:NavigationViewItem.Icon>
                         <ui:SymbolIcon Symbol="Info24" />
@@ -179,6 +184,11 @@
                 <ui:NavigationViewItem Content="Security" TargetPageType="{x:Type views:SecurityCheckupPage}" ToolTipService.ToolTip="Security Checkup">
                     <ui:NavigationViewItem.Icon>
                         <ui:SymbolIcon Symbol="ShieldCheckmark24" />
+                    </ui:NavigationViewItem.Icon>
+                </ui:NavigationViewItem>
+                <ui:NavigationViewItem Content="Repair Toolkit" TargetPageType="{x:Type views:RepairToolkitPage}" ToolTipService.ToolTip="System Repair Toolkit (SFC / DISM / CHKDSK)">
+                    <ui:NavigationViewItem.Icon>
+                        <ui:SymbolIcon Symbol="Wrench24" />
                     </ui:NavigationViewItem.Icon>
                 </ui:NavigationViewItem>
                 <ui:NavigationViewItem Content="Reliability" TargetPageType="{x:Type views:ReliabilityPage}" ToolTipService.ToolTip="Reliability Center (crashes &amp; errors)">
