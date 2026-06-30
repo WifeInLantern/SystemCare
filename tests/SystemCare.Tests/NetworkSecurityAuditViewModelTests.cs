@@ -61,7 +61,8 @@ public class NetworkSecurityAuditViewModelTests
     [Fact]
     public async Task BlockAppCommand_WhenConfirmed_CallsFirewallAndRecordsHistory()
     {
-        var (vm, _, firewall, _, history) = Build(confirm: true);
+        var (vm, network, firewall, _, history) = Build(confirm: true);
+        network.GetListeningPorts().Returns([]);
         firewall.BlockApplicationAsync(Arg.Any<string>(), Arg.Any<string>()).Returns(Task.FromResult(true));
         firewall.GetRulesAsync().Returns(Task.FromResult(new List<BlockedApp>()));
 
@@ -95,7 +96,8 @@ public class NetworkSecurityAuditViewModelTests
     [Fact]
     public async Task UnblockAppCommand_WhenConfirmed_CallsFirewall()
     {
-        var (vm, _, firewall, _, _) = Build(confirm: true);
+        var (vm, network, firewall, _, _) = Build(confirm: true);
+        network.GetListeningPorts().Returns([]);
         firewall.UnblockApplicationAsync(Arg.Any<string>()).Returns(Task.FromResult(true));
         firewall.GetRulesAsync().Returns(Task.FromResult(new List<BlockedApp>()));
         var app = new BlockedApp { RuleName = "SystemCare Block - notepad", DisplayName = "notepad", ApplicationPath = @"C:\notepad.exe" };
