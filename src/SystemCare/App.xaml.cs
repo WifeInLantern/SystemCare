@@ -62,6 +62,7 @@ public partial class App : Application
         services.AddSingleton<ITrayIconService, TrayIconService>();
         services.AddSingleton<IDiskMaintenanceService, DiskMaintenanceService>();
         services.AddSingleton<IDiskHealthScoreService, DiskHealthScoreService>();
+        services.AddSingleton<ISystemRepairService, SystemRepairService>();
         services.AddSingleton<IRestorePointService, RestorePointService>();
         services.AddSingleton<IBackupConfirmationService, BackupConfirmationService>();
         services.AddSingleton<IRegistryCleanerService, RegistryCleanerService>();
@@ -118,6 +119,7 @@ public partial class App : Application
         services.AddSingleton<BenchmarkViewModel>();
         services.AddSingleton<SensorsViewModel>();
         services.AddSingleton<ReliabilityViewModel>();
+        services.AddSingleton<RepairToolkitViewModel>();
 
         // Pages
         services.AddTransient<DashboardPage>();
@@ -150,6 +152,7 @@ public partial class App : Application
         services.AddTransient<BenchmarkPage>();
         services.AddTransient<SensorsPage>();
         services.AddTransient<ReliabilityPage>();
+        services.AddTransient<RepairToolkitPage>();
 
         return services.BuildServiceProvider();
     }
