@@ -144,6 +144,11 @@
                         <ui:SymbolIcon Symbol="Globe24" />
                     </ui:NavigationViewItem.Icon>
                 </ui:NavigationViewItem>
+                <ui:NavigationViewItem Content="Security Audit" TargetPageType="{x:Type views:NetworkSecurityAuditPage}" ToolTipService.ToolTip="Network Security Audit (listening ports &amp; firewall)">
+                    <ui:NavigationViewItem.Icon>
+                        <ui:SymbolIcon Symbol="Shield24" />
+                    </ui:NavigationViewItem.Icon>
+                </ui:NavigationViewItem>
                 <ui:NavigationViewItem Content="System Info" TargetPageType="{x:Type views:SystemInfoPage}" ToolTipService.ToolTip="System Info &amp; Monitor">
                     <ui:NavigationViewItem.Icon>
                         <ui:SymbolIcon Symbol="Info24" />

@@ -10,6 +10,8 @@ namespace SystemCare.Services;
 public interface INetworkToolsService
 {
     List<NetConnection> GetConnections();
+    /// <summary>TCP sockets in the Listen state plus all UDP sockets (which have no connection state).</summary>
+    List<ListeningPort> GetListeningPorts();
     Task PingAsync(string host, Action<string> onLine, CancellationToken ct);
     Task TracerouteAsync(string host, Action<string> onLine, CancellationToken ct);
     string FlushDns();
@@ -92,12 +94,118 @@ public class NetworkToolsService(IDiskMaintenanceService runner) : INetworkTools
         catch (Exception) { return $"PID {pid}"; }
     }
 
+    private static string? SafeProcessPath(int pid)
+    {
+        if (pid <= 0) return null;
+        try { using var p = Process.GetProcessById(pid); return p.MainModule?.FileName; }
+        catch (Exception) { return null; }
+    }
+
     private static string StateName(uint state) => state switch
     {
         1 => "Closed", 2 => "Listen", 3 => "SynSent", 4 => "SynReceived", 5 => "Established",
         6 => "FinWait1", 7 => "FinWait2", 8 => "CloseWait", 9 => "Closing", 10 => "LastAck",
         11 => "TimeWait", 12 => "DeleteTcb", _ => "Unknown",
     };
+
+    private const uint TCP_STATE_LISTEN = 2;
+
+    // ---------- listening sockets (TCP "Listen" rows + all UDP rows) ----------
+
+    private const int UDP_TABLE_OWNER_PID = 1;
+
+    [DllImport("iphlpapi.dll", SetLastError = true)]
+    private static extern uint GetExtendedUdpTable(IntPtr pUdpTable, ref int dwOutBufLen, bool sort,
+        int ipVersion, int tableClass, int reserved);
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct MIB_UDPROW_OWNER_PID
+    {
+        public uint localAddr;
+        public uint localPort;
+        public uint owningPid;
+    }
+
+    public List<ListeningPort> GetListeningPorts()
+    {
+        var result = new List<ListeningPort>();
+        var names = new Dictionary<int, string>();
+        var paths = new Dictionary<int, string?>();
+
+        string NameFor(int pid)
+        {
+            if (!names.TryGetValue(pid, out var name)) { name = SafeProcessName(pid); names[pid] = name; }
+            return name;
+        }
+        string? PathFor(int pid)
+        {
+            if (!paths.TryGetValue(pid, out var path)) { path = SafeProcessPath(pid); paths[pid] = path; }
+            return path;
+        }
+
+        int tcpBufferSize = 0;
+        GetExtendedTcpTable(IntPtr.Zero, ref tcpBufferSize, true, AF_INET, TCP_TABLE_OWNER_PID_ALL, 0);
+        IntPtr tcpBuffer = Marshal.AllocHGlobal(tcpBufferSize);
+        try
+        {
+            if (GetExtendedTcpTable(tcpBuffer, ref tcpBufferSize, true, AF_INET, TCP_TABLE_OWNER_PID_ALL, 0) == 0)
+            {
+                int count = Marshal.ReadInt32(tcpBuffer);
+                IntPtr rowPtr = tcpBuffer + 4;
+                int rowSize = Marshal.SizeOf<MIB_TCPROW_OWNER_PID>();
+                for (int i = 0; i < count; i++)
+                {
+                    var row = Marshal.PtrToStructure<MIB_TCPROW_OWNER_PID>(rowPtr);
+                    rowPtr += rowSize;
+                    if (row.state != TCP_STATE_LISTEN) continue;
+
+                    int pid = (int)row.owningPid;
+                    result.Add(new ListeningPort
+                    {
+                        Protocol = "TCP",
+                        LocalAddress = new IPAddress(row.localAddr).ToString(),
+                        Port = Port(row.localPort),
+                        Pid = pid,
+                        ProcessName = NameFor(pid),
+                        ProcessPath = PathFor(pid),
+                    });
+                }
+            }
+        }
+        finally { Marshal.FreeHGlobal(tcpBuffer); }
+
+        int udpBufferSize = 0;
+        GetExtendedUdpTable(IntPtr.Zero, ref udpBufferSize, true, AF_INET, UDP_TABLE_OWNER_PID, 0);
+        IntPtr udpBuffer = Marshal.AllocHGlobal(udpBufferSize);
+        try
+        {
+            if (GetExtendedUdpTable(udpBuffer, ref udpBufferSize, true, AF_INET, UDP_TABLE_OWNER_PID, 0) == 0)
+            {
+                int count = Marshal.ReadInt32(udpBuffer);
+                IntPtr rowPtr = udpBuffer + 4;
+                int rowSize = Marshal.SizeOf<MIB_UDPROW_OWNER_PID>();
+                for (int i = 0; i < count; i++)
+                {
+                    var row = Marshal.PtrToStructure<MIB_UDPROW_OWNER_PID>(rowPtr);
+                    rowPtr += rowSize;
+
+                    int pid = (int)row.owningPid;
+                    result.Add(new ListeningPort
+                    {
+                        Protocol = "UDP",
+                        LocalAddress = new IPAddress(row.localAddr).ToString(),
+                        Port = Port(row.localPort),
+                        Pid = pid,
+                        ProcessName = NameFor(pid),
+                        ProcessPath = PathFor(pid),
+                    });
+                }
+            }
+        }
+        finally { Marshal.FreeHGlobal(udpBuffer); }
+
+        return result.OrderBy(p => p.Port).ThenBy(p => p.Protocol, StringComparer.OrdinalIgnoreCase).ToList();
+    }
 
     // ---------- ping / traceroute ----------
 
