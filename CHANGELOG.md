@@ -2,6 +2,17 @@
 
 All notable changes to SystemCare are documented here. Versions follow [SemVer](https://semver.org/).
 
+## [2.3.4] - 2026-07-01
+
+### Changed
+- Hardened the **Software Uninstaller**'s leftover-removal safety with comprehensive unit tests. They lock
+  in the conservative token matching (a distinctive 4+ character, non-generic token is required, so removing
+  e.g. "Media Player" can never flag an unrelated `Media` folder), the `AcceptFolder` guards that reject
+  drive roots, protected system roots (Windows, Program Files, the AppData/profile roots), and folders shared
+  with other installed apps, and that removal routes files to the Recycle Bin and registry keys through the
+  backed-up registry-clean pipeline. No behavioral change — this release only adds test coverage proving the
+  existing leftover removal is safe and correct.
+
 ## [2.3.3] - 2026-07-01
 
 ### Fixed
