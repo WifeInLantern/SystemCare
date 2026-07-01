@@ -86,6 +86,42 @@ public class LeftoverScanServiceTests : IDisposable
         Assert.False(HasFolder(plan, parent));   // generic-named parent is not
     }
 
+    [Fact]
+    public void CaptureCandidates_MatchesShortBrandAcronymParent()
+    {
+        // "VLC media player" reduces to a single 3-char acronym ("vlc"), which is treated as distinctive,
+        // so the parent "VLC" folder is flagged even though there's no 4+ char brand token.
+        string parent = Path.Combine(_tempRoot, "VLC");
+        string install = Path.Combine(parent, "bin");
+        var plan = NewService().CaptureCandidates(App("VLC media player", "VideoLAN", install));
+
+        Assert.True(HasFolder(plan, parent));
+    }
+
+    [Fact]
+    public void CaptureCandidates_DoesNotMatchTwoLetterNameParent()
+    {
+        // "Go" is too short to ever be distinctive (Go keeps user data in %USERPROFILE%\go) — the parent
+        // must not be flagged; only the literal install folder is captured.
+        string parent = Path.Combine(_tempRoot, "Go");
+        string install = Path.Combine(parent, "bin");
+        var plan = NewService().CaptureCandidates(App("Go", installLocation: install));
+
+        Assert.True(HasFolder(plan, install));
+        Assert.False(HasFolder(plan, parent));
+    }
+
+    [Fact]
+    public void CaptureCandidates_DoesNotMatchGenericThreeLetterName()
+    {
+        // A 3-char acronym that is a generic filesystem word ("log") must not become distinctive.
+        string parent = Path.Combine(_tempRoot, "Log");
+        string install = Path.Combine(parent, "bin");
+        var plan = NewService().CaptureCandidates(App("Log", installLocation: install));
+
+        Assert.False(HasFolder(plan, parent));
+    }
+
     // ---------- capture: AcceptFolder safety guards ----------
 
     [Fact]

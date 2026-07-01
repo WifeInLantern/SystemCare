@@ -135,11 +135,14 @@ public partial class SoftwareUninstallerViewModel : ObservableObject
             // Capture candidate leftovers while the app's registry data is still present.
             var plan = await Task.Run(() => _leftovers.CaptureCandidates(item.App));
 
-            bool launched = await _apps.UninstallAsync(item.App);
-            if (!launched)
+            bool succeeded = await _apps.UninstallAsync(item.App);
+            if (!succeeded)
             {
-                _snackbar.Show("Uninstall failed", $"Could not start the uninstaller for {item.Name}.",
-                    ControlAppearance.Danger, null, TimeSpan.FromSeconds(4));
+                // Uninstaller failed or was cancelled — skip the leftover scan so we never offer to delete
+                // the app's still-live files.
+                _snackbar.Show("Uninstall didn't complete",
+                    $"The uninstaller for {item.Name} was cancelled or failed. Nothing was cleaned up.",
+                    ControlAppearance.Danger, null, TimeSpan.FromSeconds(5));
                 return;
             }
 

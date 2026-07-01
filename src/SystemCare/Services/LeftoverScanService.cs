@@ -54,6 +54,8 @@ public class LeftoverScanService(
         "app", "apps", "client", "manager", "service", "services", "driver", "drivers", "console",
         "launcher", "browser", "edition", "version", "studio", "desktop", "windows", "program",
         "programs", "software", "helper", "host", "agent", "runtime", "system", "settings",
+        // Short filesystem/tech acronyms that must never, alone, identify an app in the 3-char fallback below.
+        "bin", "lib", "src", "log", "tmp", "web", "net", "dev", "sql", "api", "sdk", "www", "dll", "exe", "obj",
     };
 
     private static readonly (RegistryHive Hive, string Path)[] UninstallRoots =
@@ -84,6 +86,17 @@ public class LeftoverScanService(
         var distinctive = nameTokens
             .Where(t => t.Length >= 4 && !GenericTokens.Contains(t))
             .ToHashSet(StringComparer.OrdinalIgnoreCase);
+        // Short-named apps (VLC, Git, OBS…) have no 4+ char brand token, so their leftovers were being
+        // missed. When the name reduces to a single 3-char, non-generic acronym, treat it as distinctive —
+        // but never for 1-2 char names ("Go", "R") or generic acronyms ("bin", "log"), which would match
+        // unrelated folders.
+        if (distinctive.Count == 0)
+        {
+            var acronym = nameTokens
+                .Where(t => t.Length == 3 && !GenericTokens.Contains(t))
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+            if (acronym.Count == 1) distinctive = acronym;
+        }
 
         bool Matches(string leafName)
         {

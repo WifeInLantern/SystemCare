@@ -8,7 +8,9 @@ namespace SystemCare.Services;
 public interface IInstalledAppsService
 {
     Task<List<InstalledApp>> GetInstalledAppsAsync();
-    /// <summary>Runs the app's uninstaller and waits for it to finish. Returns true if it launched.</summary>
+    /// <summary>Runs the app's uninstaller and waits for it to finish. Returns true only if it completed
+    /// successfully (exit code 0, or a reboot-required success code); false if it failed, was cancelled,
+    /// or could not be started.</summary>
     Task<bool> UninstallAsync(InstalledApp app);
 }
 
@@ -90,6 +92,10 @@ public class InstalledAppsService : IInstalledAppsService
             ? d : null;
     }
 
+    // Exit codes that mean the uninstall succeeded: 0, plus the MSI "reboot required" (3010) and
+    // "reboot initiated" (1641) success codes.
+    private static readonly HashSet<int> SuccessExitCodes = [0, 3010, 1641];
+
     public Task<bool> UninstallAsync(InstalledApp app) => Task.Run(() =>
     {
         string command = !string.IsNullOrWhiteSpace(app.QuietUninstallString)
@@ -104,8 +110,11 @@ public class InstalledAppsService : IInstalledAppsService
                 UseShellExecute = false,
                 CreateNoWindow = true,
             });
-            process?.WaitForExit();
-            return true;
+            if (process is null) return false;
+            process.WaitForExit();
+            // Report the real outcome: a non-zero exit means the uninstaller failed or was cancelled, so
+            // the caller can skip the leftover scan rather than offer to delete the app's still-live files.
+            return SuccessExitCodes.Contains(process.ExitCode);
         }
         catch (Exception)
         {

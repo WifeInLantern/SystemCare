@@ -2,6 +2,20 @@
 
 All notable changes to SystemCare are documented here. Versions follow [SemVer](https://semver.org/).
 
+## [2.3.5] - 2026-07-01
+
+### Fixed
+- **Software Uninstaller now finds leftovers for short-named apps.** The leftover scanner requires a
+  "distinctive" brand token before flagging a folder, but that token had to be 4+ characters — so apps whose
+  brand is a short acronym (VLC, Git, OBS) produced no distinctive token and their leftovers were silently
+  missed. A single 3-character, non-generic acronym is now treated as distinctive. Names of 1–2 characters
+  ("Go", "R") and generic filesystem acronyms ("bin", "log", "tmp"…) are still excluded, so the
+  false-positive protection is unchanged.
+- **Software Uninstaller now reports the real uninstall outcome.** `UninstallAsync` previously always
+  reported success once the uninstaller launched. It now reflects the uninstaller's exit code (treating 0 and
+  the MSI reboot-required/initiated codes as success). A cancelled or failed uninstall is reported as such and
+  **skips the leftover scan**, so SystemCare never offers to delete a still-installed app's live files.
+
 ## [2.3.4] - 2026-07-01
 
 ### Changed
