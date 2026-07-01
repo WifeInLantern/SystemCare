@@ -2,6 +2,16 @@
 
 All notable changes to SystemCare are documented here. Versions follow [SemVer](https://semver.org/).
 
+## [2.3.6] - 2026-07-01
+
+### Fixed
+- **Software Uninstaller no longer crashes when leftovers are found.** After uninstalling an app that left
+  files behind, the "leftovers found" review dialog threw an *Unexpected error* (`Provide value on
+  'System.Windows.Baml2006.TypeConverterMarkupExtension' threw an exception`) and never appeared, so leftovers
+  couldn't be reviewed or removed. The dialog's list used `SelectionMode="None"`, which isn't a valid value
+  for WPF's `SelectionMode` enum (only `Single`/`Multiple`/`Extended`); it now uses `Single`. A headless
+  design-system smoke-test check now instantiates this dialog so an XAML-load regression like this fails CI.
+
 ## [2.3.5] - 2026-07-01
 
 ### Fixed

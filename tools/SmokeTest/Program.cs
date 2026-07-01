@@ -54,6 +54,16 @@ internal static class Program
             Try($"instantiate + lay out controls (ReduceMotion={reduce})", () => BuildAndLayout(app));
         }
 
+        // Dialog UserControls built in code (not via navigation) never fail-fast until shown, so load their
+        // BAML here to catch XAML-load bugs (e.g. an invalid enum value on a control property).
+        Try("instantiate + lay out LeftoverReviewView", () =>
+        {
+            var view = new SystemCare.Views.Dialogs.LeftoverReviewView();
+            view.Measure(new Size(560, 420));
+            view.Arrange(new Rect(0, 0, 560, 420));
+            view.UpdateLayout();
+        });
+
         Console.WriteLine();
         Console.WriteLine($"Smoke test: {_checks - Failures.Count}/{_checks} checks passed.");
         if (Failures.Count > 0)

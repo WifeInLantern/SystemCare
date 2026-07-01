@@ -18,7 +18,7 @@
         <TextBlock Grid.Row="0" Text="{Binding HeaderText}" TextWrapping="Wrap"
                    Opacity="0.75" Margin="0,0,0,10" />
 
-        <ui:ListView Grid.Row="1" ItemsSource="{Binding Leftovers}" SelectionMode="None"
+        <ui:ListView Grid.Row="1" ItemsSource="{Binding Leftovers}" SelectionMode="Single"
                      ScrollViewer.HorizontalScrollBarVisibility="Disabled">
             <ui:ListView.ItemTemplate>
                 <DataTemplate>
