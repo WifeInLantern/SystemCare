@@ -1,0 +1,119 @@
+<Page x:Class="SystemCare.Views.SoftwareHubPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+      xmlns:converters="clr-namespace:SystemCare.Converters"
+      xmlns:controls="clr-namespace:SystemCare.Controls"
+      xmlns:vm="clr-namespace:SystemCare.ViewModels"
+      mc:Ignorable="d"
+      TextElement.Foreground="{StaticResource TextFillColorPrimaryBrush}"
+      d:DataContext="{d:DesignInstance Type=vm:SoftwareHubViewModel}"
+      Title="Software Hub"
+      Loaded="OnPageLoaded">
+    <Page.Resources>
+        <converters:BoolToVisibilityConverter x:Key="VisibleWhenTrue" />
+        <converters:InverseBoolConverter x:Key="Not" />
+    </Page.Resources>
+
+    <Grid Margin="24,12,24,24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <StackPanel Grid.Row="0">
+            <TextBlock Text="Software Hub" Style="{StaticResource CyberPageTitle}" />
+            <TextBlock Text="Install popular free apps in one click via the Windows Package Manager (winget)."
+                       FontSize="13" Opacity="0.7" Margin="0,4,0,0" TextWrapping="Wrap" />
+        </StackPanel>
+
+        <!-- Toolbar -->
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,14,0,8">
+            <ui:Button Content="Refresh" Appearance="Primary" Padding="20,8"
+                       Command="{Binding RefreshCommand}"
+                       IsEnabled="{Binding IsChecking, Converter={StaticResource Not}}">
+                <ui:Button.Icon><ui:SymbolIcon Symbol="ArrowSync24" /></ui:Button.Icon>
+            </ui:Button>
+            <ui:Button Content="Cancel" Padding="16,8" Margin="8,0,0,0"
+                       Command="{Binding RefreshCancelCommand}"
+                       Visibility="{Binding IsChecking, Converter={StaticResource VisibleWhenTrue}}" />
+        </StackPanel>
+
+        <!-- winget unavailable -->
+        <ui:InfoBar Grid.Row="2" Severity="Warning" IsOpen="True" Margin="0,0,0,4"
+                    Title="Windows Package Manager not found"
+                    Message="Install 'App Installer' from the Microsoft Store to enable the Software Hub."
+                    Visibility="{Binding IsWingetMissing, Converter={StaticResource VisibleWhenTrue}}" />
+
+        <!-- Status + progress -->
+        <StackPanel Grid.Row="3" Margin="0,0,0,4">
+            <controls:TaskProgress IsActive="{Binding IsChecking}" />
+            <controls:TaskProgress IsActive="{Binding IsInstalling}" Value="{Binding InstallProgress}" />
+            <TextBlock Text="{Binding StatusText}" FontSize="12" Opacity="0.7" Margin="0,6,0,0"
+                       TextTrimming="CharacterEllipsis" />
+        </StackPanel>
+
+        <!-- Catalog header -->
+        <Grid Grid.Row="4" Margin="0,12,0,0"
+              Visibility="{Binding HasChecked, Converter={StaticResource VisibleWhenTrue}}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" Text="APP CATALOG" Style="{StaticResource CyberSectionHeader}"
+                       VerticalAlignment="Center" />
+            <ui:Button Grid.Column="1" Content="Install selected" Appearance="Primary" Padding="18,7"
+                       Command="{Binding InstallSelectedCommand}"
+                       IsEnabled="{Binding IsInstalling, Converter={StaticResource Not}}">
+                <ui:Button.Icon><ui:SymbolIcon Symbol="ArrowDownload24" /></ui:Button.Icon>
+            </ui:Button>
+        </Grid>
+
+        <!-- Catalog list, grouped by category -->
+        <ScrollViewer Grid.Row="5" VerticalScrollBarVisibility="Auto" Margin="0,8,0,0"
+                      Visibility="{Binding HasChecked, Converter={StaticResource VisibleWhenTrue}}">
+            <ItemsControl ItemsSource="{Binding GroupedApps}">
+                <ItemsControl.GroupStyle>
+                    <GroupStyle>
+                        <GroupStyle.HeaderTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Name}" Style="{StaticResource CyberSectionHeader}" Margin="0,12,0,6" />
+                            </DataTemplate>
+                        </GroupStyle.HeaderTemplate>
+                    </GroupStyle>
+                </ItemsControl.GroupStyle>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <ui:Card Margin="0,0,0,6" Padding="14,10">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <CheckBox Grid.Column="0" VerticalAlignment="Center"
+                                          IsChecked="{Binding IsSelected}"
+                                          IsEnabled="{Binding IsInstalled, Converter={StaticResource Not}}" />
+                                <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center">
+                                    <TextBlock Text="{Binding Name}" FontWeight="SemiBold" />
+                                    <TextBlock Text="{Binding Description}" FontSize="12" Opacity="0.65" TextWrapping="Wrap" />
+                                </StackPanel>
+                                <ui:Badge Grid.Column="2" Appearance="Success" VerticalAlignment="Center"
+                                          Visibility="{Binding IsInstalled, Converter={StaticResource VisibleWhenTrue}}">
+                                    <TextBlock Text="Installed" FontSize="11" />
+                                </ui:Badge>
+                            </Grid>
+                        </ui:Card>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+    </Grid>
+</Page>

@@ -122,6 +122,11 @@
                         <ui:SymbolIcon Symbol="ArrowSync24" />
                     </ui:NavigationViewItem.Icon>
                 </ui:NavigationViewItem>
+                <ui:NavigationViewItem Content="Software Hub" TargetPageType="{x:Type views:SoftwareHubPage}" ToolTipService.ToolTip="Install popular free apps (winget)">
+                    <ui:NavigationViewItem.Icon>
+                        <ui:SymbolIcon Symbol="AppsAddIn24" />
+                    </ui:NavigationViewItem.Icon>
+                </ui:NavigationViewItem>
                 <ui:NavigationViewItem Content="Windows Update" TargetPageType="{x:Type views:WindowsUpdatePage}" ToolTipService.ToolTip="Check, install, or pause Windows updates">
                     <ui:NavigationViewItem.Icon>
                         <ui:SymbolIcon Symbol="ArrowDownload24" />

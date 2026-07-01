@@ -2,6 +2,16 @@
 
 All notable changes to SystemCare are documented here. Versions follow [SemVer](https://semver.org/).
 
+## [2.3.7] - 2026-07-02
+
+### Added
+- **Software Hub.** A new **Optimize → Software Hub** page lists a curated catalog of ~20 popular free
+  apps (browsers, 7-Zip, VLC, Git, Discord, and more) grouped by category, installable via the Windows
+  Package Manager (winget) with a single "Install selected" action. Already-installed apps are detected
+  from `winget list` and shown with an "Installed" badge with their checkbox disabled, so you can't
+  accidentally re-install something you already have. Installing is gated behind the same restore-point
+  confirmation used by the Software Updater.
+
 ## [2.3.6] - 2026-07-01
 
 ### Fixed

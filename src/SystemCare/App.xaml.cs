@@ -86,6 +86,7 @@ public partial class App : Application
         services.AddSingleton<IDriverUpdateService, DriverUpdateService>();
         services.AddSingleton<IWingetRunner, WingetRunner>();
         services.AddSingleton<ISoftwareUpdateService, SoftwareUpdateService>();
+        services.AddSingleton<ISoftwareHubService, SoftwareHubService>();
         services.AddSingleton<IWindowsUpdateService, WindowsUpdateService>();
 
         // Window
@@ -117,6 +118,7 @@ public partial class App : Application
         services.AddSingleton<FileShredderViewModel>();
         services.AddSingleton<DriverUpdateViewModel>();
         services.AddSingleton<SoftwareUpdateViewModel>();
+        services.AddSingleton<SoftwareHubViewModel>();
         services.AddSingleton<WindowsUpdateViewModel>();
         services.AddSingleton<SettingsViewModel>();
         services.AddSingleton<HistoryViewModel>();
@@ -151,6 +153,7 @@ public partial class App : Application
         services.AddTransient<FileShredderPage>();
         services.AddTransient<DriverUpdatePage>();
         services.AddTransient<SoftwareUpdatePage>();
+        services.AddTransient<SoftwareHubPage>();
         services.AddTransient<WindowsUpdatePage>();
         services.AddTransient<SettingsPage>();
         services.AddTransient<HistoryPage>();
