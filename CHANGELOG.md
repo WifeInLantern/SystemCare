@@ -2,6 +2,19 @@
 
 All notable changes to SystemCare are documented here. Versions follow [SemVer](https://semver.org/).
 
+## [2.4.1] - 2026-07-02
+
+### Changed
+- **UI overhaul: Design System v3.** The cyberpunk neon theme is refined with layered glassmorphism
+  surfaces (a new elevation scale with rim-light strokes), translucent status chips, and a much
+  broader motion pass — every page now has a staggered entrance, hover glows fade in/out instead of
+  popping, and buttons get a tactile press/spring animation. A new `CyberPalette` helper means
+  palette edits now propagate to the custom-drawn controls (health gauge, backdrop, task progress),
+  which previously hardcoded their own colors. The "Reduce motion" setting was extended to cover
+  every new effect, including a control (task progress) that previously ignored it, and the nav
+  transition now respects it live. Visual/interaction refresh only — no functional changes. A new
+  `docs/DESIGN-SYSTEM.md` documents the tokens, motion spec, and component patterns for future work.
+
 ## [2.4.0] - 2026-07-02
 
 ### Added
