@@ -58,6 +58,45 @@
                     </StackPanel>
                 </Grid>
             </ui:Card>
+            <ui:Card Padding="16,12" Margin="0,0,0,8">
+                <StackPanel>
+                    <TextBlock Text="What scheduled maintenance does" FontWeight="SemiBold" />
+                    <TextBlock Text="Pick the steps the scheduled run (and the tray's 'Run maintenance now') performs"
+                               FontSize="12" Opacity="0.65" TextWrapping="Wrap" Margin="0,0,0,6" />
+                    <Grid Margin="0,4,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="Clean junk files" VerticalAlignment="Center" />
+                        <ui:ToggleSwitch Grid.Column="1" IsChecked="{Binding MaintenanceCleanJunk}" />
+                    </Grid>
+                    <Grid Margin="0,4,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="Trim RAM" VerticalAlignment="Center" />
+                        <ui:ToggleSwitch Grid.Column="1" IsChecked="{Binding MaintenanceTrimRam}" />
+                    </Grid>
+                    <Grid Margin="0,4,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="Flush DNS cache" VerticalAlignment="Center" />
+                        <ui:ToggleSwitch Grid.Column="1" IsChecked="{Binding MaintenanceFlushDns}" />
+                    </Grid>
+                    <Grid Margin="0,4,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="Empty Recycle Bin" VerticalAlignment="Center" />
+                        <ui:ToggleSwitch Grid.Column="1" IsChecked="{Binding MaintenanceEmptyRecycleBin}" />
+                    </Grid>
+                </StackPanel>
+            </ui:Card>
             <ui:Card Padding="16,12">
                 <Grid>
                     <Grid.ColumnDefinitions>

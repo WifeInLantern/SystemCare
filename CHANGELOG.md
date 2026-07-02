@@ -2,6 +2,31 @@
 
 All notable changes to SystemCare are documented here. Versions follow [SemVer](https://semver.org/).
 
+## [2.4.0] - 2026-07-02
+
+### Added
+- **Auto Care.** A new page right under the Dashboard that analyzes junk, startup load, RAM pressure,
+  security posture, and pending app updates in one click, then lists ranked, explained recommendations.
+  Each card shows why it matters and how many health points the fix recovers (anchored to the real
+  health-score penalty model); direct fixes (junk clean, RAM trim) apply in place with the usual
+  restore-point safety net, and review items deep-link to the matching tool.
+- **Net Monitor.** Per-app bandwidth monitoring is now its own Analyze page with a live total-throughput
+  graph, session download/upload totals, and per-process rates with sortable columns. (Moved out of
+  Network Tools, which now focuses on connections and diagnostics; a link card points the way.)
+- **Software Hub search.** Search the entire winget catalog from the Software Hub — results show
+  already-installed apps and install with one click via the same restore-point-gated flow. The curated
+  catalog remains the default view; searches are debounced and stale results are cancelled.
+- **Care Report & Trends.** A new Analyze page charting space freed per day and per week, actions by
+  category, and health-score + benchmark trends from your local activity history — plus a one-click
+  export to a self-contained dark-themed HTML report (system specs, health, activity summary; no
+  scripts, nothing leaves your PC). Health scores are now snapshotted once per day to build the trend.
+- **Configurable scheduled maintenance.** Settings now lets you choose exactly what the scheduled
+  `--run-maintenance` pass (and the tray's "Run maintenance now") does: clean junk, trim RAM, flush
+  DNS, and/or empty the Recycle Bin. Junk + RAM stay the defaults; each step is fault-isolated so one
+  failure no longer aborts the rest, and completion balloons report exactly what ran.
+- **Benchmark run details.** An expandable "Run details" section on the Benchmark page lists every
+  stored run's raw CPU/RAM/disk throughput, points, and sub-scores.
+
 ## [2.3.7] - 2026-07-02
 
 ### Added

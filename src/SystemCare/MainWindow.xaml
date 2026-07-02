@@ -48,6 +48,11 @@
                         <ui:SymbolIcon Symbol="Home24" />
                     </ui:NavigationViewItem.Icon>
                 </ui:NavigationViewItem>
+                <ui:NavigationViewItem Content="Auto Care" TargetPageType="{x:Type views:AutoCarePage}" ToolTipService.ToolTip="Auto Care — analyze &amp; fix with one click">
+                    <ui:NavigationViewItem.Icon>
+                        <ui:SymbolIcon Symbol="Sparkle24" />
+                    </ui:NavigationViewItem.Icon>
+                </ui:NavigationViewItem>
 
                 <ui:NavigationViewItemHeader Text="Clean" />
                 <ui:NavigationViewItem Content="Cleanup" TargetPageType="{x:Type views:CleanupPage}" ToolTipService.ToolTip="Junk Cleanup">
@@ -149,6 +154,11 @@
                         <ui:SymbolIcon Symbol="Globe24" />
                     </ui:NavigationViewItem.Icon>
                 </ui:NavigationViewItem>
+                <ui:NavigationViewItem Content="Net Monitor" TargetPageType="{x:Type views:NetworkMonitorPage}" ToolTipService.ToolTip="Per-app bandwidth monitor">
+                    <ui:NavigationViewItem.Icon>
+                        <ui:SymbolIcon Symbol="ArrowTrendingLines24" />
+                    </ui:NavigationViewItem.Icon>
+                </ui:NavigationViewItem>
                 <ui:NavigationViewItem Content="Security Audit" TargetPageType="{x:Type views:NetworkSecurityAuditPage}" ToolTipService.ToolTip="Network Security Audit (listening ports &amp; firewall)">
                     <ui:NavigationViewItem.Icon>
                         <ui:SymbolIcon Symbol="Shield24" />
@@ -162,6 +172,11 @@
                 <ui:NavigationViewItem Content="History" TargetPageType="{x:Type views:HistoryPage}" ToolTipService.ToolTip="Activity History">
                     <ui:NavigationViewItem.Icon>
                         <ui:SymbolIcon Symbol="History24" />
+                    </ui:NavigationViewItem.Icon>
+                </ui:NavigationViewItem>
+                <ui:NavigationViewItem Content="Care Report" TargetPageType="{x:Type views:CareReportPage}" ToolTipService.ToolTip="Care Report &amp; Trends">
+                    <ui:NavigationViewItem.Icon>
+                        <ui:SymbolIcon Symbol="DataTrending24" />
                     </ui:NavigationViewItem.Icon>
                 </ui:NavigationViewItem>
                 <ui:NavigationViewItem Content="Benchmark" TargetPageType="{x:Type views:BenchmarkPage}" ToolTipService.ToolTip="PC Benchmark &amp; Score">

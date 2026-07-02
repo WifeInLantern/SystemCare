@@ -69,8 +69,7 @@ public class TrayIconService(
         menu.Items.Add("Run maintenance now", null, async (_, _) =>
         {
             var result = await maintenance.RunMaintenanceNowAsync();
-            ShowBalloon("Maintenance complete",
-                $"Removed {ByteFormatter.Format(result.BytesRemoved)} of junk and freed {ByteFormatter.Format(result.BytesFreed)} of RAM.");
+            ShowBalloon("Maintenance complete", result.Summary);
         });
 
         var auto = new Forms.ToolStripMenuItem("Automatic maintenance")

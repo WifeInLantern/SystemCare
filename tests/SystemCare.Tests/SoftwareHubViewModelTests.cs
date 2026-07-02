@@ -93,4 +93,93 @@ public class SoftwareHubViewModelTests
         snackbar.ReceivedWithAnyArgs(1).Show(default!, default!, default, default, default);
         await software.DidNotReceiveWithAnyArgs().InstallAsync(default!, default, default);
     }
+
+    [Fact]
+    public async Task SearchText_PopulatesSearchResults_AndHidesCatalog()
+    {
+        var (vm, software, _) = Build();
+        vm.SearchDebounceMs = 0;
+        software.GetCatalogAsync(Arg.Any<CancellationToken>())
+            .Returns(new List<SoftwareHubAppStatus> { Status("A.A", "Utilities") });
+        await vm.RefreshCommand.ExecuteAsync(null);
+        Assert.True(vm.ShowCatalog);
+
+        software.SearchAsync("vlc", Arg.Any<CancellationToken>())
+            .Returns(new List<SoftwareHubAppStatus> { Status("VideoLAN.VLC", "Search results", installed: true) });
+
+        vm.SearchText = "vlc";
+        await vm.ActiveSearchTask!;
+
+        Assert.True(vm.IsSearchMode);
+        Assert.False(vm.ShowCatalog);
+        Assert.False(vm.IsSearching);
+        var row = Assert.Single(vm.SearchResults);
+        Assert.Equal("VideoLAN.VLC", row.Id);
+        Assert.True(row.IsInstalled);
+        Assert.Contains("1 result", vm.SearchStatusText);
+    }
+
+    [Fact]
+    public async Task ClearingSearchText_RestoresCatalogWithoutAnotherServiceCall()
+    {
+        var (vm, software, _) = Build();
+        vm.SearchDebounceMs = 0;
+        software.SearchAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())
+            .Returns(new List<SoftwareHubAppStatus> { Status("VideoLAN.VLC", "Search results") });
+        await vm.RefreshCommand.ExecuteAsync(null);
+
+        vm.SearchText = "vlc";
+        await vm.ActiveSearchTask!;
+        Assert.True(vm.IsSearchMode);
+
+        software.ClearReceivedCalls();
+        vm.SearchText = "";
+
+        Assert.False(vm.IsSearchMode);
+        Assert.True(vm.ShowCatalog);
+        Assert.Empty(vm.SearchResults);
+        await software.DidNotReceiveWithAnyArgs().SearchAsync(default!, default);
+        await software.DidNotReceiveWithAnyArgs().GetCatalogAsync(default);
+    }
+
+    [Fact]
+    public async Task NewerSearch_SupersedesOlderInFlightSearch()
+    {
+        var (vm, software, _) = Build();
+        vm.SearchDebounceMs = 0;
+        var older = new TaskCompletionSource<List<SoftwareHubAppStatus>>();
+        var newer = new TaskCompletionSource<List<SoftwareHubAppStatus>>();
+        software.SearchAsync("v", Arg.Any<CancellationToken>()).Returns(_ => older.Task);
+        software.SearchAsync("vlc", Arg.Any<CancellationToken>()).Returns(_ => newer.Task);
+
+        vm.SearchText = "v";
+        var olderTask = vm.ActiveSearchTask!;
+        vm.SearchText = "vlc";
+        var newerTask = vm.ActiveSearchTask!;
+
+        newer.SetResult([Status("VideoLAN.VLC", "Search results")]);
+        await newerTask;
+        // The older search completes late — its results must not clobber the newer ones.
+        older.SetResult([Status("Stale.App", "Search results")]);
+        await olderTask;
+
+        var row = Assert.Single(vm.SearchResults);
+        Assert.Equal("VideoLAN.VLC", row.Id);
+    }
+
+    [Fact]
+    public async Task SearchServiceFailure_ShowsFailureStatus_InsteadOfCrashing()
+    {
+        var (vm, software, _) = Build();
+        vm.SearchDebounceMs = 0;
+        software.SearchAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())
+            .Returns<Task<List<SoftwareHubAppStatus>>>(_ => throw new InvalidOperationException("boom"));
+
+        vm.SearchText = "vlc";
+        await vm.ActiveSearchTask!;
+
+        Assert.True(vm.IsSearchMode);
+        Assert.False(vm.IsSearching);
+        Assert.Contains("failed", vm.SearchStatusText, StringComparison.OrdinalIgnoreCase);
+    }
 }

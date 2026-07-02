@@ -25,6 +25,7 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
             <!-- Title -->
@@ -138,6 +139,61 @@
                 <TextBlock Margin="0,12,0,0" FontSize="11" Opacity="0.55" TextWrapping="Wrap"
                            Text="A quick local benchmark — results vary with background load and thermal state. Scores are relative, not industry-standard figures. Nothing leaves your PC." />
             </StackPanel>
+
+            <!-- Raw metrics of every stored run -->
+            <ui:CardExpander Grid.Row="5" Margin="0,12,0,0" IsExpanded="False"
+                             Visibility="{Binding HasRuns, Converter={StaticResource VisibleWhenTrue}}">
+                <ui:CardExpander.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <ui:SymbolIcon Symbol="DataUsage24" FontSize="18" VerticalAlignment="Center" Margin="0,0,10,0" />
+                        <TextBlock Text="Run details" FontWeight="SemiBold" VerticalAlignment="Center" />
+                    </StackPanel>
+                </ui:CardExpander.Header>
+                <StackPanel>
+                    <Grid Margin="14,0,14,4">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="2*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="1.4*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="2*" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="WHEN" FontSize="11" Opacity="0.6" />
+                        <TextBlock Grid.Column="1" Text="SCORE" FontSize="11" Opacity="0.6" />
+                        <TextBlock Grid.Column="2" Text="CPU" FontSize="11" Opacity="0.6" />
+                        <TextBlock Grid.Column="3" Text="MEMORY" FontSize="11" Opacity="0.6" />
+                        <TextBlock Grid.Column="4" Text="DISK" FontSize="11" Opacity="0.6" />
+                        <TextBlock Grid.Column="5" Text="SUB-SCORES" FontSize="11" Opacity="0.6" />
+                    </Grid>
+                    <ItemsControl ItemsSource="{Binding RunHistory}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Padding="14,8" Margin="0,4,0,0" CornerRadius="6"
+                                        Background="{StaticResource PanelInsetBrush}">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="2*" />
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="1.4*" />
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="2*" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="{Binding When}" FontSize="12" VerticalAlignment="Center" />
+                                        <TextBlock Grid.Column="1" Text="{Binding PointsText}" FontSize="12" FontWeight="SemiBold"
+                                                   Foreground="{StaticResource NeonCyanBrush}" VerticalAlignment="Center" />
+                                        <TextBlock Grid.Column="2" Text="{Binding CpuRaw}" FontSize="12" VerticalAlignment="Center" />
+                                        <TextBlock Grid.Column="3" Text="{Binding RamRaw}" FontSize="12" VerticalAlignment="Center" />
+                                        <TextBlock Grid.Column="4" Text="{Binding DiskRaw}" FontSize="12" VerticalAlignment="Center" />
+                                        <TextBlock Grid.Column="5" Text="{Binding SubScores}" FontSize="12" Opacity="0.75" VerticalAlignment="Center" />
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </ui:CardExpander>
         </Grid>
     </ScrollViewer>
 </Page>

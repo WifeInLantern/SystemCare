@@ -5,11 +5,43 @@ using Task = System.Threading.Tasks.Task;
 
 namespace SystemCare.Services;
 
+/// <summary>Which steps a maintenance pass performs. <see cref="FromSettings"/> reads the user's
+/// scheduled-maintenance profile; callers with fixed expectations pass an explicit profile.</summary>
+public record MaintenanceProfile(bool CleanJunk, bool TrimRam, bool FlushDns, bool EmptyRecycleBin)
+{
+    /// <summary>The classic junk + RAM pass (pre-profile behaviour).</summary>
+    public static readonly MaintenanceProfile JunkAndRam = new(true, true, false, false);
+
+    public static MaintenanceProfile FromSettings(AppSettings s) =>
+        new(s.MaintenanceCleanJunk, s.MaintenanceTrimRam, s.MaintenanceFlushDns, s.MaintenanceEmptyRecycleBin);
+}
+
 public class MaintenanceResult
 {
+    public bool JunkCleaned { get; init; }
     public long BytesRemoved { get; init; }
-    public long BytesFreed { get; init; }
     public int FilesRemoved { get; init; }
+    public bool RamTrimmed { get; init; }
+    public long BytesFreed { get; init; }
+    public bool DnsFlushed { get; init; }
+    public bool RecycleBinEmptied { get; init; }
+    public long RecycleBinBytes { get; init; }
+
+    /// <summary>Human-readable one-liner of what actually happened, for balloons/history.</summary>
+    public string Summary
+    {
+        get
+        {
+            var parts = new List<string>();
+            if (JunkCleaned) parts.Add($"cleaned {ByteFormatter.Format(BytesRemoved)} of junk");
+            if (RamTrimmed) parts.Add($"freed {ByteFormatter.Format(BytesFreed)} of RAM");
+            if (DnsFlushed) parts.Add("flushed DNS");
+            if (RecycleBinEmptied) parts.Add($"emptied Recycle Bin ({ByteFormatter.Format(RecycleBinBytes)})");
+            if (parts.Count == 0) return "No maintenance steps ran.";
+            string s = string.Join(" · ", parts);
+            return char.ToUpperInvariant(s[0]) + s[1..];
+        }
+    }
 }
 
 public interface IScheduledMaintenanceService
@@ -17,13 +49,16 @@ public interface IScheduledMaintenanceService
     /// <summary>Registers (or removes) the Windows scheduled task per the current settings.</summary>
     void Sync();
     bool TaskExists();
-    /// <summary>Runs junk cleanup + RAM trim now. Shared by the tray menu and headless mode.</summary>
-    Task<MaintenanceResult> RunMaintenanceNowAsync();
+    /// <summary>Runs the maintenance pass now. Shared by the tray menu and headless mode.
+    /// <paramref name="profile"/> defaults to the user's scheduled-maintenance settings.</summary>
+    Task<MaintenanceResult> RunMaintenanceNowAsync(MaintenanceProfile? profile = null);
 }
 
 public class ScheduledMaintenanceService(
     IJunkScanService junkScan,
     IMemoryOptimizerService memoryOptimizer,
+    INetworkToolsService network,
+    IRecycleBinService recycleBin,
     ISettingsService settings,
     IHistoryService history,
     ILogService log) : IScheduledMaintenanceService
@@ -79,32 +114,86 @@ public class ScheduledMaintenanceService(
         }
     }
 
-    public async Task<MaintenanceResult> RunMaintenanceNowAsync()
+    public async Task<MaintenanceResult> RunMaintenanceNowAsync(MaintenanceProfile? profile = null)
     {
-        var categoryIds = junkScan.Categories
-            .Where(c => settings.Current.JunkCategoryToggles.GetValueOrDefault(c.Id, c.EnabledByDefault))
-            .Select(c => c.Id)
-            .ToList();
+        profile ??= MaintenanceProfile.FromSettings(settings.Current);
 
-        var scan = await junkScan.ScanAsync(categoryIds, null, CancellationToken.None);
-        var clean = await junkScan.CleanAsync(scan, categoryIds, null, CancellationToken.None);
-        var ram = await memoryOptimizer.OptimizeAsync();
+        // Each step is independently fault-isolated: an unreadable temp folder must not
+        // cost the user the RAM trim (or any later step).
+        bool junkCleaned = false, ramTrimmed = false, dnsFlushed = false, binEmptied = false;
+        long junkBytes = 0, ramBytes = 0, binBytes = 0;
+        int filesRemoved = 0;
+
+        if (profile.CleanJunk)
+        {
+            try
+            {
+                var categoryIds = junkScan.Categories
+                    .Where(c => settings.Current.JunkCategoryToggles.GetValueOrDefault(c.Id, c.EnabledByDefault))
+                    .Select(c => c.Id)
+                    .ToList();
+                var scan = await junkScan.ScanAsync(categoryIds, null, CancellationToken.None);
+                var clean = await junkScan.CleanAsync(scan, categoryIds, null, CancellationToken.None);
+                junkBytes = clean.BytesRemoved;
+                filesRemoved = clean.FilesRemoved;
+                junkCleaned = true;
+            }
+            catch (Exception ex) { log.Warn("Maintenance", $"Junk cleanup step failed: {ex.Message}"); }
+        }
+
+        if (profile.TrimRam)
+        {
+            try
+            {
+                var ram = await memoryOptimizer.OptimizeAsync();
+                ramBytes = ram.BytesFreed;
+                ramTrimmed = true;
+            }
+            catch (Exception ex) { log.Warn("Maintenance", $"RAM trim step failed: {ex.Message}"); }
+        }
+
+        if (profile.FlushDns)
+        {
+            try
+            {
+                network.FlushDns();
+                dnsFlushed = true;
+            }
+            catch (Exception ex) { log.Warn("Maintenance", $"DNS flush step failed: {ex.Message}"); }
+        }
+
+        if (profile.EmptyRecycleBin)
+        {
+            try
+            {
+                var (bytes, items) = recycleBin.Query();
+                if (items > 0)
+                {
+                    recycleBin.Empty();
+                    binBytes = bytes;
+                    binEmptied = true;
+                }
+            }
+            catch (Exception ex) { log.Warn("Maintenance", $"Recycle Bin step failed: {ex.Message}"); }
+        }
 
         settings.Current.LastScanUtc = DateTime.UtcNow;
         settings.Save();
 
-        history.Record("Auto maintenance",
-            $"Cleaned {ByteFormatter.Format(clean.BytesRemoved)} of junk · freed {ByteFormatter.Format(ram.BytesFreed)} of RAM",
-            clean.BytesRemoved, clean.FilesRemoved, "Broom24");
-
-        log.Info("Maintenance",
-            $"Maintenance done — removed {ByteFormatter.Format(clean.BytesRemoved)} junk in {clean.FilesRemoved} file(s), freed {ByteFormatter.Format(ram.BytesFreed)} RAM.");
-
-        return new MaintenanceResult
+        var result = new MaintenanceResult
         {
-            BytesRemoved = clean.BytesRemoved,
-            FilesRemoved = clean.FilesRemoved,
-            BytesFreed = ram.BytesFreed,
+            JunkCleaned = junkCleaned,
+            BytesRemoved = junkBytes,
+            FilesRemoved = filesRemoved,
+            RamTrimmed = ramTrimmed,
+            BytesFreed = ramBytes,
+            DnsFlushed = dnsFlushed,
+            RecycleBinEmptied = binEmptied,
+            RecycleBinBytes = binBytes,
         };
+
+        history.Record("Auto maintenance", result.Summary, junkBytes + binBytes, filesRemoved, "Broom24");
+        log.Info("Maintenance", $"Maintenance done — {result.Summary}");
+        return result;
     }
 }

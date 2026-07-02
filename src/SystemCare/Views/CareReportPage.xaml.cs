@@ -4,11 +4,11 @@ using SystemCare.ViewModels;
 
 namespace SystemCare.Views;
 
-public partial class NetworkToolsPage : Page
+public partial class CareReportPage : Page
 {
-    private readonly NetworkToolsViewModel _viewModel;
+    private readonly CareReportViewModel _viewModel;
 
-    public NetworkToolsPage(NetworkToolsViewModel viewModel)
+    public CareReportPage(CareReportViewModel viewModel)
     {
         _viewModel = viewModel;
         DataContext = viewModel;
@@ -16,9 +16,4 @@ public partial class NetworkToolsPage : Page
     }
 
     private void OnPageLoaded(object sender, RoutedEventArgs e) => _viewModel.OnNavigatedTo();
-
-    private void OnOutputChanged(object sender, TextChangedEventArgs e)
-    {
-        if (sender is TextBox box) box.ScrollToEnd();
-    }
 }

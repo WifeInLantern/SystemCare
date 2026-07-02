@@ -1,9 +1,9 @@
-; Inno Setup script for SystemCare — builds a single SystemCare-Setup.exe installer.
+﻿; Inno Setup script for SystemCare â€” builds a single SystemCare-Setup.exe installer.
 ; Compile with: "%LocalAppData%\Programs\Inno Setup 6\ISCC.exe" installer\SystemCare.iss
 ; The published single-file app (dist\SystemCare.exe) must exist first (dotnet publish).
 
 #define MyAppName "SystemCare"
-#define MyAppVersion "2.3.7"
+#define MyAppVersion "2.4.0"
 #define MyAppPublisher "SystemCare"
 #define MyAppExeName "SystemCare.exe"
 

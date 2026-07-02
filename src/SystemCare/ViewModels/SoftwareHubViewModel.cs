@@ -35,14 +35,32 @@ public partial class SoftwareHubViewModel : ObservableObject
     public ObservableCollection<SoftwareHubItemViewModel> Apps { get; } = [];
     /// <summary>Grouped view used by the page (grouped by <see cref="SoftwareHubItemViewModel.Category"/>).</summary>
     public ICollectionView GroupedApps { get; }
+    /// <summary>Results of the current winget search (shown instead of the catalog while searching).</summary>
+    public ObservableCollection<SoftwareHubItemViewModel> SearchResults { get; } = [];
 
     [ObservableProperty] private bool _isChecking;
-    [ObservableProperty] private bool _isInstalling;
+    [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(InstallOneCommand))]
+    private bool _isInstalling;
     [ObservableProperty] private bool _hasChecked;
     [ObservableProperty] private bool _isWingetMissing;
     [ObservableProperty] private double _installProgress;
     [ObservableProperty] private string _statusText = "";
     [ObservableProperty] private string _summaryText = "";
+
+    [ObservableProperty] private string _searchText = "";
+    [ObservableProperty] private bool _isSearching;
+    [ObservableProperty] private bool _isSearchMode;
+    [ObservableProperty] private string _searchStatusText = "";
+
+    /// <summary>Catalog is shown once checked and while no search is active.</summary>
+    public bool ShowCatalog => HasChecked && !IsSearchMode;
+
+    /// <summary>Keystroke debounce before a search spawns a winget process. Tests set 0.</summary>
+    internal int SearchDebounceMs = 400;
+    /// <summary>The in-flight debounced search, exposed so tests can await it deterministically.</summary>
+    internal Task? ActiveSearchTask;
+    private CancellationTokenSource? _searchCts;
 
     public SoftwareHubViewModel(ISoftwareHubService software, IRestorePointService restore,
         ISnackbarService snackbar, IContentDialogService dialogs, IHistoryService history,
@@ -63,6 +81,68 @@ public partial class SoftwareHubViewModel : ObservableObject
     public async void OnNavigatedTo()
     {
         if (!HasChecked && !IsChecking) await RefreshAsync(CancellationToken.None);
+    }
+
+    partial void OnHasCheckedChanged(bool value) => OnPropertyChanged(nameof(ShowCatalog));
+    partial void OnIsSearchModeChanged(bool value) => OnPropertyChanged(nameof(ShowCatalog));
+
+    partial void OnSearchTextChanged(string value)
+    {
+        _searchCts?.Cancel();
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            IsSearchMode = false;
+            IsSearching = false;
+            SearchResults.Clear();
+            SearchStatusText = "";
+            return;
+        }
+        var cts = _searchCts = new CancellationTokenSource();
+        ActiveSearchTask = DebouncedSearchAsync(value.Trim(), cts.Token);
+    }
+
+    private async Task DebouncedSearchAsync(string query, CancellationToken ct)
+    {
+        try
+        {
+            if (SearchDebounceMs > 0) await Task.Delay(SearchDebounceMs, ct);
+            await RunSearchAsync(query, ct);
+        }
+        catch (OperationCanceledException)
+        {
+            // superseded by a newer keystroke or cleared — the newer search owns the UI state
+        }
+    }
+
+    private async Task RunSearchAsync(string query, CancellationToken ct)
+    {
+        IsSearchMode = true;
+        IsSearching = true;
+        SearchStatusText = $"Searching winget for “{query}”…";
+        try
+        {
+            var results = await _software.SearchAsync(query, ct);
+            if (ct.IsCancellationRequested) return;
+
+            SearchResults.Clear();
+            foreach (var s in results) SearchResults.Add(new SoftwareHubItemViewModel(s));
+            SearchStatusText = results.Count == 0
+                ? $"No winget packages match “{query}”."
+                : $"{results.Count} result(s) for “{query}”.";
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            _log.Warn("SoftwareHub", $"winget search failed: {ex.Message}");
+            SearchStatusText = "Search failed — try again.";
+        }
+        finally
+        {
+            if (!ct.IsCancellationRequested) IsSearching = false;
+        }
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
@@ -109,15 +189,31 @@ public partial class SoftwareHubViewModel : ObservableObject
             return;
         }
 
+        await InstallAppsAsync(selected, ct);
+    }
+
+    /// <summary>Installs one app straight from a search-result row.</summary>
+    [RelayCommand(CanExecute = nameof(CanInstallOne))]
+    private async Task InstallOneAsync(SoftwareHubItemViewModel? item)
+    {
+        if (item is null || item.IsInstalled) return;
+        await InstallAppsAsync([item.App], CancellationToken.None);
+    }
+
+    private bool CanInstallOne(SoftwareHubItemViewModel? item) => !IsInstalling;
+
+    private async Task InstallAppsAsync(List<SoftwareHubApp> picks, CancellationToken ct)
+    {
         var confirm = await _dialogs.ShowSimpleDialogAsync(new SimpleContentDialogCreateOptions
         {
-            Title = "Install selected apps?",
-            Content = $"{selected.Count} app(s) will be installed via winget.\n\nSome installers may briefly show their own window.",
+            Title = picks.Count == 1 ? $"Install {picks[0].Name}?" : "Install selected apps?",
+            Content = $"{picks.Count} app(s) will be installed via winget.\n\nSome installers may briefly show their own window.",
             PrimaryButtonText = "Install",
             CloseButtonText = "Cancel",
         });
         if (confirm != ContentDialogResult.Primary) return;
 
+        var selected = picks;
         IsInstalling = true;
         InstallProgress = 0;
         _log.Info("SoftwareHub", $"Starting install of {selected.Count} app(s).");
@@ -148,6 +244,8 @@ public partial class SoftwareHubViewModel : ObservableObject
                 _history.Record("Software install", result.Message, 0, result.Installed, "AppsAddIn24");
 
             await RefreshAsync(CancellationToken.None); // refresh so newly-installed apps flip to the Installed badge
+            if (IsSearchMode && !string.IsNullOrWhiteSpace(SearchText))
+                await RunSearchAsync(SearchText.Trim(), CancellationToken.None); // flip badges in search results too
         }
         catch (OperationCanceledException)
         {

@@ -18,6 +18,15 @@ public class SoftwareHubAppStatus
     public bool IsInstalled { get; init; }
 }
 
+/// <summary>One row parsed from <c>winget search</c> output.</summary>
+public class WingetSearchResult
+{
+    public required string Name { get; init; }
+    public required string Id { get; init; }
+    public string Version { get; init; } = "";
+    public string Source { get; init; } = "";
+}
+
 public class SoftwareHubInstallProgress
 {
     public int Current { get; init; }

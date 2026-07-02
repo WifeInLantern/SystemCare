@@ -62,6 +62,79 @@ public class SoftwareHubServiceTests
     }
 
     [Fact]
+    public async Task SearchAsync_BuildsExactWingetSearchCommand_RestrictedToWingetSource()
+    {
+        var (svc, winget) = Build();
+        winget.RunAsync(Arg.Any<string>(), Arg.Any<CancellationToken>()).Returns((0, ""));
+
+        await svc.SearchAsync("vlc", CancellationToken.None);
+
+        await winget.Received(1).RunAsync(
+            Arg.Is<string>(a => a == "search \"vlc\" --source winget --accept-source-agreements --disable-interactivity"),
+            Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task SearchAsync_StripsEmbeddedQuotesFromQuery()
+    {
+        var (svc, winget) = Build();
+        winget.RunAsync(Arg.Any<string>(), Arg.Any<CancellationToken>()).Returns((0, ""));
+
+        await svc.SearchAsync("v\"l\"c", CancellationToken.None);
+
+        await winget.Received(1).RunAsync(
+            Arg.Is<string>(a => a.StartsWith("search \"vlc\"")), Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task SearchAsync_EmptyOrQuoteOnlyQuery_ReturnsEmptyWithoutRunningWinget()
+    {
+        var (svc, winget) = Build();
+
+        Assert.Empty(await svc.SearchAsync("   ", CancellationToken.None));
+        Assert.Empty(await svc.SearchAsync("\"\"", CancellationToken.None));
+        await winget.DidNotReceiveWithAnyArgs().RunAsync(default!, default);
+    }
+
+    [Fact]
+    public async Task SearchAsync_MarksInstalledResults_FromWingetListSample()
+    {
+        var (svc, winget) = Build();
+        winget.RunAsync(Arg.Is<string>(a => a.StartsWith("search")), Arg.Any<CancellationToken>())
+            .Returns((0, WingetTestSamples.SearchResultsWithSpinnerAndMatch));
+        winget.RunAsync(Arg.Is<string>(a => a.StartsWith("list")), Arg.Any<CancellationToken>())
+            .Returns((0, WingetTestSamples.InstalledAppsListSample));
+
+        var results = await svc.SearchAsync("vlc", CancellationToken.None);
+
+        Assert.Equal(3, results.Count);
+        Assert.True(results.Single(r => r.App.Id == "VideoLAN.VLC").IsInstalled);
+        Assert.False(results.Single(r => r.App.Id == "Microsoft.VisualStudioCode").IsInstalled);
+        Assert.All(results, r => Assert.Equal("Search results", r.App.Category));
+        Assert.Equal("3.0.20 · winget", results.Single(r => r.App.Id == "VideoLAN.VLC").App.Description);
+    }
+
+    [Fact]
+    public async Task SearchAsync_ReusesInstalledIdsAcrossSearches_UntilAnInstallInvalidates()
+    {
+        var (svc, winget) = Build();
+        winget.RunAsync(Arg.Is<string>(a => a.StartsWith("search")), Arg.Any<CancellationToken>())
+            .Returns((0, WingetTestSamples.SearchResultsWithSpinnerAndMatch));
+        winget.RunAsync(Arg.Is<string>(a => a.StartsWith("list")), Arg.Any<CancellationToken>())
+            .Returns((0, WingetTestSamples.InstalledAppsListSample));
+        winget.RunAsync(Arg.Is<string>(a => a.StartsWith("install")), Arg.Any<CancellationToken>())
+            .Returns((0, ""));
+
+        await svc.SearchAsync("vlc", CancellationToken.None);
+        await svc.SearchAsync("code", CancellationToken.None);
+        await winget.Received(1).RunAsync(Arg.Is<string>(a => a.StartsWith("list")), Arg.Any<CancellationToken>());
+
+        await svc.InstallAsync(new[] { App("New.App") }, null, CancellationToken.None);
+        await svc.SearchAsync("vlc", CancellationToken.None);
+        await winget.Received(2).RunAsync(Arg.Is<string>(a => a.StartsWith("list")), Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
     public async Task InstallAsync_AllSucceed_CountsInstalledAndReportsProgress()
     {
         var (svc, winget) = Build();

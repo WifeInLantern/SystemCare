@@ -14,6 +14,7 @@
       Loaded="OnPageLoaded">
     <Page.Resources>
         <converters:BoolToVisibilityConverter x:Key="VisibleWhenTrue" />
+        <converters:BoolToVisibilityConverter x:Key="VisibleWhenFalse" Invert="True" />
         <converters:InverseBoolConverter x:Key="Not" />
     </Page.Resources>
 
@@ -35,16 +36,26 @@
         </StackPanel>
 
         <!-- Toolbar -->
-        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,14,0,8">
-            <ui:Button Content="Refresh" Appearance="Primary" Padding="20,8"
-                       Command="{Binding RefreshCommand}"
-                       IsEnabled="{Binding IsChecking, Converter={StaticResource Not}}">
-                <ui:Button.Icon><ui:SymbolIcon Symbol="ArrowSync24" /></ui:Button.Icon>
-            </ui:Button>
-            <ui:Button Content="Cancel" Padding="16,8" Margin="8,0,0,0"
-                       Command="{Binding RefreshCancelCommand}"
-                       Visibility="{Binding IsChecking, Converter={StaticResource VisibleWhenTrue}}" />
-        </StackPanel>
+        <Grid Grid.Row="1" Margin="0,14,0,8">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <ui:TextBox Grid.Column="0" MaxWidth="420" HorizontalAlignment="Left"
+                        Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                        PlaceholderText="Search all winget packages…"
+                        Icon="{ui:SymbolIcon Search24}" ClearButtonEnabled="True" />
+            <StackPanel Grid.Column="1" Orientation="Horizontal">
+                <ui:Button Content="Refresh" Appearance="Primary" Padding="20,8"
+                           Command="{Binding RefreshCommand}"
+                           IsEnabled="{Binding IsChecking, Converter={StaticResource Not}}">
+                    <ui:Button.Icon><ui:SymbolIcon Symbol="ArrowSync24" /></ui:Button.Icon>
+                </ui:Button>
+                <ui:Button Content="Cancel" Padding="16,8" Margin="8,0,0,0"
+                           Command="{Binding RefreshCancelCommand}"
+                           Visibility="{Binding IsChecking, Converter={StaticResource VisibleWhenTrue}}" />
+            </StackPanel>
+        </Grid>
 
         <!-- winget unavailable -->
         <ui:InfoBar Grid.Row="2" Severity="Warning" IsOpen="True" Margin="0,0,0,4"
@@ -62,7 +73,7 @@
 
         <!-- Catalog header -->
         <Grid Grid.Row="4" Margin="0,12,0,0"
-              Visibility="{Binding HasChecked, Converter={StaticResource VisibleWhenTrue}}">
+              Visibility="{Binding ShowCatalog, Converter={StaticResource VisibleWhenTrue}}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
@@ -76,44 +87,98 @@
             </ui:Button>
         </Grid>
 
-        <!-- Catalog list, grouped by category -->
-        <ScrollViewer Grid.Row="5" VerticalScrollBarVisibility="Auto" Margin="0,8,0,0"
-                      Visibility="{Binding HasChecked, Converter={StaticResource VisibleWhenTrue}}">
-            <ItemsControl ItemsSource="{Binding GroupedApps}">
-                <ItemsControl.GroupStyle>
-                    <GroupStyle>
-                        <GroupStyle.HeaderTemplate>
+        <Grid Grid.Row="5">
+            <!-- Catalog list, grouped by category -->
+            <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="0,8,0,0"
+                          Visibility="{Binding ShowCatalog, Converter={StaticResource VisibleWhenTrue}}">
+                <ItemsControl ItemsSource="{Binding GroupedApps}">
+                    <ItemsControl.GroupStyle>
+                        <GroupStyle>
+                            <GroupStyle.HeaderTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Name}" Style="{StaticResource CyberSectionHeader}" Margin="0,12,0,6" />
+                                </DataTemplate>
+                            </GroupStyle.HeaderTemplate>
+                        </GroupStyle>
+                    </ItemsControl.GroupStyle>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <ui:Card Margin="0,0,0,6" Padding="14,10">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <CheckBox Grid.Column="0" VerticalAlignment="Center"
+                                              IsChecked="{Binding IsSelected}"
+                                              IsEnabled="{Binding IsInstalled, Converter={StaticResource Not}}" />
+                                    <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center">
+                                        <TextBlock Text="{Binding Name}" FontWeight="SemiBold" />
+                                        <TextBlock Text="{Binding Description}" FontSize="12" Opacity="0.65" TextWrapping="Wrap" />
+                                    </StackPanel>
+                                    <ui:Badge Grid.Column="2" Appearance="Success" VerticalAlignment="Center"
+                                              Visibility="{Binding IsInstalled, Converter={StaticResource VisibleWhenTrue}}">
+                                        <TextBlock Text="Installed" FontSize="11" />
+                                    </ui:Badge>
+                                </Grid>
+                            </ui:Card>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+
+            <!-- Search results (replace the catalog while a search is active) -->
+            <Grid Visibility="{Binding IsSearchMode, Converter={StaticResource VisibleWhenTrue}}">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <StackPanel Grid.Row="0" Margin="0,12,0,4">
+                    <TextBlock Text="SEARCH RESULTS" Style="{StaticResource CyberSectionHeader}" />
+                    <controls:TaskProgress IsActive="{Binding IsSearching}" />
+                    <TextBlock Text="{Binding SearchStatusText}" FontSize="12" Opacity="0.7" Margin="0,4,0,0"
+                               TextTrimming="CharacterEllipsis" />
+                </StackPanel>
+
+                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Margin="0,4,0,0">
+                    <ItemsControl ItemsSource="{Binding SearchResults}">
+                        <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <TextBlock Text="{Binding Name}" Style="{StaticResource CyberSectionHeader}" Margin="0,12,0,6" />
+                                <ui:Card Margin="0,0,0,6" Padding="14,10">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Text="{Binding Name}" FontWeight="SemiBold" />
+                                                <TextBlock Text="{Binding Id}" FontSize="11" Opacity="0.5" Margin="10,0,0,0"
+                                                           VerticalAlignment="Center" FontFamily="Consolas" />
+                                            </StackPanel>
+                                            <TextBlock Text="{Binding Description}" FontSize="12" Opacity="0.65" TextWrapping="Wrap" />
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                                            <ui:Badge Appearance="Success" VerticalAlignment="Center" Margin="0,0,8,0"
+                                                      Visibility="{Binding IsInstalled, Converter={StaticResource VisibleWhenTrue}}">
+                                                <TextBlock Text="Installed" FontSize="11" />
+                                            </ui:Badge>
+                                            <ui:Button Content="Install" Appearance="Primary" Padding="16,6"
+                                                       Command="{Binding DataContext.InstallOneCommand, RelativeSource={RelativeSource AncestorType=Page}}"
+                                                       CommandParameter="{Binding}"
+                                                       Visibility="{Binding IsInstalled, Converter={StaticResource VisibleWhenFalse}}">
+                                                <ui:Button.Icon><ui:SymbolIcon Symbol="ArrowDownload24" /></ui:Button.Icon>
+                                            </ui:Button>
+                                        </StackPanel>
+                                    </Grid>
+                                </ui:Card>
                             </DataTemplate>
-                        </GroupStyle.HeaderTemplate>
-                    </GroupStyle>
-                </ItemsControl.GroupStyle>
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <ui:Card Margin="0,0,0,6" Padding="14,10">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="Auto" />
-                                </Grid.ColumnDefinitions>
-                                <CheckBox Grid.Column="0" VerticalAlignment="Center"
-                                          IsChecked="{Binding IsSelected}"
-                                          IsEnabled="{Binding IsInstalled, Converter={StaticResource Not}}" />
-                                <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center">
-                                    <TextBlock Text="{Binding Name}" FontWeight="SemiBold" />
-                                    <TextBlock Text="{Binding Description}" FontSize="12" Opacity="0.65" TextWrapping="Wrap" />
-                                </StackPanel>
-                                <ui:Badge Grid.Column="2" Appearance="Success" VerticalAlignment="Center"
-                                          Visibility="{Binding IsInstalled, Converter={StaticResource VisibleWhenTrue}}">
-                                    <TextBlock Text="Installed" FontSize="11" />
-                                </ui:Badge>
-                            </Grid>
-                        </ui:Card>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-        </ScrollViewer>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </Grid>
+        </Grid>
     </Grid>
 </Page>

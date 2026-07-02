@@ -296,7 +296,9 @@ public partial class DiskHealthViewModel : ObservableObject
             if (!_cts.IsCancellationRequested)
             {
                 AppendLine("--- Cleaning junk files ---");
-                var result = await _maintenance.RunMaintenanceNowAsync();
+                // Always junk + RAM here regardless of the scheduled-maintenance profile: this flow
+                // explicitly advertises a junk clean as part of one-click disk maintenance.
+                var result = await _maintenance.RunMaintenanceNowAsync(MaintenanceProfile.JunkAndRam);
                 bytesFreed = result.BytesRemoved + result.BytesFreed;
                 AppendLine($"Removed {ByteFormatter.Format(result.BytesRemoved)} of junk in {result.FilesRemoved} file(s).");
             }

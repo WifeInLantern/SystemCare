@@ -51,6 +51,7 @@ public partial class App : Application
         services.AddSingleton<IInstalledAppsService, InstalledAppsService>();
         services.AddSingleton<ILeftoverScanService, LeftoverScanService>();
         services.AddSingleton<IProcessService, ProcessService>();
+        services.AddSingleton<IRecycleBinService, RecycleBinService>();
         services.AddSingleton<IServiceControlService, ServiceControlService>();
         services.AddSingleton<IScheduledMaintenanceService, ScheduledMaintenanceService>();
         services.AddSingleton<IStartupLauncherService, StartupLauncherService>();
@@ -68,6 +69,9 @@ public partial class App : Application
         services.AddSingleton<IRegistryCleanerService, RegistryCleanerService>();
         services.AddSingleton<IBenchmarkService, BenchmarkService>();
         services.AddSingleton<IBenchmarkHistoryService, BenchmarkHistoryService>();
+        services.AddSingleton<IHealthTrendService, HealthTrendService>();
+        services.AddSingleton<ICareReportExporter, CareReportExporter>();
+        services.AddSingleton<IAutoCareService, AutoCareService>();
         services.AddSingleton<IEmptyFolderService, EmptyFolderService>();
         services.AddSingleton<IDeepCleanupService, DeepCleanupService>();
         services.AddSingleton<IAppPackageService, AppPackageService>();
@@ -94,6 +98,7 @@ public partial class App : Application
 
         // ViewModels — singletons so page state (scan results, timers) survives navigation
         services.AddSingleton<DashboardViewModel>();
+        services.AddSingleton<AutoCareViewModel>();
         services.AddSingleton<CleanupViewModel>();
         services.AddSingleton<StartupViewModel>();
         services.AddSingleton<PrivacyViewModel>();
@@ -111,6 +116,7 @@ public partial class App : Application
         services.AddSingleton<DebloatViewModel>();
         services.AddSingleton<SecurityCheckupViewModel>();
         services.AddSingleton<NetworkToolsViewModel>();
+        services.AddSingleton<NetworkMonitorViewModel>();
         services.AddSingleton<NetworkSecurityAuditViewModel>();
         services.AddSingleton<WindowsTweaksViewModel>();
         services.AddSingleton<BoostViewModel>();
@@ -122,6 +128,7 @@ public partial class App : Application
         services.AddSingleton<WindowsUpdateViewModel>();
         services.AddSingleton<SettingsViewModel>();
         services.AddSingleton<HistoryViewModel>();
+        services.AddSingleton<CareReportViewModel>();
         services.AddSingleton<BenchmarkViewModel>();
         services.AddSingleton<SensorsViewModel>();
         services.AddSingleton<ReliabilityViewModel>();
@@ -129,6 +136,7 @@ public partial class App : Application
 
         // Pages
         services.AddTransient<DashboardPage>();
+        services.AddTransient<AutoCarePage>();
         services.AddTransient<CleanupPage>();
         services.AddTransient<StartupPage>();
         services.AddTransient<PrivacyPage>();
@@ -146,6 +154,7 @@ public partial class App : Application
         services.AddTransient<DebloatPage>();
         services.AddTransient<SecurityCheckupPage>();
         services.AddTransient<NetworkToolsPage>();
+        services.AddTransient<NetworkMonitorPage>();
         services.AddTransient<NetworkSecurityAuditPage>();
         services.AddTransient<WindowsTweaksPage>();
         services.AddTransient<BoostPage>();
@@ -157,6 +166,7 @@ public partial class App : Application
         services.AddTransient<WindowsUpdatePage>();
         services.AddTransient<SettingsPage>();
         services.AddTransient<HistoryPage>();
+        services.AddTransient<CareReportPage>();
         services.AddTransient<BenchmarkPage>();
         services.AddTransient<SensorsPage>();
         services.AddTransient<ReliabilityPage>();
@@ -186,8 +196,7 @@ public partial class App : Application
             try
             {
                 var result = await _services.GetRequiredService<IScheduledMaintenanceService>().RunMaintenanceNowAsync();
-                tray.ShowBalloon("SystemCare maintenance complete",
-                    $"Removed {Helpers.ByteFormatter.Format(result.BytesRemoved)} of junk and freed {Helpers.ByteFormatter.Format(result.BytesFreed)} of RAM.");
+                tray.ShowBalloon("SystemCare maintenance complete", result.Summary);
                 await Task.Delay(TimeSpan.FromSeconds(6));
             }
             catch (Exception ex) { log.Error("Maintenance", "Headless maintenance failed", ex); }

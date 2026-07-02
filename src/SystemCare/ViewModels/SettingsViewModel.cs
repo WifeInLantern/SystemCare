@@ -30,6 +30,10 @@ public partial class SettingsViewModel : ObservableObject
 
     [ObservableProperty] private bool _autoMaintenanceEnabled;
     [ObservableProperty] private bool _isWeekly;
+    [ObservableProperty] private bool _maintenanceCleanJunk;
+    [ObservableProperty] private bool _maintenanceTrimRam;
+    [ObservableProperty] private bool _maintenanceFlushDns;
+    [ObservableProperty] private bool _maintenanceEmptyRecycleBin;
     [ObservableProperty] private bool _minimizeToTray;
     [ObservableProperty] private bool _startWithWindows;
     [ObservableProperty] private bool _createRestorePointBeforeMaintenance;
@@ -86,6 +90,10 @@ public partial class SettingsViewModel : ObservableObject
         _largeFileTopN = settings.Current.LargeFileTopN;
         _autoMaintenanceEnabled = settings.Current.AutoMaintenanceEnabled;
         _isWeekly = settings.Current.MaintenanceFrequency != "Daily";
+        _maintenanceCleanJunk = settings.Current.MaintenanceCleanJunk;
+        _maintenanceTrimRam = settings.Current.MaintenanceTrimRam;
+        _maintenanceFlushDns = settings.Current.MaintenanceFlushDns;
+        _maintenanceEmptyRecycleBin = settings.Current.MaintenanceEmptyRecycleBin;
         _minimizeToTray = settings.Current.MinimizeToTray;
         _startWithWindows = settings.Current.StartWithWindows;
         _createRestorePointBeforeMaintenance = settings.Current.CreateRestorePointBeforeMaintenance;
@@ -368,6 +376,30 @@ public partial class SettingsViewModel : ObservableObject
         _settings.Current.MaintenanceFrequency = value ? "Weekly" : "Daily";
         _settings.Save();
         if (_settings.Current.AutoMaintenanceEnabled) _maintenance.Sync();
+    }
+
+    partial void OnMaintenanceCleanJunkChanged(bool value)
+    {
+        _settings.Current.MaintenanceCleanJunk = value;
+        _settings.Save();
+    }
+
+    partial void OnMaintenanceTrimRamChanged(bool value)
+    {
+        _settings.Current.MaintenanceTrimRam = value;
+        _settings.Save();
+    }
+
+    partial void OnMaintenanceFlushDnsChanged(bool value)
+    {
+        _settings.Current.MaintenanceFlushDns = value;
+        _settings.Save();
+    }
+
+    partial void OnMaintenanceEmptyRecycleBinChanged(bool value)
+    {
+        _settings.Current.MaintenanceEmptyRecycleBin = value;
+        _settings.Save();
     }
 
     partial void OnMinimizeToTrayChanged(bool value)

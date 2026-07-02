@@ -23,6 +23,8 @@ public partial class DashboardViewModel : ObservableObject
     private readonly INetworkToolsService _network;
     private readonly IHistoryService _history;
     private readonly ISecurityCheckService _security;
+    private readonly IRecycleBinService _recycleBin;
+    private readonly IHealthTrendService _healthTrend;
 
     private const int HistorySize = 60;
     private readonly DispatcherTimer _timer;
@@ -66,7 +68,9 @@ public partial class DashboardViewModel : ObservableObject
         IBackupConfirmationService backup,
         INetworkToolsService network,
         IHistoryService history,
-        ISecurityCheckService security)
+        ISecurityCheckService security,
+        IRecycleBinService recycleBin,
+        IHealthTrendService healthTrend)
     {
         _systemInfo = systemInfo;
         _junkScan = junkScan;
@@ -80,6 +84,8 @@ public partial class DashboardViewModel : ObservableObject
         _network = network;
         _history = history;
         _security = security;
+        _recycleBin = recycleBin;
+        _healthTrend = healthTrend;
 
         if (_settings.Current.LastHealthScore is int saved)
         {
@@ -188,6 +194,7 @@ public partial class DashboardViewModel : ObservableObject
             _settings.Current.LastScanUtc = DateTime.UtcNow;
             _settings.Current.LastHealthScore = report.Score;
             _settings.Save();
+            _healthTrend.Record(report.Score); // one snapshot/day feeds the Care Report trend
         }
         catch (OperationCanceledException)
         {
@@ -254,14 +261,13 @@ public partial class DashboardViewModel : ObservableObject
     [RelayCommand]
     private void EmptyRecycleBin()
     {
-        var (bytes, items) = Native.NativeMethods.QueryRecycleBin();
+        var (bytes, items) = _recycleBin.Query();
         if (items <= 0)
         {
             _snackbar.Show("Recycle Bin", "The Recycle Bin is already empty.", ControlAppearance.Info, null, TimeSpan.FromSeconds(4));
             return;
         }
-        Native.NativeMethods.SHEmptyRecycleBin(IntPtr.Zero, null,
-            Native.NativeMethods.SHERB_NOCONFIRMATION | Native.NativeMethods.SHERB_NOPROGRESSUI | Native.NativeMethods.SHERB_NOSOUND);
+        _recycleBin.Empty();
         _snackbar.Show("Recycle Bin emptied",
             $"Reclaimed {ByteFormatter.Format(bytes)} from {items:N0} item(s).",
             ControlAppearance.Success, null, TimeSpan.FromSeconds(5));

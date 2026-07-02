@@ -29,6 +29,47 @@ internal static class WingetTestSamples
     /// </summary>
     public static readonly string InstalledAppsListSample = BuildInstalledAppsListSample();
 
+    /// <summary>
+    /// Synthetic <c>winget search</c> output with the carriage-return spinner fused onto the header line
+    /// AND the optional "Match" column (appears when a result matched on a tag/moniker instead of its
+    /// name). Version's right edge must resolve to Match, not Source, or the version strings swallow the
+    /// match text. Includes a row whose Id was clamped with an ellipsis (uninstallable with --exact) and
+    /// an ARP-style row with a blank Id.
+    /// </summary>
+    public static readonly string SearchResultsWithSpinnerAndMatch = BuildSearchSample(includeMatch: true);
+
+    /// <summary>The same results without the optional Match column (name-only matches).</summary>
+    public static readonly string SearchResultsWithoutMatch = BuildSearchSample(includeMatch: false);
+
+    public const string SearchNoResults = "No package found matching input criteria.\n";
+
+    private static string BuildSearchSample(bool includeMatch)
+    {
+        (string Name, string Id, string Version, string Match)[] rows =
+        [
+            ("Visual Studio Code", "Microsoft.VisualStudioCode", "1.90.0", ""),
+            ("Notepad++", "Notepad++.Notepad++", "8.6.9", "Tag: editor"),
+            ("VLC media player", "VideoLAN.VLC", "3.0.20", "Moniker: vlc"),
+            ("Some Very Long Publisher App", "Publisher.WithAnExtremelyLon…", "1.0", ""),
+            ("Orphaned ARP Entry", "", "1.0.0", ""),
+        ];
+
+        static string Col(string s, int w) => s.PadRight(w);
+        var sb = new System.Text.StringBuilder();
+        sb.Append("\r   - \r                                                                        \r");
+        sb.Append(Col("Name", 30)).Append(Col("Id", 32)).Append(Col("Version", 11));
+        if (includeMatch) sb.Append(Col("Match", 16));
+        sb.Append("Source\n");
+        sb.Append(new string('-', includeMatch ? 95 : 79)).Append('\n');
+        foreach (var r in rows)
+        {
+            sb.Append(Col(r.Name, 30)).Append(Col(r.Id, 32)).Append(Col(r.Version, 11));
+            if (includeMatch) sb.Append(Col(r.Match, 16));
+            sb.Append("winget\n");
+        }
+        return sb.ToString();
+    }
+
     private static string BuildInstalledAppsListSample()
     {
         (string Name, string Id, string Version)[] rows =

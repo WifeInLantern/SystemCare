@@ -1,3 +1,4 @@
+using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using SystemCare.Models;
@@ -34,6 +35,9 @@ public partial class BenchmarkViewModel : ObservableObject
     [ObservableProperty] private IReadOnlyList<double>? _trend;
     [ObservableProperty] private double _trendMax = 100;
     [ObservableProperty] private bool _hasTrend;
+
+    public ObservableCollection<BenchmarkRunRowViewModel> RunHistory { get; } = [];
+    [ObservableProperty] private bool _hasRuns;
 
     public BenchmarkViewModel(IBenchmarkService benchmark, IBenchmarkHistoryService benchHistory, IHistoryService history)
     {
@@ -130,5 +134,21 @@ public partial class BenchmarkViewModel : ObservableObject
         {
             HasTrend = false;
         }
+
+        RunHistory.Clear();
+        foreach (var run in runs.Reverse()) // newest first
+            RunHistory.Add(new BenchmarkRunRowViewModel(run));
+        HasRuns = RunHistory.Count > 0;
     }
+}
+
+/// <summary>One stored benchmark run's raw metrics, formatted for the "Run details" expander.</summary>
+public class BenchmarkRunRowViewModel(BenchmarkRun run)
+{
+    public string When => run.TimestampUtc.ToLocalTime().ToString("g");
+    public string PointsText => $"{run.Points:N0} pts";
+    public string CpuRaw => $"{run.CpuMOps:N0} MOps/s";
+    public string RamRaw => $"{run.RamGBps:0.0} GB/s";
+    public string DiskRaw => $"{run.DiskMBps:N0} MB/s";
+    public string SubScores => $"CPU {run.CpuScore:0} · RAM {run.RamScore:0} · Disk {run.DiskScore:0}";
 }

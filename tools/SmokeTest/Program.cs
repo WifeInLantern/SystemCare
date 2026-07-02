@@ -103,6 +103,8 @@ internal static class Program
         // Custom controls — HealthGauge.Score set exercises the ReduceMotion branch immediately.
         panel.Children.Add(new HealthGauge { Width = 120, Height = 120, Score = 82 });
         panel.Children.Add(new CyberBackground { Width = 200, Height = 120 });
+        panel.Children.Add(new SparklineChart { Width = 200, Height = 60, Values = [10, 40, 25, 80], Max = 100 });
+        panel.Children.Add(new BarChart { Width = 200, Height = 60, Values = [0, 3, 7, 2, 9], Max = 9 });
 
         // Attached behaviors that fire synchronously on set (NeonPulse/SmoothValue/CountUpText).
         var pulse = new Border { Width = 40, Height = 40 };

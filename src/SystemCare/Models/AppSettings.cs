@@ -18,6 +18,13 @@ public class AppSettings
     // Auto-maintenance + tray
     public bool AutoMaintenanceEnabled { get; set; }
     public string MaintenanceFrequency { get; set; } = "Weekly"; // Daily | Weekly
+
+    // What the scheduled --run-maintenance pass actually does (defaults preserve the
+    // original junk + RAM behaviour; the extra steps are opt-in).
+    public bool MaintenanceCleanJunk { get; set; } = true;
+    public bool MaintenanceTrimRam { get; set; } = true;
+    public bool MaintenanceFlushDns { get; set; }
+    public bool MaintenanceEmptyRecycleBin { get; set; }
     public bool MinimizeToTray { get; set; } = true;
     /// <summary>Launch SystemCare minimized to the tray when Windows starts (via an elevated logon task).</summary>
     public bool StartWithWindows { get; set; }
