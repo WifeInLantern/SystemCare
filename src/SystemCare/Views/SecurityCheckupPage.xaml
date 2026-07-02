@@ -17,7 +17,7 @@
         <converters:BoolToVisibilityConverter x:Key="VisibleWhenTrue" />
     </Page.Resources>
 
-    <Grid Margin="24,12,24,24">
+    <Grid Margin="24,12,24,24" helpers:Animations.StaggerChildren="True">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
@@ -53,7 +53,7 @@
                                 <ui:SymbolIcon Grid.Column="0" Symbol="{Binding Icon}" FontSize="24" VerticalAlignment="Center" />
                                 <StackPanel Grid.Column="1" Margin="12,0,12,0" VerticalAlignment="Center">
                                     <TextBlock Text="{Binding Name}" FontWeight="SemiBold" />
-                                    <TextBlock Text="{Binding Message}" FontSize="12" Opacity="0.65" TextWrapping="Wrap" />
+                                    <TextBlock Text="{Binding Message}" Style="{StaticResource TextCaption}" TextWrapping="Wrap" />
                                 </StackPanel>
                                 <Border Grid.Column="2" CornerRadius="10" Padding="9,3" VerticalAlignment="Center" Margin="0,0,8,0">
                                     <Border.Style>
@@ -61,13 +61,13 @@
                                             <Setter Property="Background" Value="#33445566" />
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding StatusText}" Value="OK">
-                                                    <Setter Property="Background" Value="#3300FFA3" />
+                                                    <Setter Property="Background" Value="{StaticResource SuccessSubtleBrush}" />
                                                 </DataTrigger>
                                                 <DataTrigger Binding="{Binding StatusText}" Value="Review">
-                                                    <Setter Property="Background" Value="#33FFD300" />
+                                                    <Setter Property="Background" Value="{StaticResource WarningSubtleBrush}" />
                                                 </DataTrigger>
                                                 <DataTrigger Binding="{Binding StatusText}" Value="At risk">
-                                                    <Setter Property="Background" Value="#33FF2A6D" />
+                                                    <Setter Property="Background" Value="{StaticResource DangerSubtleBrush}" />
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>

@@ -1,6 +1,7 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml">
+                    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+                    xmlns:helpers="clr-namespace:SystemCare.Helpers">
 
     <!-- ============================================================
          CYBERPUNK design-token overrides for WPF-UI (lepo) 3.0.5.
@@ -31,8 +32,8 @@
     <SolidColorBrush x:Key="AcrylicInAppFillColorDefaultBrush" Color="#E60B121C" />
     <SolidColorBrush x:Key="FlyoutBackgroundBrush" Color="#F00B121C" />
 
-    <!-- Cards -->
-    <SolidColorBrush x:Key="CardBackgroundFillColorDefaultBrush" Color="{StaticResource CyberPanelColor}" />
+    <!-- Cards (Surface1 glass — resting elevation of the v3 surface scale in Theme.xaml) -->
+    <SolidColorBrush x:Key="CardBackgroundFillColorDefaultBrush" Color="#A611192A" />
     <SolidColorBrush x:Key="CardBackgroundFillColorSecondaryBrush" Color="#0E1420" />
     <SolidColorBrush x:Key="CardStrokeColorDefaultBrush" Color="{StaticResource CyberStrokeColor}" />
     <SolidColorBrush x:Key="CardStrokeColorDefaultSolidBrush" Color="{StaticResource CyberStrokeColor}" />
@@ -84,9 +85,11 @@
         </Setter>
     </Style>
 
-    <!-- Page H1 title: bright, readable heading (plain TextBlocks otherwise fall back to dark). -->
+    <!-- Page H1 title: bright, readable heading (plain TextBlocks otherwise fall back to dark).
+         Rajdhani unifies page titles with the cyber type ramp without Orbitron's width. -->
     <Style x:Key="CyberPageTitle" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="24" />
+        <Setter Property="FontFamily" Value="{StaticResource LabelFontFamily}" />
+        <Setter Property="FontSize" Value="26" />
         <Setter Property="FontWeight" Value="SemiBold" />
         <Setter Property="Foreground" Value="{StaticResource TextFillColorPrimaryBrush}" />
         <Setter Property="Effect">
@@ -109,39 +112,24 @@
         </Setter>
     </Style>
 
-    <!-- Neon glass card: inherit the WPF-UI Card template and add a cyan edge glow
-         that lights up on hover. (Corner radius comes from ControlCornerRadius above.) -->
+    <!-- Neon glass card: inherit the WPF-UI Card template; the cyan edge glow now FADES
+         in/out via the HoverGlow behavior (code-driven, Freezable-safe, ReduceMotion-aware)
+         instead of popping through an Effect trigger. The border swap stays as a trigger
+         (a plain value swap, not an animation). -->
     <Style TargetType="{x:Type ui:Card}" BasedOn="{StaticResource {x:Type ui:Card}}">
+        <Setter Property="helpers:Animations.HoverGlow" Value="True" />
         <Style.Triggers>
             <Trigger Property="IsMouseOver" Value="True">
                 <Setter Property="BorderBrush" Value="{StaticResource NeonCyanBrush}" />
-                <Setter Property="Effect">
-                    <Setter.Value>
-                        <DropShadowEffect Color="{StaticResource AccentColor}" ShadowDepth="0" BlurRadius="20" Opacity="0.45" />
-                    </Setter.Value>
-                </Setter>
             </Trigger>
         </Style.Triggers>
     </Style>
 
-    <!-- Press feedback on all WPF-UI buttons: a quick scale-down (no animation,
-         to avoid the frozen-transform issue documented in Animations.cs). -->
+    <!-- Press feedback on all WPF-UI buttons: animated press-down / spring-back via the
+         PressScale behavior (per-instance transforms, so it dodges the frozen-transform
+         issue documented in Animations.cs, and settles instantly under Reduce motion). -->
     <Style TargetType="{x:Type ui:Button}" BasedOn="{StaticResource {x:Type ui:Button}}">
-        <Setter Property="RenderTransformOrigin" Value="0.5,0.5" />
-        <Setter Property="RenderTransform">
-            <Setter.Value>
-                <ScaleTransform ScaleX="1" ScaleY="1" />
-            </Setter.Value>
-        </Setter>
-        <Style.Triggers>
-            <Trigger Property="IsPressed" Value="True">
-                <Setter Property="RenderTransform">
-                    <Setter.Value>
-                        <ScaleTransform ScaleX="0.96" ScaleY="0.96" />
-                    </Setter.Value>
-                </Setter>
-            </Trigger>
-        </Style.Triggers>
+        <Setter Property="helpers:Animations.PressScale" Value="True" />
     </Style>
 
 </ResourceDictionary>

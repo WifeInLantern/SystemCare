@@ -5,6 +5,7 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
       xmlns:converters="clr-namespace:SystemCare.Converters"
+      xmlns:helpers="clr-namespace:SystemCare.Helpers"
       xmlns:vm="clr-namespace:SystemCare.ViewModels"
       mc:Ignorable="d"
       TextElement.Foreground="{StaticResource TextFillColorPrimaryBrush}"
@@ -14,7 +15,7 @@
         <converters:BoolToVisibilityConverter x:Key="VisibleWhenTrue" />
     </Page.Resources>
     <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="24,12,24,24">
-        <StackPanel MaxWidth="760" HorizontalAlignment="Left">
+        <StackPanel MaxWidth="760" HorizontalAlignment="Left" helpers:Animations.StaggerChildren="True">
             <TextBlock Text="Settings" Style="{StaticResource CyberPageTitle}" />
 
             <TextBlock Text="Appearance" Style="{StaticResource CyberSectionHeader}" Margin="0,20,0,8" />
@@ -23,7 +24,7 @@
                     <ui:SymbolIcon Symbol="Color24" FontSize="20" Foreground="{StaticResource NeonCyanBrush}" VerticalAlignment="Center" />
                     <StackPanel Margin="12,0,0,0">
                         <TextBlock Text="Cyberpunk (Night City)" FontWeight="SemiBold" />
-                        <TextBlock Text="A neon cyan + magenta dark theme with an animated backdrop. SystemCare is dark-only." FontSize="12" Opacity="0.65" TextWrapping="Wrap" />
+                        <TextBlock Text="A neon cyan + magenta dark theme with an animated backdrop. SystemCare is dark-only." Style="{StaticResource TextCaption}" TextWrapping="Wrap" />
                     </StackPanel>
                 </StackPanel>
             </ui:Card>
@@ -37,7 +38,7 @@
                     </Grid.ColumnDefinitions>
                     <StackPanel Grid.Column="0" Margin="0,0,16,0">
                         <TextBlock Text="Run maintenance on a schedule" FontWeight="SemiBold" />
-                        <TextBlock Text="Cleans junk and trims memory automatically via a Windows scheduled task" FontSize="12" Opacity="0.65" TextWrapping="Wrap" />
+                        <TextBlock Text="Cleans junk and trims memory automatically via a Windows scheduled task" Style="{StaticResource TextCaption}" TextWrapping="Wrap" />
                     </StackPanel>
                     <ui:ToggleSwitch Grid.Column="1" IsChecked="{Binding AutoMaintenanceEnabled}" />
                 </Grid>
@@ -50,7 +51,7 @@
                     </Grid.ColumnDefinitions>
                     <StackPanel Grid.Column="0" Margin="0,0,16,0">
                         <TextBlock Text="Frequency" FontWeight="SemiBold" />
-                        <TextBlock Text="Off = daily at noon, On = weekly (Sunday)" FontSize="12" Opacity="0.65" />
+                        <TextBlock Text="Off = daily at noon, On = weekly (Sunday)" Style="{StaticResource TextCaption}" />
                     </StackPanel>
                     <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
                         <TextBlock Text="Weekly" VerticalAlignment="Center" Margin="0,0,8,0" FontSize="12" Opacity="0.8" />
@@ -62,7 +63,7 @@
                 <StackPanel>
                     <TextBlock Text="What scheduled maintenance does" FontWeight="SemiBold" />
                     <TextBlock Text="Pick the steps the scheduled run (and the tray's 'Run maintenance now') performs"
-                               FontSize="12" Opacity="0.65" TextWrapping="Wrap" Margin="0,0,0,6" />
+                               Style="{StaticResource TextCaption}" TextWrapping="Wrap" Margin="0,0,0,6" />
                     <Grid Margin="0,4,0,0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
@@ -105,7 +106,7 @@
                     </Grid.ColumnDefinitions>
                     <StackPanel Grid.Column="0" Margin="0,0,16,0">
                         <TextBlock Text="Minimize to system tray" FontWeight="SemiBold" />
-                        <TextBlock Text="Keep SystemCare running in the tray when closed or minimized" FontSize="12" Opacity="0.65" TextWrapping="Wrap" />
+                        <TextBlock Text="Keep SystemCare running in the tray when closed or minimized" Style="{StaticResource TextCaption}" TextWrapping="Wrap" />
                     </StackPanel>
                     <ui:ToggleSwitch Grid.Column="1" IsChecked="{Binding MinimizeToTray}" />
                 </Grid>
@@ -118,7 +119,7 @@
                     </Grid.ColumnDefinitions>
                     <StackPanel Grid.Column="0" Margin="0,0,16,0">
                         <TextBlock Text="Start with Windows" FontWeight="SemiBold" />
-                        <TextBlock Text="Launch SystemCare minimized to the tray when you sign in (via an elevated logon task, so there's no UAC prompt)" FontSize="12" Opacity="0.65" TextWrapping="Wrap" />
+                        <TextBlock Text="Launch SystemCare minimized to the tray when you sign in (via an elevated logon task, so there's no UAC prompt)" Style="{StaticResource TextCaption}" TextWrapping="Wrap" />
                     </StackPanel>
                     <ui:ToggleSwitch Grid.Column="1" IsChecked="{Binding StartWithWindows}" />
                 </Grid>
@@ -131,7 +132,7 @@
                     </Grid.ColumnDefinitions>
                     <StackPanel Grid.Column="0" Margin="0,0,16,0">
                         <TextBlock Text="Create a restore point before maintenance" FontWeight="SemiBold" />
-                        <TextBlock Text="A System Restore point is made before 'Fix all' and disk repairs (if System Protection is on)" FontSize="12" Opacity="0.65" TextWrapping="Wrap" />
+                        <TextBlock Text="A System Restore point is made before 'Fix all' and disk repairs (if System Protection is on)" Style="{StaticResource TextCaption}" TextWrapping="Wrap" />
                     </StackPanel>
                     <ui:ToggleSwitch Grid.Column="1" IsChecked="{Binding CreateRestorePointBeforeMaintenance}" />
                 </Grid>
@@ -144,7 +145,7 @@
                     </Grid.ColumnDefinitions>
                     <StackPanel Grid.Column="0" Margin="0,0,16,0">
                         <TextBlock Text="Ask before each backup" FontWeight="SemiBold" />
-                        <TextBlock Text="Confirm with a Yes/No prompt each time, instead of creating the restore point automatically" FontSize="12" Opacity="0.65" TextWrapping="Wrap" />
+                        <TextBlock Text="Confirm with a Yes/No prompt each time, instead of creating the restore point automatically" Style="{StaticResource TextCaption}" TextWrapping="Wrap" />
                     </StackPanel>
                     <ui:ToggleSwitch Grid.Column="1" IsChecked="{Binding AskBeforeBackup}" IsEnabled="{Binding CreateRestorePointBeforeMaintenance}" />
                 </Grid>
@@ -158,7 +159,7 @@
                     </Grid.ColumnDefinitions>
                     <StackPanel Grid.Column="0" Margin="0,0,16,0">
                         <TextBlock Text="Reduce motion &amp; effects" FontWeight="SemiBold" />
-                        <TextBlock Text="Turns off the animated background and looping neon glows for better accessibility and battery life" FontSize="12" Opacity="0.65" TextWrapping="Wrap" />
+                        <TextBlock Text="Turns off the animated background and looping neon glows for better accessibility and battery life" Style="{StaticResource TextCaption}" TextWrapping="Wrap" />
                     </StackPanel>
                     <ui:ToggleSwitch Grid.Column="1" IsChecked="{Binding ReduceMotion}" />
                 </Grid>
@@ -173,7 +174,7 @@
                     </Grid.ColumnDefinitions>
                     <StackPanel Grid.Column="0" Margin="0,0,16,0">
                         <TextBlock Text="Live stats in the tray icon" FontWeight="SemiBold" />
-                        <TextBlock Text="Shows live CPU load on the tray icon, with CPU/RAM in its tooltip" FontSize="12" Opacity="0.65" TextWrapping="Wrap" />
+                        <TextBlock Text="Shows live CPU load on the tray icon, with CPU/RAM in its tooltip" Style="{StaticResource TextCaption}" TextWrapping="Wrap" />
                     </StackPanel>
                     <ui:ToggleSwitch Grid.Column="1" IsChecked="{Binding ShowTrayStats}" />
                 </Grid>
@@ -186,7 +187,7 @@
                     </Grid.ColumnDefinitions>
                     <StackPanel Grid.Column="0" Margin="0,0,16,0">
                         <TextBlock Text="Floating mini-widget" FontWeight="SemiBold" />
-                        <TextBlock Text="A small always-on-top panel with live CPU/RAM/network sparklines and temperature. Drag to move; close with the ✕." FontSize="12" Opacity="0.65" TextWrapping="Wrap" />
+                        <TextBlock Text="A small always-on-top panel with live CPU/RAM/network sparklines and temperature. Drag to move; close with the ✕." Style="{StaticResource TextCaption}" TextWrapping="Wrap" />
                     </StackPanel>
                     <ui:ToggleSwitch Grid.Column="1" IsChecked="{Binding ShowMiniMonitor}" />
                 </Grid>
@@ -201,7 +202,7 @@
                     </Grid.ColumnDefinitions>
                     <StackPanel Grid.Column="0" Margin="0,0,16,0">
                         <TextBlock Text="Alert on sustained high usage" FontWeight="SemiBold" />
-                        <TextBlock Text="Toast + tray notification when CPU, RAM, or disk space stays above its threshold for too long" FontSize="12" Opacity="0.65" TextWrapping="Wrap" />
+                        <TextBlock Text="Toast + tray notification when CPU, RAM, or disk space stays above its threshold for too long" Style="{StaticResource TextCaption}" TextWrapping="Wrap" />
                     </StackPanel>
                     <ui:ToggleSwitch Grid.Column="1" IsChecked="{Binding ResourceAlertsEnabled}" />
                 </Grid>
@@ -214,7 +215,7 @@
                     </Grid.ColumnDefinitions>
                     <StackPanel Grid.Column="0" Margin="0,0,16,0">
                         <TextBlock Text="CPU threshold (%)" FontWeight="SemiBold" />
-                        <TextBlock Text="Alert when CPU usage stays at or above this" FontSize="12" Opacity="0.65" />
+                        <TextBlock Text="Alert when CPU usage stays at or above this" Style="{StaticResource TextCaption}" />
                     </StackPanel>
                     <ui:NumberBox Grid.Column="1" Value="{Binding CpuAlertThresholdPercent}" Minimum="1" Maximum="100" Width="130"
                                   SpinButtonPlacementMode="Compact" />
@@ -228,7 +229,7 @@
                     </Grid.ColumnDefinitions>
                     <StackPanel Grid.Column="0" Margin="0,0,16,0">
                         <TextBlock Text="RAM threshold (%)" FontWeight="SemiBold" />
-                        <TextBlock Text="Alert when memory usage stays at or above this" FontSize="12" Opacity="0.65" />
+                        <TextBlock Text="Alert when memory usage stays at or above this" Style="{StaticResource TextCaption}" />
                     </StackPanel>
                     <ui:NumberBox Grid.Column="1" Value="{Binding RamAlertThresholdPercent}" Minimum="1" Maximum="100" Width="130"
                                   SpinButtonPlacementMode="Compact" />
@@ -242,7 +243,7 @@
                     </Grid.ColumnDefinitions>
                     <StackPanel Grid.Column="0" Margin="0,0,16,0">
                         <TextBlock Text="Disk space threshold (%)" FontWeight="SemiBold" />
-                        <TextBlock Text="Alert when a fixed drive's usage stays at or above this" FontSize="12" Opacity="0.65" />
+                        <TextBlock Text="Alert when a fixed drive's usage stays at or above this" Style="{StaticResource TextCaption}" />
                     </StackPanel>
                     <ui:NumberBox Grid.Column="1" Value="{Binding DiskAlertThresholdPercent}" Minimum="1" Maximum="100" Width="130"
                                   SpinButtonPlacementMode="Compact" />
@@ -256,7 +257,7 @@
                     </Grid.ColumnDefinitions>
                     <StackPanel Grid.Column="0" Margin="0,0,16,0">
                         <TextBlock Text="Sustained for (minutes)" FontWeight="SemiBold" />
-                        <TextBlock Text="How long usage must stay above the threshold before alerting" FontSize="12" Opacity="0.65" />
+                        <TextBlock Text="How long usage must stay above the threshold before alerting" Style="{StaticResource TextCaption}" />
                     </StackPanel>
                     <ui:NumberBox Grid.Column="1" Value="{Binding AlertSustainedMinutes}" Minimum="1" Maximum="120" Width="130"
                                   SpinButtonPlacementMode="Compact" />
@@ -272,7 +273,7 @@
                     </Grid.ColumnDefinitions>
                     <StackPanel Grid.Column="0" Margin="0,0,16,0">
                         <TextBlock Text="Skip temp files newer than (hours)" FontWeight="SemiBold" />
-                        <TextBlock Text="Protects files that running programs may still be using" FontSize="12" Opacity="0.65" TextWrapping="Wrap" />
+                        <TextBlock Text="Protects files that running programs may still be using" Style="{StaticResource TextCaption}" TextWrapping="Wrap" />
                     </StackPanel>
                     <ui:NumberBox Grid.Column="1" Value="{Binding SkipTempNewerThanHours}" Minimum="0" Maximum="720" Width="130"
                                   SpinButtonPlacementMode="Compact" />
@@ -281,7 +282,7 @@
             <ui:Card Padding="16,12" Margin="0,0,0,8">
                 <StackPanel>
                     <TextBlock Text="Excluded folders (never cleaned)" FontWeight="SemiBold" />
-                    <TextBlock Text="The cleaner will skip anything inside these paths." FontSize="12" Opacity="0.65" Margin="0,0,0,8" />
+                    <TextBlock Text="The cleaner will skip anything inside these paths." Style="{StaticResource TextCaption}" Margin="0,0,0,8" />
                     <ItemsControl ItemsSource="{Binding Exclusions}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
@@ -308,7 +309,7 @@
             <ui:Card Padding="16,12">
                 <StackPanel>
                     <TextBlock Text="Custom folders to clean" FontWeight="SemiBold" />
-                    <TextBlock Text="Extra folders scanned for old files (same age rule as temp files)." FontSize="12" Opacity="0.65" Margin="0,0,0,8" />
+                    <TextBlock Text="Extra folders scanned for old files (same age rule as temp files)." Style="{StaticResource TextCaption}" Margin="0,0,0,8" />
                     <ItemsControl ItemsSource="{Binding CustomFolders}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
@@ -342,7 +343,7 @@
                     </Grid.ColumnDefinitions>
                     <StackPanel Grid.Column="0" Margin="0,0,16,0">
                         <TextBlock Text="Large file threshold (MB)" FontWeight="SemiBold" />
-                        <TextBlock Text="Files at least this big are listed by the disk analyzer" FontSize="12" Opacity="0.65" />
+                        <TextBlock Text="Files at least this big are listed by the disk analyzer" Style="{StaticResource TextCaption}" />
                     </StackPanel>
                     <ui:NumberBox Grid.Column="1" Value="{Binding LargeFileMinMB}" Minimum="1" Maximum="102400" Width="130"
                                   SpinButtonPlacementMode="Compact" />
@@ -356,7 +357,7 @@
                     </Grid.ColumnDefinitions>
                     <StackPanel Grid.Column="0" Margin="0,0,16,0">
                         <TextBlock Text="Number of large files to keep" FontWeight="SemiBold" />
-                        <TextBlock Text="How many of the biggest files the analyzer reports" FontSize="12" Opacity="0.65" />
+                        <TextBlock Text="How many of the biggest files the analyzer reports" Style="{StaticResource TextCaption}" />
                     </StackPanel>
                     <ui:NumberBox Grid.Column="1" Value="{Binding LargeFileTopN}" Minimum="5" Maximum="500" Width="130"
                                   SpinButtonPlacementMode="Compact" />
@@ -366,7 +367,7 @@
             <TextBlock Text="Dashboard quick-actions" Style="{StaticResource CyberSectionHeader}" Margin="0,20,0,8" />
             <ui:Card Padding="16,12">
                 <StackPanel>
-                    <TextBlock Text="Choose which one-click tiles appear on the dashboard." FontSize="12" Opacity="0.65" Margin="0,0,0,8" />
+                    <TextBlock Text="Choose which one-click tiles appear on the dashboard." Style="{StaticResource TextCaption}" Margin="0,0,0,8" />
                     <WrapPanel Orientation="Horizontal">
                         <CheckBox Content="Scan &amp; Fix" IsChecked="{Binding QaScanFix}" Margin="0,0,20,6" />
                         <CheckBox Content="Free up RAM" IsChecked="{Binding QaFreeRam}" Margin="0,0,20,6" />
@@ -386,7 +387,7 @@
                     </Grid.ColumnDefinitions>
                     <StackPanel Grid.Column="0" Margin="0,0,16,0">
                         <TextBlock Text="Download updates on startup" FontWeight="SemiBold" />
-                        <TextBlock Text="{Binding UpdateStatus}" FontSize="12" Opacity="0.65" TextWrapping="Wrap" />
+                        <TextBlock Text="{Binding UpdateStatus}" Style="{StaticResource TextCaption}" TextWrapping="Wrap" />
                     </StackPanel>
                     <ui:ToggleSwitch Grid.Column="1" IsChecked="{Binding CheckForUpdatesOnStartup}" VerticalAlignment="Center" />
                 </Grid>
@@ -406,7 +407,7 @@
                     <ProgressBar Value="{Binding DownloadProgress}" Maximum="100" Height="6" Margin="0,10,0,0"
                                  Visibility="{Binding IsDownloadingUpdate, Converter={StaticResource VisibleWhenTrue}}" />
                     <StackPanel Margin="0,14,0,0">
-                        <TextBlock Text="GitHub access token" FontSize="12" FontWeight="SemiBold" />
+                        <TextBlock Text="GitHub access token" Style="{StaticResource TextH3}" Margin="0" />
                         <TextBlock Text="Only needed when the update repo is private. Stored encrypted on this PC (Windows DPAPI, tied to your account); clear the box to remove it."
                                    FontSize="11" Opacity="0.6" TextWrapping="Wrap" Margin="0,2,0,4" />
                         <ui:TextBox PlaceholderText="github_pat_…"

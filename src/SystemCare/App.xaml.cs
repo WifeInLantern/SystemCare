@@ -234,7 +234,7 @@ public partial class App : Application
         SystemCare.Helpers.Animations.ReduceMotion = settings.Current.ReduceMotion;
         ApplicationThemeManager.Apply(ApplicationTheme.Dark);
         ApplicationAccentColorManager.Apply(
-            System.Windows.Media.Color.FromRgb(0x00, 0xE5, 0xFF), ApplicationTheme.Dark);
+            SystemCare.Helpers.CyberPalette.Accent, ApplicationTheme.Dark);
         if (settings.Current.Theme != "Dark")
         {
             settings.Current.Theme = "Dark";

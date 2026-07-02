@@ -4,6 +4,7 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+      xmlns:helpers="clr-namespace:SystemCare.Helpers"
       xmlns:converters="clr-namespace:SystemCare.Converters"
       xmlns:vm="clr-namespace:SystemCare.ViewModels"
       mc:Ignorable="d"
@@ -16,7 +17,7 @@
         <converters:InverseBoolConverter x:Key="Not" />
     </Page.Resources>
 
-    <Grid Margin="24,12,24,16">
+    <Grid Margin="24,12,24,16" helpers:Animations.StaggerChildren="True">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
@@ -53,7 +54,7 @@
                         </Grid.ColumnDefinitions>
                         <StackPanel Grid.Column="0" Margin="0,0,16,0">
                             <TextBlock Text="System File Checker (SFC)" FontWeight="SemiBold" />
-                            <TextBlock Text="Scans and repairs corrupted Windows system files." FontSize="12" Opacity="0.65" TextWrapping="Wrap" />
+                            <TextBlock Text="Scans and repairs corrupted Windows system files." Style="{StaticResource TextCaption}" TextWrapping="Wrap" />
                             <TextBlock Text="{Binding SfcStatus}" FontSize="12" Opacity="0.85" Margin="0,4,0,0" />
                         </StackPanel>
                         <ui:Button Grid.Column="1" Content="Scan system files" Padding="14,7" VerticalAlignment="Center"
@@ -71,7 +72,7 @@
                         </Grid.ColumnDefinitions>
                         <StackPanel Grid.Column="0" Margin="0,0,16,0">
                             <TextBlock Text="Deployment Image Servicing (DISM)" FontWeight="SemiBold" />
-                            <TextBlock Text="Repairs the underlying Windows image that SFC relies on. Can take 10–20+ minutes." FontSize="12" Opacity="0.65" TextWrapping="Wrap" />
+                            <TextBlock Text="Repairs the underlying Windows image that SFC relies on. Can take 10–20+ minutes." Style="{StaticResource TextCaption}" TextWrapping="Wrap" />
                             <TextBlock Text="{Binding DismStatus}" FontSize="12" Opacity="0.85" Margin="0,4,0,0" />
                         </StackPanel>
                         <ui:Button Grid.Column="1" Content="Repair Windows image" Padding="14,7" VerticalAlignment="Center"
@@ -90,7 +91,7 @@
                         </Grid.ColumnDefinitions>
                         <StackPanel Grid.Column="0" Margin="0,0,16,0">
                             <TextBlock Text="Check Disk (CHKDSK) — repair mode" FontWeight="SemiBold" />
-                            <TextBlock Text="Finds and fixes file-system and bad-sector errors. The system drive can't be locked live, so this is usually scheduled for the next restart." FontSize="12" Opacity="0.65" TextWrapping="Wrap" />
+                            <TextBlock Text="Finds and fixes file-system and bad-sector errors. The system drive can't be locked live, so this is usually scheduled for the next restart." Style="{StaticResource TextCaption}" TextWrapping="Wrap" />
                             <TextBlock Text="{Binding ChkdskStatus}" FontSize="12" Opacity="0.85" Margin="0,4,0,0" />
                         </StackPanel>
                         <ComboBox Grid.Column="1" MinWidth="80" VerticalAlignment="Center" Margin="0,0,10,0"

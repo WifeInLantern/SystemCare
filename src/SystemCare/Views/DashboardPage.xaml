@@ -108,7 +108,7 @@
                                    helpers:Animations.CountUpFormat="0'%'" />
                         <controls:SparklineChart Height="48" Margin="0,2,0,6"
                                                  Values="{Binding CpuHistory}" Max="100"
-                                                 Accent="#00E5FF" />
+                                                 Accent="{StaticResource AccentColor}" />
                         <ProgressBar helpers:Animations.SmoothValue="{Binding CpuPercent}" Maximum="100" Height="6" />
                     </StackPanel>
                 </ui:Card>
@@ -125,7 +125,7 @@
                                    helpers:Animations.CountUpSuffix="{Binding RamTotalText}" />
                         <controls:SparklineChart Height="48" Margin="0,2,0,6"
                                                  Values="{Binding RamHistory}" Max="100"
-                                                 Accent="#00FFA3" />
+                                                 Accent="{StaticResource SuccessColor}" />
                         <ProgressBar helpers:Animations.SmoothValue="{Binding RamPercent}" Maximum="100" Height="6" />
                     </StackPanel>
                 </ui:Card>

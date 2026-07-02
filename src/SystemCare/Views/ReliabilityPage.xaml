@@ -4,6 +4,7 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+      xmlns:helpers="clr-namespace:SystemCare.Helpers"
       xmlns:controls="clr-namespace:SystemCare.Controls"
       xmlns:converters="clr-namespace:SystemCare.Converters"
       xmlns:vm="clr-namespace:SystemCare.ViewModels"
@@ -19,7 +20,7 @@
     </Page.Resources>
 
     <ScrollViewer VerticalScrollBarVisibility="Auto">
-        <Grid Margin="24,12,24,24">
+        <Grid Margin="24,12,24,24" helpers:Animations.StaggerChildren="True">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
@@ -86,7 +87,7 @@
                                             <TextBlock Text="{Binding Count}" FontSize="22" Margin="8,0,0,0"
                                                        Style="{StaticResource CyberDisplayText}" />
                                         </StackPanel>
-                                        <TextBlock Text="{Binding Label}" FontSize="12" Opacity="0.65" Margin="0,2,0,0" />
+                                        <TextBlock Text="{Binding Label}" Style="{StaticResource TextCaption}" Margin="0,2,0,0" />
                                     </StackPanel>
                                 </Border>
                             </DataTemplate>

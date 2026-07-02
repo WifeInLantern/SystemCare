@@ -106,4 +106,55 @@
     <DropShadowEffect x:Key="GlowMd" Color="{StaticResource AccentColor}" ShadowDepth="0" BlurRadius="18" Opacity="0.45" />
     <DropShadowEffect x:Key="GlowLg" Color="{StaticResource AccentColor}" ShadowDepth="0" BlurRadius="28" Opacity="0.6" />
 
+    <!-- ===========================  Design System v3 tokens  =========================== -->
+
+    <!-- Elevation / glass surface scale. Alpha increases with elevation so layered panels
+         read as stacked glass over the animated backdrop:
+         Surface0 = page floor, Surface1 = resting cards, Surface2 = rows/inputs/hover,
+         Surface3 = flyouts, dialogs and sticky headers. -->
+    <SolidColorBrush x:Key="Surface0Brush" Color="#FF0A0E14" />
+    <SolidColorBrush x:Key="Surface1Brush" Color="#A611192A" />
+    <SolidColorBrush x:Key="Surface2Brush" Color="#C81A2438" />
+    <SolidColorBrush x:Key="Surface3Brush" Color="#E6202C46" />
+
+    <!-- 1px "rim light" stroke that sells the glass: bright at the top edge, fading to stroke. -->
+    <LinearGradientBrush x:Key="GlassRimBrush" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="#3DFFFFFF" Offset="0" />
+        <GradientStop Color="#1A2A3A55" Offset="0.35" />
+        <GradientStop Color="#142A3A55" Offset="1" />
+    </LinearGradientBrush>
+
+    <!-- Optional top-sheen overlay fill for glass panels. -->
+    <LinearGradientBrush x:Key="GlassSheenBrush" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="#14FFFFFF" Offset="0" />
+        <GradientStop Color="#00FFFFFF" Offset="0.25" />
+    </LinearGradientBrush>
+
+    <!-- Translucent status fills (~20% alpha) for chips and badges, with matching strokes. -->
+    <SolidColorBrush x:Key="SuccessSubtleBrush" Color="#3300FFA3" />
+    <SolidColorBrush x:Key="WarningSubtleBrush" Color="#33FFD300" />
+    <SolidColorBrush x:Key="DangerSubtleBrush" Color="#33FF2A6D" />
+    <SolidColorBrush x:Key="InfoSubtleBrush" Color="#3300E5FF" />
+    <SolidColorBrush x:Key="VioletSubtleBrush" Color="#33B14CFF" />
+    <SolidColorBrush x:Key="AccentSubtleBrush" Color="#2200E5FF" />
+    <!-- Soft danger text: readable pink for error captions sitting on DangerSubtleBrush. -->
+    <SolidColorBrush x:Key="DangerSoftBrush" Color="#FF8AA8" />
+
+    <SolidColorBrush x:Key="SuccessSubtleStroke" Color="#5500FFA3" />
+    <SolidColorBrush x:Key="WarningSubtleStroke" Color="#55FFD300" />
+    <SolidColorBrush x:Key="DangerSubtleStroke" Color="#55FF2A6D" />
+    <SolidColorBrush x:Key="InfoSubtleStroke" Color="#5500E5FF" />
+    <SolidColorBrush x:Key="VioletSubtleStroke" Color="#55B14CFF" />
+
+    <!-- Positive-stat gradient: mint -> cyan diagonal (health, space freed, benchmark wins). -->
+    <LinearGradientBrush x:Key="SuccessGradientBrush" StartPoint="0,0" EndPoint="1,1">
+        <GradientStop Color="{StaticResource SuccessColor}" Offset="0" />
+        <GradientStop Color="{StaticResource AccentColor}" Offset="1" />
+    </LinearGradientBrush>
+
+    <!-- Colored glow variants so danger/success glows stop being inlined per page.
+         Glow law: Sm = static accents, Md = hover states, Lg = at most 1-2 hero elements per page. -->
+    <DropShadowEffect x:Key="GlowMagentaMd" Color="{StaticResource SecondaryColor}" ShadowDepth="0" BlurRadius="16" Opacity="0.5" />
+    <DropShadowEffect x:Key="GlowSuccessSm" Color="{StaticResource SuccessColor}" ShadowDepth="0" BlurRadius="10" Opacity="0.35" />
+
 </ResourceDictionary>

@@ -41,10 +41,14 @@ public static class Animations
     /// <summary>Raised on the UI thread whenever <see cref="ReduceMotion"/> changes.</summary>
     public static event Action? ReduceMotionChanged;
 
-    static Animations() => ReduceMotionChanged += ReapplyNeonPulses;
+    static Animations()
+    {
+        ReduceMotionChanged += ReapplyNeonPulses;
+        ReduceMotionChanged += ReapplyShimmers;
+    }
 
     /// <summary>Neon cyan used for hover/reveal/pulse glows across the cyberpunk theme.</summary>
-    private static readonly Color NeonCyan = Color.FromRgb(0x00, 0xE5, 0xFF);
+    private static Color NeonCyan => CyberPalette.Accent;
 
     /// <summary>Ensures the element owns a private [Scale, Translate] transform group, centered.</summary>
     private static (ScaleTransform Scale, TranslateTransform Translate) GetTransforms(FrameworkElement element)
@@ -387,4 +391,367 @@ public static class Animations
             : v.ToString(GetCountUpFormat(tb), System.Globalization.CultureInfo.InvariantCulture);
         tb.Text = body + GetCountUpSuffix(tb);
     }
+
+    // ---------- StaggerChildren (auto-staggered entrance for a panel's children) ----------
+
+    /// <summary>
+    /// Set on a Panel to give its children a staggered FadeInOnLoad cascade automatically.
+    /// Children that are collapsed, marked <see cref="StaggerExcludeProperty"/>, or already
+    /// annotated with FadeInOnLoad/RevealOnLoad (hand-tuned cascades) are skipped.
+    /// </summary>
+    public static readonly DependencyProperty StaggerChildrenProperty =
+        DependencyProperty.RegisterAttached(
+            "StaggerChildren", typeof(bool), typeof(Animations),
+            new PropertyMetadata(false, OnStaggerChildrenChanged));
+
+    public static bool GetStaggerChildren(DependencyObject o) => (bool)o.GetValue(StaggerChildrenProperty);
+    public static void SetStaggerChildren(DependencyObject o, bool v) => o.SetValue(StaggerChildrenProperty, v);
+
+    /// <summary>Delay increment (ms) between staggered siblings. Total delay is capped at 400ms.</summary>
+    public static readonly DependencyProperty StaggerStepProperty =
+        DependencyProperty.RegisterAttached(
+            "StaggerStep", typeof(double), typeof(Animations), new PropertyMetadata(Motion.StaggerStepMs));
+
+    public static double GetStaggerStep(DependencyObject o) => (double)o.GetValue(StaggerStepProperty);
+    public static void SetStaggerStep(DependencyObject o, double v) => o.SetValue(StaggerStepProperty, v);
+
+    /// <summary>Set on a child of a StaggerChildren panel to opt it out of the cascade.</summary>
+    public static readonly DependencyProperty StaggerExcludeProperty =
+        DependencyProperty.RegisterAttached(
+            "StaggerExclude", typeof(bool), typeof(Animations), new PropertyMetadata(false));
+
+    public static bool GetStaggerExclude(DependencyObject o) => (bool)o.GetValue(StaggerExcludeProperty);
+    public static void SetStaggerExclude(DependencyObject o, bool v) => o.SetValue(StaggerExcludeProperty, v);
+
+    private static void OnStaggerChildrenChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    {
+        if (d is not System.Windows.Controls.Panel panel || !(bool)e.NewValue) return;
+        if (panel.IsLoaded)
+            ApplyStagger(panel);
+        else
+            panel.Loaded += OnStaggerPanelLoaded;
+    }
+
+    private static void OnStaggerPanelLoaded(object sender, RoutedEventArgs e)
+    {
+        var panel = (System.Windows.Controls.Panel)sender;
+        panel.Loaded -= OnStaggerPanelLoaded;
+        ApplyStagger(panel);
+    }
+
+    private static void ApplyStagger(System.Windows.Controls.Panel panel)
+    {
+        double step = GetStaggerStep(panel);
+        int i = 0;
+        foreach (var child in panel.Children)
+        {
+            if (child is not FrameworkElement element) continue;
+            if (element.Visibility == Visibility.Collapsed) continue;
+            if (GetStaggerExclude(element)) continue;
+            if (GetFadeInOnLoad(element) || GetRevealOnLoad(element)) continue; // hand-tuned cascade wins
+
+            SetRevealDelay(element, Math.Min(i * step, Motion.StaggerCapMs));
+            SetFadeInOnLoad(element, true);
+            i++;
+        }
+    }
+
+    // ---------- FadeVisible (animated visibility swap for loading/result states) ----------
+
+    /// <summary>
+    /// Animated replacement for a Visibility binding: true fades the element in (with a small
+    /// rise), false fades it out and collapses it. The first application (initial binding value)
+    /// applies instantly so nothing flickers at load. Nullable so the initial binding always fires.
+    /// </summary>
+    public static readonly DependencyProperty FadeVisibleProperty =
+        DependencyProperty.RegisterAttached(
+            "FadeVisible", typeof(bool?), typeof(Animations),
+            new PropertyMetadata(null, OnFadeVisibleChanged));
+
+    public static bool? GetFadeVisible(DependencyObject o) => (bool?)o.GetValue(FadeVisibleProperty);
+    public static void SetFadeVisible(DependencyObject o, bool? v) => o.SetValue(FadeVisibleProperty, v);
+
+    private static void OnFadeVisibleChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    {
+        if (d is not FrameworkElement element || e.NewValue is not bool visible) return;
+
+        bool firstSet = e.OldValue is null;
+        if (firstSet || ReduceMotion)
+        {
+            element.BeginAnimation(UIElement.OpacityProperty, null);
+            element.Opacity = 1;
+            element.Visibility = visible ? Visibility.Visible : Visibility.Collapsed;
+            return;
+        }
+
+        var ease = new CubicEase { EasingMode = EasingMode.EaseOut };
+        var (_, translate) = GetTransforms(element);
+        if (visible)
+        {
+            element.Visibility = Visibility.Visible;
+            element.Opacity = 0;
+            element.BeginAnimation(UIElement.OpacityProperty,
+                new DoubleAnimation(0, 1, Motion.Base) { EasingFunction = ease });
+            translate.BeginAnimation(TranslateTransform.YProperty,
+                new DoubleAnimation(4, 0, Motion.Base) { EasingFunction = ease });
+        }
+        else
+        {
+            var fadeOut = new DoubleAnimation(0, Motion.Fast) { EasingFunction = ease };
+            fadeOut.Completed += (_, _) =>
+            {
+                // Re-check: a rapid re-toggle back to visible must win over this collapse.
+                if (GetFadeVisible(element) == false)
+                    element.Visibility = Visibility.Collapsed;
+            };
+            element.BeginAnimation(UIElement.OpacityProperty, fadeOut);
+        }
+    }
+
+    // ---------- PressScale (tactile press-down / spring-back for buttons) ----------
+
+    public static readonly DependencyProperty PressScaleProperty =
+        DependencyProperty.RegisterAttached(
+            "PressScale", typeof(bool), typeof(Animations),
+            new PropertyMetadata(false, OnPressScaleChanged));
+
+    public static bool GetPressScale(DependencyObject o) => (bool)o.GetValue(PressScaleProperty);
+    public static void SetPressScale(DependencyObject o, bool v) => o.SetValue(PressScaleProperty, v);
+
+    private static void OnPressScaleChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    {
+        if (d is not FrameworkElement element) return;
+        if ((bool)e.NewValue)
+        {
+            GetTransforms(element); // give it a private transform up front
+            element.PreviewMouseLeftButtonDown += OnPressDown;
+            element.PreviewMouseLeftButtonUp += OnPressRelease;
+            element.MouseLeave += OnPressRelease;
+        }
+        else
+        {
+            element.PreviewMouseLeftButtonDown -= OnPressDown;
+            element.PreviewMouseLeftButtonUp -= OnPressRelease;
+            element.MouseLeave -= OnPressRelease;
+        }
+    }
+
+    private static void OnPressDown(object sender, RoutedEventArgs e)
+    {
+        var element = (FrameworkElement)sender;
+        var (scale, _) = GetTransforms(element);
+        if (ReduceMotion)
+        {
+            scale.BeginAnimation(ScaleTransform.ScaleXProperty, null);
+            scale.BeginAnimation(ScaleTransform.ScaleYProperty, null);
+            scale.ScaleX = scale.ScaleY = 0.96;
+            return;
+        }
+        var ease = new CubicEase { EasingMode = EasingMode.EaseOut };
+        scale.BeginAnimation(ScaleTransform.ScaleXProperty, new DoubleAnimation(0.96, Motion.Fast) { EasingFunction = ease });
+        scale.BeginAnimation(ScaleTransform.ScaleYProperty, new DoubleAnimation(0.96, Motion.Fast) { EasingFunction = ease });
+    }
+
+    private static void OnPressRelease(object sender, RoutedEventArgs e)
+    {
+        var element = (FrameworkElement)sender;
+        var (scale, _) = GetTransforms(element);
+        if (ReduceMotion)
+        {
+            scale.BeginAnimation(ScaleTransform.ScaleXProperty, null);
+            scale.BeginAnimation(ScaleTransform.ScaleYProperty, null);
+            scale.ScaleX = scale.ScaleY = 1;
+            return;
+        }
+        var ease = new BackEase { Amplitude = 0.3, EasingMode = EasingMode.EaseOut };
+        scale.BeginAnimation(ScaleTransform.ScaleXProperty, new DoubleAnimation(1, Motion.Base) { EasingFunction = ease });
+        scale.BeginAnimation(ScaleTransform.ScaleYProperty, new DoubleAnimation(1, Motion.Base) { EasingFunction = ease });
+    }
+
+    // ---------- HoverGlow (a glow that fades in/out on hover instead of popping) ----------
+
+    /// <summary>
+    /// Animated hover glow. Unlike a Style Effect trigger (which snaps), the glow's opacity fades
+    /// in over 200ms and out over 300ms. Mutually exclusive with HoverLift/NeonPulse on the same
+    /// element (each behavior owns <see cref="UIElement.Effect"/>).
+    /// </summary>
+    public static readonly DependencyProperty HoverGlowProperty =
+        DependencyProperty.RegisterAttached(
+            "HoverGlow", typeof(bool), typeof(Animations),
+            new PropertyMetadata(false, OnHoverGlowChanged));
+
+    public static bool GetHoverGlow(DependencyObject o) => (bool)o.GetValue(HoverGlowProperty);
+    public static void SetHoverGlow(DependencyObject o, bool v) => o.SetValue(HoverGlowProperty, v);
+
+    /// <summary>Glow color; leave unset for the theme accent (resolved at hover time).</summary>
+    public static readonly DependencyProperty HoverGlowColorProperty =
+        DependencyProperty.RegisterAttached(
+            "HoverGlowColor", typeof(Color), typeof(Animations), new PropertyMetadata(default(Color)));
+
+    public static Color GetHoverGlowColor(DependencyObject o) => (Color)o.GetValue(HoverGlowColorProperty);
+    public static void SetHoverGlowColor(DependencyObject o, Color v) => o.SetValue(HoverGlowColorProperty, v);
+
+    // Tracks the effect instance this behavior currently owns on an element.
+    private static readonly DependencyProperty HoverGlowEffectProperty =
+        DependencyProperty.RegisterAttached(
+            "HoverGlowEffect", typeof(DropShadowEffect), typeof(Animations), new PropertyMetadata(null));
+
+    private static void OnHoverGlowChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    {
+        if (d is not FrameworkElement element) return;
+        if ((bool)e.NewValue)
+        {
+            element.MouseEnter += OnHoverGlowEnter;
+            element.MouseLeave += OnHoverGlowLeave;
+        }
+        else
+        {
+            element.MouseEnter -= OnHoverGlowEnter;
+            element.MouseLeave -= OnHoverGlowLeave;
+            if (element.GetValue(HoverGlowEffectProperty) is DropShadowEffect owned &&
+                ReferenceEquals(element.Effect, owned))
+            {
+                element.Effect = null;
+            }
+            element.ClearValue(HoverGlowEffectProperty);
+        }
+    }
+
+    private static void OnHoverGlowEnter(object sender, RoutedEventArgs e)
+    {
+        var element = (FrameworkElement)sender;
+        var color = GetHoverGlowColor(element);
+        if (color == default) color = NeonCyan;
+
+        // Reuse the glow if we're mid fade-out from a previous hover.
+        if (element.GetValue(HoverGlowEffectProperty) is not DropShadowEffect glow ||
+            !ReferenceEquals(element.Effect, glow))
+        {
+            glow = new DropShadowEffect { Color = color, ShadowDepth = 0, BlurRadius = 18, Opacity = 0 };
+            element.Effect = glow;
+            element.SetValue(HoverGlowEffectProperty, glow);
+        }
+        glow.Color = color;
+
+        if (ReduceMotion)
+        {
+            glow.BeginAnimation(DropShadowEffect.OpacityProperty, null);
+            glow.Opacity = 0.55;
+            return;
+        }
+        glow.BeginAnimation(DropShadowEffect.OpacityProperty,
+            new DoubleAnimation(0.55, Motion.Base) { EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut } });
+    }
+
+    private static void OnHoverGlowLeave(object sender, RoutedEventArgs e)
+    {
+        var element = (FrameworkElement)sender;
+        if (element.GetValue(HoverGlowEffectProperty) is not DropShadowEffect glow ||
+            !ReferenceEquals(element.Effect, glow))
+        {
+            return;
+        }
+
+        if (ReduceMotion)
+        {
+            glow.BeginAnimation(DropShadowEffect.OpacityProperty, null);
+            element.Effect = null;
+            return;
+        }
+        var fade = new DoubleAnimation(0, Motion.Gentle) { EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut } };
+        fade.Completed += (_, _) =>
+        {
+            // Only clear if we still own the effect and the pointer hasn't re-entered.
+            if (ReferenceEquals(element.Effect, glow) && !element.IsMouseOver)
+                element.Effect = null;
+        };
+        glow.BeginAnimation(DropShadowEffect.OpacityProperty, fade);
+    }
+
+    // ---------- Shimmer (opacity breathing for skeleton loading placeholders) ----------
+
+    public static readonly DependencyProperty ShimmerProperty =
+        DependencyProperty.RegisterAttached(
+            "Shimmer", typeof(bool), typeof(Animations),
+            new PropertyMetadata(false, OnShimmerChanged));
+
+    public static bool GetShimmer(DependencyObject o) => (bool)o.GetValue(ShimmerProperty);
+    public static void SetShimmer(DependencyObject o, bool v) => o.SetValue(ShimmerProperty, v);
+
+    // Live shimmer hosts, tracked like NeonPulseHosts so a Reduce-motion toggle freezes/restarts them.
+    private static readonly List<WeakReference<FrameworkElement>> ShimmerHosts = new();
+
+    private static void OnShimmerChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    {
+        if (d is not FrameworkElement element) return;
+        if ((bool)e.NewValue)
+        {
+            bool tracked = false;
+            foreach (var w in ShimmerHosts)
+                if (w.TryGetTarget(out var t) && ReferenceEquals(t, element)) { tracked = true; break; }
+            if (!tracked) ShimmerHosts.Add(new WeakReference<FrameworkElement>(element));
+            ApplyShimmer(element);
+        }
+        else
+        {
+            element.BeginAnimation(UIElement.OpacityProperty, null);
+            element.Opacity = 1;
+        }
+    }
+
+    private static void ApplyShimmer(FrameworkElement element)
+    {
+        if (ReduceMotion)
+        {
+            element.BeginAnimation(UIElement.OpacityProperty, null);
+            element.Opacity = 0.55; // static mid-breath placeholder
+            return;
+        }
+        element.BeginAnimation(UIElement.OpacityProperty,
+            new DoubleAnimation(0.35, 0.75, Motion.ShimmerLoop)
+            {
+                AutoReverse = true,
+                RepeatBehavior = RepeatBehavior.Forever,
+                EasingFunction = new SineEase { EasingMode = EasingMode.EaseInOut },
+            });
+    }
+
+    /// <summary>On a Reduce-motion toggle, freeze or restart every still-living shimmer host.</summary>
+    private static void ReapplyShimmers()
+    {
+        for (int i = ShimmerHosts.Count - 1; i >= 0; i--)
+        {
+            if (ShimmerHosts[i].TryGetTarget(out var element))
+            {
+                if (GetShimmer(element)) ApplyShimmer(element);
+            }
+            else
+            {
+                ShimmerHosts.RemoveAt(i);
+            }
+        }
+    }
+}
+
+/// <summary>
+/// Motion design tokens: durations for the cyberpunk motion language. Interactive feedback never
+/// exceeds Gentle (300ms); hover is in=Base, out=Gentle; only entrances go longer via stagger delay.
+/// Documented in docs/DESIGN-SYSTEM.md.
+/// </summary>
+public static class Motion
+{
+    public const double FastMs = 120;        // press-down, chip hover, focus glow in
+    public const double BaseMs = 200;        // hover-in glow/lift, press release
+    public const double GentleMs = 300;      // hover-out, fade-swap, badge changes
+    public const double EntranceMs = 260;    // FadeInOnLoad
+    public const double RevealMs = 320;      // RevealOnLoad
+    public const double StaggerStepMs = 40;  // delay increment between staggered siblings
+    public const double StaggerCapMs = 400;  // total stagger delay ceiling
+    public const double LoopMs = 1600;       // NeonPulse breathing
+    public const double ShimmerLoopMs = 1100;
+
+    public static TimeSpan Fast => TimeSpan.FromMilliseconds(FastMs);
+    public static TimeSpan Base => TimeSpan.FromMilliseconds(BaseMs);
+    public static TimeSpan Gentle => TimeSpan.FromMilliseconds(GentleMs);
+    public static TimeSpan ShimmerLoop => TimeSpan.FromMilliseconds(ShimmerLoopMs);
 }

@@ -146,12 +146,13 @@ public class HealthGauge : FrameworkElement
     }
 
     // Neon "Night City" bands: excellent = mint, good = cyan, attention = neon yellow, poor = magenta.
+    // Resolved via CyberPalette so Theme.xaml edits propagate to the gauge.
     private static Color BandColor(double score) => score switch
     {
-        >= 90 => Color.FromRgb(0x00, 0xFF, 0xA3),
-        >= 70 => Color.FromRgb(0x00, 0xE5, 0xFF),
-        >= 40 => Color.FromRgb(0xFF, 0xD3, 0x00),
-        _ => Color.FromRgb(0xFF, 0x2A, 0x6D),
+        >= 90 => CyberPalette.Success,
+        >= 70 => CyberPalette.Accent,
+        >= 40 => CyberPalette.Warning,
+        _ => CyberPalette.Danger,
     };
 
     private static string BandText(double score) => score switch
@@ -194,7 +195,7 @@ public class HealthGauge : FrameworkElement
             double valueSweep = sweepTotal * Math.Clamp(score, 0, 100) / 100;
 
             // Value arc: band color blended into a cyan→magenta neon sheen.
-            var arcBrush = new LinearGradientBrush(color, Color.FromRgb(0xFF, 0x2A, 0x6D), 45);
+            var arcBrush = new LinearGradientBrush(color, CyberPalette.Secondary, 45);
             DrawArc(dc, center, radius, startAngle, valueSweep,
                 new Pen(arcBrush, thickness) { StartLineCap = PenLineCap.Round, EndLineCap = PenLineCap.Round });
 
@@ -217,7 +218,7 @@ public class HealthGauge : FrameworkElement
             caption,
             CultureInfo.InvariantCulture, FlowDirection.LeftToRight,
             new Typeface(NumberFont, FontStyles.Normal, FontWeights.SemiBold, FontStretches.Normal), size * 0.06,
-            new SolidColorBrush(Color.FromRgb(0x8F, 0xA6, 0xC0)), dpi);
+            new SolidColorBrush(CyberPalette.TextSecondary), dpi);
         dc.DrawText(label, new Point(center.X - label.Width / 2, center.Y + scoreText.Height * 0.42));
     }
 
@@ -226,7 +227,8 @@ public class HealthGauge : FrameworkElement
         double startDeg, double sweepDeg)
     {
         const int count = 10;
-        var pen = new Pen(new SolidColorBrush(Color.FromArgb(0x33, 0x00, 0xE5, 0xFF)), 1.2)
+        var accent = CyberPalette.Accent;
+        var pen = new Pen(new SolidColorBrush(Color.FromArgb(0x33, accent.R, accent.G, accent.B)), 1.2)
         {
             StartLineCap = PenLineCap.Round,
             EndLineCap = PenLineCap.Round,

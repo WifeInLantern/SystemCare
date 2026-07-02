@@ -4,6 +4,7 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+      xmlns:helpers="clr-namespace:SystemCare.Helpers"
       xmlns:converters="clr-namespace:SystemCare.Converters"
       xmlns:controls="clr-namespace:SystemCare.Controls"
       xmlns:vm="clr-namespace:SystemCare.ViewModels"
@@ -17,7 +18,7 @@
         <converters:PercentToBarWidthConverter x:Key="PercentToBarWidth" />
     </Page.Resources>
 
-    <Grid Margin="24,12,24,24">
+    <Grid Margin="24,12,24,24" helpers:Animations.StaggerChildren="True">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
@@ -111,7 +112,7 @@
                                 </StackPanel>
 
                                 <Border Grid.Column="1" Height="8" Margin="6,0" VerticalAlignment="Center"
-                                        Background="#16202E" CornerRadius="4" ClipToBounds="True">
+                                        Background="{StaticResource Surface2Brush}" CornerRadius="4" ClipToBounds="True">
                                     <Border HorizontalAlignment="Left" CornerRadius="4" Background="{Binding BarBrush}"
                                             Width="{Binding Percent, Converter={StaticResource PercentToBarWidth}, ConverterParameter=104}" />
                                 </Border>

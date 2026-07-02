@@ -6,6 +6,7 @@
       xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
       xmlns:controls="clr-namespace:SystemCare.Controls"
       xmlns:converters="clr-namespace:SystemCare.Converters"
+      xmlns:helpers="clr-namespace:SystemCare.Helpers"
       xmlns:vm="clr-namespace:SystemCare.ViewModels"
       mc:Ignorable="d"
       TextElement.Foreground="{StaticResource TextFillColorPrimaryBrush}"
@@ -18,7 +19,7 @@
     </Page.Resources>
 
     <ScrollViewer VerticalScrollBarVisibility="Auto">
-        <Grid Margin="24,12,24,24">
+        <Grid Margin="24,12,24,24" helpers:Animations.StaggerChildren="True">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
@@ -134,7 +135,7 @@
                            Visibility="{Binding HasTrend, Converter={StaticResource VisibleWhenTrue}}" />
                 <ui:Card Padding="16,14" Margin="0,8,0,0"
                          Visibility="{Binding HasTrend, Converter={StaticResource VisibleWhenTrue}}">
-                    <controls:SparklineChart Height="64" Values="{Binding Trend}" Max="{Binding TrendMax}" Accent="#00E5FF" />
+                    <controls:SparklineChart Height="64" Values="{Binding Trend}" Max="{Binding TrendMax}" Accent="{StaticResource AccentColor}" />
                 </ui:Card>
                 <TextBlock Margin="0,12,0,0" FontSize="11" Opacity="0.55" TextWrapping="Wrap"
                            Text="A quick local benchmark — results vary with background load and thermal state. Scores are relative, not industry-standard figures. Nothing leaves your PC." />

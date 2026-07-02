@@ -6,6 +6,7 @@
       xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
       xmlns:converters="clr-namespace:SystemCare.Converters"
       xmlns:controls="clr-namespace:SystemCare.Controls"
+      xmlns:helpers="clr-namespace:SystemCare.Helpers"
       xmlns:vm="clr-namespace:SystemCare.ViewModels"
       mc:Ignorable="d"
       TextElement.Foreground="{StaticResource TextFillColorPrimaryBrush}"
@@ -16,7 +17,7 @@
         <converters:InverseBoolConverter x:Key="Not" />
     </Page.Resources>
 
-    <Grid Margin="24,12,24,24">
+    <Grid Margin="24,12,24,24" helpers:Animations.StaggerChildren="True">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
@@ -62,7 +63,7 @@
                                 <CheckBox Grid.Column="0" IsChecked="{Binding IsSelected}" VerticalAlignment="Center" />
                                 <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center">
                                     <TextBlock Text="{Binding Name}" FontWeight="SemiBold" />
-                                    <TextBlock Text="{Binding Description}" FontSize="12" Opacity="0.65" TextWrapping="Wrap" />
+                                    <TextBlock Text="{Binding Description}" Style="{StaticResource TextCaption}" TextWrapping="Wrap" />
                                 </StackPanel>
                                 <StackPanel Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Right">
                                     <TextBlock Text="{Binding SizeText}" FontWeight="SemiBold" FontSize="15"

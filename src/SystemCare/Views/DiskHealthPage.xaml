@@ -19,7 +19,7 @@
         <converters:PercentToUsageBrushConverter x:Key="UsageBrush" />
     </Page.Resources>
 
-    <Grid Margin="24,12,24,16">
+    <Grid Margin="24,12,24,16" helpers:Animations.StaggerChildren="True">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
@@ -131,9 +131,9 @@
                                                     Visibility="{Binding HasHours, Converter={StaticResource VisibleWhenTrue}}">
                                                 <TextBlock Text="{Binding HoursText}" FontSize="11" />
                                             </Border>
-                                            <Border Background="#33FF2A6D" CornerRadius="4" Padding="7,3" Margin="0,0,6,6"
+                                            <Border Background="{StaticResource DangerSubtleBrush}" CornerRadius="4" Padding="7,3" Margin="0,0,6,6"
                                                     Visibility="{Binding HasErrors, Converter={StaticResource VisibleWhenTrue}}">
-                                                <TextBlock Text="{Binding ErrorsText}" FontSize="11" Foreground="#FF8AA8" />
+                                                <TextBlock Text="{Binding ErrorsText}" FontSize="11" Foreground="{StaticResource DangerSoftBrush}" />
                                             </Border>
                                         </WrapPanel>
                                     </StackPanel>

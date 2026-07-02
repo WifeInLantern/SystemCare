@@ -35,6 +35,11 @@ internal static class Program
             "SpaceXs","SpaceSm","SpaceMd","SpaceLg","SpaceXl","Space2Xl","PagePadding","PadCard","PadChip",
             "RadiusMd","RadiusPill","PanelInsetBrush","ChipFillBrush","ConsoleBackgroundBrush",
             "ConsoleForegroundBrush","HairlineBrush","OverlayScrimBrush","FocusGlowBrush","GlowSm","GlowMd","GlowLg",
+            // Design System v3 (glass + status + motion overhaul)
+            "Surface0Brush","Surface1Brush","Surface2Brush","Surface3Brush","GlassRimBrush","GlassSheenBrush",
+            "SuccessSubtleBrush","WarningSubtleBrush","DangerSubtleBrush","InfoSubtleBrush","VioletSubtleBrush",
+            "AccentSubtleBrush","SuccessSubtleStroke","WarningSubtleStroke","DangerSubtleStroke","InfoSubtleStroke",
+            "VioletSubtleStroke","DangerSoftBrush","SuccessGradientBrush","GlowMagentaMd","GlowSuccessSm",
         })
             Try($"token '{key}' resolves", () => { if (app.Resources[key] is null) throw new Exception("not found"); });
 
@@ -43,6 +48,10 @@ internal static class Program
             "TextH2","TextBody","TextCaption","CyberSectionHeader","CyberPageTitle","CyberDisplayText",
             "CyberPrimaryButton","CyberGhostButton","CyberDangerButton","CyberCard","CyberInteractiveCard",
             "CyberChip","CyberListRow","CyberConsole",
+            // Design System v3
+            "TextH3","CyberGlassPanel","CyberGlassPanelRaised","CyberChipSuccess","CyberChipWarning",
+            "CyberChipDanger","CyberChipInfo","ChipTextSuccess","ChipTextWarning","ChipTextDanger","ChipTextInfo",
+            "SkeletonBlock","SkeletonCard","EmptyStateTitle","EmptyStateHint",
         })
             Try($"style '{key}' resolves", () => { if (app.Resources[key] is not Style) throw new Exception("missing or not a Style"); });
 
@@ -106,6 +115,20 @@ internal static class Program
         panel.Children.Add(new SparklineChart { Width = 200, Height = 60, Values = [10, 40, 25, 80], Max = 100 });
         panel.Children.Add(new BarChart { Width = 200, Height = 60, Values = [0, 3, 7, 2, 9], Max = 9 });
 
+        // TaskProgress active exercises its pulse loop / ReduceMotion snap paths.
+        panel.Children.Add(new TaskProgress { Width = 220, IsActive = true });
+
+        // v3 glass/skeleton/chip styles applied to real elements.
+        panel.Children.Add(new Border { Style = (Style)app.Resources["CyberGlassPanel"] });
+        panel.Children.Add(new Border { Style = (Style)app.Resources["CyberGlassPanelRaised"] });
+        panel.Children.Add(new Border { Style = (Style)app.Resources["SkeletonBlock"], Width = 160 });
+        panel.Children.Add(new Border { Style = (Style)app.Resources["SkeletonCard"], Width = 160 });
+        panel.Children.Add(new Border
+        {
+            Style = (Style)app.Resources["CyberChipSuccess"],
+            Child = new TextBlock { Text = "OK", Style = (Style)app.Resources["ChipTextSuccess"] },
+        });
+
         // Attached behaviors that fire synchronously on set (NeonPulse/SmoothValue/CountUpText).
         var pulse = new Border { Width = 40, Height = 40 };
         Animations.SetNeonPulse(pulse, true);
@@ -119,6 +142,28 @@ internal static class Program
         var count = new TextBlock();
         Animations.SetCountUpText(count, 42);
         panel.Children.Add(count);
+
+        // v3 behaviors: shimmer loop, animated visibility swap, press feedback, hover glow.
+        var shimmer = new Border { Width = 40, Height = 12 };
+        Animations.SetShimmer(shimmer, true);
+        panel.Children.Add(shimmer);
+
+        var swap = new Border { Width = 40, Height = 12 };
+        Animations.SetFadeVisible(swap, true);
+        Animations.SetFadeVisible(swap, false);
+        panel.Children.Add(swap);
+
+        var press = new Border { Width = 40, Height = 20 };
+        Animations.SetPressScale(press, true);
+        Animations.SetHoverGlow(press, true);
+        panel.Children.Add(press);
+
+        // Auto-staggered entrance panel (children get FadeInOnLoad + incremental delays on Loaded).
+        var stagger = new StackPanel();
+        stagger.Children.Add(new TextBlock { Text = "a" });
+        stagger.Children.Add(new TextBlock { Text = "b" });
+        Animations.SetStaggerChildren(stagger, true);
+        panel.Children.Add(stagger);
 
         // Root in a Page so the implicit Page text style is exercised, then force layout without a window.
         var page = new Page { Content = panel };

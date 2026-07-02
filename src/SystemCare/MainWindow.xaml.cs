@@ -37,9 +37,20 @@ public partial class MainWindow
         // navigated page's height to the visible content area so it scrolls normally.
         RootNavigation.Navigated += OnNavigated;
 
+        // The nav transition must respect Reduce motion, live: FadeInWithSlide normally,
+        // no transition when reduced. (XAML sets the default; this keeps it in sync.)
+        ApplyNavigationTransition();
+        Helpers.Animations.ReduceMotionChanged += ApplyNavigationTransition;
+        Closed += (_, _) => Helpers.Animations.ReduceMotionChanged -= ApplyNavigationTransition;
+
         StateChanged += OnStateChanged;
         Closing += OnClosing;
     }
+
+    private void ApplyNavigationTransition() =>
+        RootNavigation.Transition = Helpers.Animations.ReduceMotion
+            ? Wpf.Ui.Animations.Transition.None
+            : Wpf.Ui.Animations.Transition.FadeInWithSlide;
 
     private void OnNavigated(NavigationView sender, NavigatedEventArgs args) =>
         Dispatcher.BeginInvoke(DispatcherPriority.Loaded, new Action(ConstrainActivePageHeight));
@@ -86,6 +97,8 @@ public partial class MainWindow
 
     private void PlayEntranceAnimation()
     {
+        if (Helpers.Animations.ReduceMotion) return;
+
         // A Window can't carry a RenderTransform, so fade the window via Opacity
         // and scale its content grid instead.
         Opacity = 0;

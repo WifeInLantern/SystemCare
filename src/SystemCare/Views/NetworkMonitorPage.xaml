@@ -17,7 +17,7 @@
         <converters:BoolToVisibilityConverter x:Key="VisibleWhenTrue" />
     </Page.Resources>
 
-    <Grid Margin="24,12,24,24">
+    <Grid Margin="24,12,24,24" helpers:Animations.StaggerChildren="True">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
@@ -36,7 +36,7 @@
 
         <!-- Unavailable notice -->
         <Border Grid.Row="1" Margin="0,12,0,0" Padding="12,10" CornerRadius="6"
-                Background="#1A1F1408" BorderBrush="{StaticResource WarningBrush}" BorderThickness="1"
+                Background="{StaticResource WarningSubtleBrush}" BorderBrush="{StaticResource WarningSubtleStroke}" BorderThickness="1"
                 Visibility="{Binding MonitoringUnavailable, Converter={StaticResource VisibleWhenTrue}}">
             <TextBlock Text="{Binding MonitoringStatus}" Foreground="{StaticResource WarningBrush}" TextWrapping="Wrap" />
         </Border>
@@ -55,7 +55,7 @@
                                Style="{StaticResource CyberSectionHeader}" />
                     <controls:SparklineChart Height="64" Margin="0,8,0,0"
                                              Values="{Binding ThroughputHistory}" Max="{Binding ThroughputMax}"
-                                             Accent="#00E5FF" />
+                                             Accent="{StaticResource AccentColor}" />
                 </StackPanel>
 
                 <StackPanel Grid.Column="1" Margin="24,0,0,0" VerticalAlignment="Center" MinWidth="170">
@@ -116,7 +116,7 @@
                                 <Style TargetType="Border">
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding IsHigh}" Value="True">
-                                            <Setter Property="Background" Value="#26FF2A6D" />
+                                            <Setter Property="Background" Value="{StaticResource DangerSubtleBrush}" />
                                             <Setter Property="BorderBrush" Value="{StaticResource DangerBrush}" />
                                         </DataTrigger>
                                     </Style.Triggers>

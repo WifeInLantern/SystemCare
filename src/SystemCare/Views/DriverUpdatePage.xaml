@@ -4,6 +4,7 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+      xmlns:helpers="clr-namespace:SystemCare.Helpers"
       xmlns:converters="clr-namespace:SystemCare.Converters"
       xmlns:controls="clr-namespace:SystemCare.Controls"
       xmlns:vm="clr-namespace:SystemCare.ViewModels"
@@ -17,7 +18,7 @@
         <converters:InverseBoolConverter x:Key="Not" />
     </Page.Resources>
 
-    <Grid Margin="24,12,24,24">
+    <Grid Margin="24,12,24,24" helpers:Animations.StaggerChildren="True">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
@@ -145,7 +146,7 @@
                                     <Run Text="{Binding DeviceClass, Mode=OneWay}" /><Run Text=" · " /><Run Text="{Binding Manufacturer, Mode=OneWay}" />
                                 </TextBlock>
                             </StackPanel>
-                            <Border Grid.Column="1" Background="#33FF2A6D" CornerRadius="9" Padding="8,2" Margin="0,0,10,0"
+                            <Border Grid.Column="1" Background="{StaticResource DangerSubtleBrush}" CornerRadius="9" Padding="8,2" Margin="0,0,10,0"
                                     VerticalAlignment="Center"
                                     Visibility="{Binding HasProblem, Converter={StaticResource VisibleWhenTrue}}">
                                 <TextBlock Text="{Binding ProblemText}" FontSize="10" FontWeight="SemiBold"

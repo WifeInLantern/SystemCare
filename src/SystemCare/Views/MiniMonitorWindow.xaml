@@ -29,9 +29,9 @@
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
                 <TextBlock Grid.Column="0" Text="CPU" FontSize="11" Opacity="0.85" VerticalAlignment="Center" />
-                <controls:SparklineChart Grid.Column="1" x:Name="CpuSpark" Height="24" Margin="6,0" Max="100" Accent="#00E5FF" />
+                <controls:SparklineChart Grid.Column="1" x:Name="CpuSpark" Height="24" Margin="6,0" Max="100" Accent="{StaticResource AccentColor}" />
                 <TextBlock Grid.Column="2" x:Name="CpuValue" Text="—" FontWeight="SemiBold" MinWidth="46"
-                           TextAlignment="Right" VerticalAlignment="Center" Foreground="#00E5FF" />
+                           TextAlignment="Right" VerticalAlignment="Center" Foreground="{StaticResource NeonCyanBrush}" />
             </Grid>
 
             <!-- RAM -->
@@ -42,9 +42,9 @@
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
                 <TextBlock Grid.Column="0" Text="RAM" FontSize="11" Opacity="0.85" VerticalAlignment="Center" />
-                <controls:SparklineChart Grid.Column="1" x:Name="RamSpark" Height="24" Margin="6,0" Max="100" Accent="#00FFA3" />
+                <controls:SparklineChart Grid.Column="1" x:Name="RamSpark" Height="24" Margin="6,0" Max="100" Accent="{StaticResource SuccessColor}" />
                 <TextBlock Grid.Column="2" x:Name="RamValue" Text="—" FontWeight="SemiBold" MinWidth="46"
-                           TextAlignment="Right" VerticalAlignment="Center" Foreground="#00FFA3" />
+                           TextAlignment="Right" VerticalAlignment="Center" Foreground="{StaticResource SuccessBrush}" />
             </Grid>
 
             <!-- Network -->
@@ -55,9 +55,9 @@
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
                 <TextBlock Grid.Column="0" Text="NET" FontSize="11" Opacity="0.85" VerticalAlignment="Center" />
-                <controls:SparklineChart Grid.Column="1" x:Name="NetSpark" Height="24" Margin="6,0" Max="100" Accent="#B14CFF" />
+                <controls:SparklineChart Grid.Column="1" x:Name="NetSpark" Height="24" Margin="6,0" Max="100" Accent="{StaticResource VioletColor}" />
                 <TextBlock Grid.Column="2" x:Name="NetValue" Text="—" FontSize="12" MinWidth="46"
-                           TextAlignment="Right" VerticalAlignment="Center" Foreground="#B14CFF" />
+                           TextAlignment="Right" VerticalAlignment="Center" Foreground="{StaticResource NeonVioletBrush}" />
             </Grid>
 
             <!-- Temperature -->

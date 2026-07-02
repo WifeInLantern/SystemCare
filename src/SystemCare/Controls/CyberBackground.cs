@@ -31,18 +31,19 @@ public class CyberBackground : FrameworkElement
     {
         IsHitTestVisible = false;
 
-        var bg = new LinearGradientBrush(
-            Color.FromRgb(0x0A, 0x0E, 0x14), Color.FromRgb(0x05, 0x07, 0x0B), 90);
+        // Palette resolved via CyberPalette so Theme.xaml edits propagate to the backdrop.
+        var accent = CyberPalette.Accent;
+        var bg = new LinearGradientBrush(CyberPalette.Background, CyberPalette.BackgroundDeep, 90);
         bg.Freeze();
         _bgBrush = bg;
 
-        _gridPen = new Pen(new SolidColorBrush(Color.FromArgb(0x16, 0x00, 0xE5, 0xFF)), 0.7);
+        _gridPen = new Pen(new SolidColorBrush(Color.FromArgb(0x16, accent.R, accent.G, accent.B)), 0.7);
         _gridPen.Freeze();
-        _gridPenBright = new Pen(new SolidColorBrush(Color.FromArgb(0x30, 0x00, 0xE5, 0xFF)), 0.9);
+        _gridPenBright = new Pen(new SolidColorBrush(Color.FromArgb(0x30, accent.R, accent.G, accent.B)), 0.9);
         _gridPenBright.Freeze();
 
-        _glowCyan = MakeGlow(Color.FromRgb(0x00, 0xB8, 0xD4));
-        _glowMagenta = MakeGlow(Color.FromRgb(0xFF, 0x2A, 0x6D));
+        _glowCyan = MakeGlow(accent);
+        _glowMagenta = MakeGlow(CyberPalette.Secondary);
         _scanlines = MakeScanlines();
 
         Loaded += OnLoaded;
@@ -87,8 +88,9 @@ public class CyberBackground : FrameworkElement
 
     private static DrawingBrush MakeScanlines()
     {
+        // Slightly quieter than before (0x12 -> 0x0F) so the v3 glass layers read better over it.
         var line = new GeometryDrawing(
-            new SolidColorBrush(Color.FromArgb(0x12, 0x00, 0x00, 0x00)), null,
+            new SolidColorBrush(Color.FromArgb(0x0F, 0x00, 0x00, 0x00)), null,
             new RectangleGeometry(new Rect(0, 0, 4, 1)));
         var b = new DrawingBrush(line)
         {

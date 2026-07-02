@@ -4,6 +4,7 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+      xmlns:helpers="clr-namespace:SystemCare.Helpers"
       xmlns:vm="clr-namespace:SystemCare.ViewModels"
       mc:Ignorable="d"
       TextElement.Foreground="{StaticResource TextFillColorPrimaryBrush}"
@@ -11,7 +12,7 @@
       Title="Windows Tweaks"
       Loaded="OnPageLoaded">
     <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="24,12,24,24">
-        <StackPanel MaxWidth="820" HorizontalAlignment="Left">
+        <StackPanel MaxWidth="820" HorizontalAlignment="Left" helpers:Animations.StaggerChildren="True">
             <TextBlock Text="Windows Tweaks" Style="{StaticResource CyberPageTitle}" />
             <TextBlock Text="Reversible tweaks to tune performance, privacy and Explorer. Toggle off to revert."
                        FontSize="13" Opacity="0.7" Margin="0,4,0,0" TextWrapping="Wrap" />
@@ -26,7 +27,7 @@
                     </Grid.ColumnDefinitions>
                     <StackPanel Grid.Column="0" Margin="0,0,16,0">
                         <TextBlock Text="Active power plan" FontWeight="SemiBold" />
-                        <TextBlock Text="Choose High Performance for speed, or Balanced to save power" FontSize="12" Opacity="0.65" TextWrapping="Wrap" />
+                        <TextBlock Text="Choose High Performance for speed, or Balanced to save power" Style="{StaticResource TextCaption}" TextWrapping="Wrap" />
                     </StackPanel>
                     <ComboBox Grid.Column="1" MinWidth="200" ItemsSource="{Binding PowerSchemes}" SelectedItem="{Binding ActiveScheme}"
                               DisplayMemberPath="Name" VerticalAlignment="Center" />
@@ -50,7 +51,7 @@
                                                 </Grid.ColumnDefinitions>
                                                 <StackPanel Grid.Column="0" Margin="0,0,16,0">
                                                     <TextBlock Text="{Binding Name}" FontWeight="SemiBold" />
-                                                    <TextBlock Text="{Binding Description}" FontSize="12" Opacity="0.65" TextWrapping="Wrap" />
+                                                    <TextBlock Text="{Binding Description}" Style="{StaticResource TextCaption}" TextWrapping="Wrap" />
                                                 </StackPanel>
                                                 <ui:ToggleSwitch Grid.Column="1" IsChecked="{Binding IsEnabled}" />
                                             </Grid>

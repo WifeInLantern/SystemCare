@@ -39,14 +39,15 @@ public class TaskProgress : FrameworkElement
     private double Pulse { get => (double)GetValue(PulseProperty); set => SetValue(PulseProperty, value); }
 
     private static readonly Color DeepBlue = Color.FromRgb(0x1E, 0x50, 0xC8);
-    private static readonly Color Cyan = Color.FromRgb(0x00, 0xE5, 0xFF);
     private static readonly Color HeadColor = Color.FromRgb(0xC8, 0xFB, 0xFF);
     private static readonly Color Unlit = Color.FromRgb(0x18, 0x32, 0x6E);
 
+    // Theme accent resolved via CyberPalette so a Theme.xaml edit propagates here.
+    private readonly Color _accent = Helpers.CyberPalette.Accent;
     private readonly Brush _track = new SolidColorBrush(Color.FromRgb(0x0A, 0x12, 0x30));
-    private readonly Pen _border = new(new SolidColorBrush(Cyan), 1.4);
+    private readonly Pen _border;
     private readonly Brush _unlit = new SolidColorBrush(Unlit) { Opacity = 0.32 };
-    private readonly Brush _label = new SolidColorBrush(Cyan);
+    private readonly Brush _label;
     private readonly Typeface _num = new(new FontFamily("pack://application:,,,/Assets/Fonts/#Rajdhani"),
         FontStyles.Normal, FontWeights.SemiBold, FontStretches.Normal);
 
@@ -55,11 +56,17 @@ public class TaskProgress : FrameworkElement
         Height = 22;
         HorizontalAlignment = HorizontalAlignment.Stretch;
         Visibility = Visibility.Collapsed;
-        Effect = new DropShadowEffect { Color = Cyan, BlurRadius = 9, ShadowDepth = 0, Opacity = 0.5 };
+        Effect = new DropShadowEffect { Color = _accent, BlurRadius = 9, ShadowDepth = 0, Opacity = 0.5 };
+        _border = new Pen(new SolidColorBrush(_accent), 1.4);
+        _label = new SolidColorBrush(_accent);
         _track.Freeze();
         _border.Freeze();
         _unlit.Freeze();
         _label.Freeze();
+
+        // Live Reduce-motion toggles freeze or restart the busy pulse in place, like HealthGauge.
+        Loaded += (_, _) => Helpers.Animations.ReduceMotionChanged += OnReduceMotionChanged;
+        Unloaded += (_, _) => Helpers.Animations.ReduceMotionChanged -= OnReduceMotionChanged;
     }
 
     private static void OnIsActiveChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -75,6 +82,28 @@ public class TaskProgress : FrameworkElement
         c.AnimateProgress(Math.Clamp((double)e.NewValue, 0, 99), TimeSpan.FromMilliseconds(300));
     }
 
+    private void OnReduceMotionChanged()
+    {
+        if (!IsActive || Visibility != Visibility.Visible) return;
+        ApplyPulse();
+    }
+
+    /// <summary>Starts the busy pulse loop, or holds it steady under Reduce motion.</summary>
+    private void ApplyPulse()
+    {
+        if (Helpers.Animations.ReduceMotion)
+        {
+            BeginAnimation(PulseProperty, null);
+            Pulse = 1;
+            return;
+        }
+        BeginAnimation(PulseProperty, new DoubleAnimation(0, 1, TimeSpan.FromSeconds(0.85))
+        {
+            AutoReverse = true, RepeatBehavior = RepeatBehavior.Forever,
+            EasingFunction = new SineEase { EasingMode = EasingMode.EaseInOut },
+        });
+    }
+
     private void Start()
     {
         BeginAnimation(OpacityProperty, null); Opacity = 1;
@@ -85,11 +114,7 @@ public class TaskProgress : FrameworkElement
         if (double.IsNaN(Value)) AnimateProgress(Ceiling, TimeSpan.FromSeconds(RampSeconds));
         else AnimateProgress(Math.Clamp(Value, 0, 99), TimeSpan.FromMilliseconds(300));
 
-        BeginAnimation(PulseProperty, new DoubleAnimation(0, 1, TimeSpan.FromSeconds(0.85))
-        {
-            AutoReverse = true, RepeatBehavior = RepeatBehavior.Forever,
-            EasingFunction = new SineEase { EasingMode = EasingMode.EaseInOut },
-        });
+        ApplyPulse();
     }
 
     private void Finish()
@@ -99,14 +124,36 @@ public class TaskProgress : FrameworkElement
 
         AnimateProgress(100, TimeSpan.FromMilliseconds(260));
 
+        if (Helpers.Animations.ReduceMotion)
+        {
+            // No fade under Reduce motion: show 100%, hold, then collapse.
+            var timer = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromSeconds(HoldSeconds) };
+            timer.Tick += (_, _) =>
+            {
+                timer.Stop();
+                if (!IsActive) Visibility = Visibility.Collapsed;
+            };
+            timer.Start();
+            return;
+        }
+
         var fade = new DoubleAnimation(1, 0, TimeSpan.FromMilliseconds(420)) { BeginTime = TimeSpan.FromSeconds(HoldSeconds) };
         fade.Completed += (_, _) => { if (!IsActive) Visibility = Visibility.Collapsed; };
         BeginAnimation(OpacityProperty, fade);
     }
 
-    private void AnimateProgress(double to, TimeSpan dur) =>
+    private void AnimateProgress(double to, TimeSpan dur)
+    {
+        if (Helpers.Animations.ReduceMotion)
+        {
+            // Progress must still be conveyed — just snapped instead of eased.
+            BeginAnimation(DisplayProgressProperty, null);
+            DisplayProgress = to;
+            return;
+        }
         BeginAnimation(DisplayProgressProperty, new DoubleAnimation(DisplayProgress, to, dur)
         { EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut } });
+    }
 
     protected override void OnRender(DrawingContext dc)
     {
@@ -145,7 +192,7 @@ public class TaskProgress : FrameworkElement
 
                 bool head = i == headIndex;
                 double t = headIndex > 0 ? (double)i / headIndex : 1; // blue at left -> cyan at head
-                var brush = new SolidColorBrush(head ? HeadColor : Lerp(DeepBlue, Cyan, t))
+                var brush = new SolidColorBrush(head ? HeadColor : Lerp(DeepBlue, _accent, t))
                 { Opacity = head ? 0.7 + 0.3 * Pulse : 1.0 };
                 brush.Freeze();
                 dc.DrawRoundedRectangle(brush, null, rect, tickR, tickR);

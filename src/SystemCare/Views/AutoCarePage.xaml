@@ -4,6 +4,7 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+      xmlns:helpers="clr-namespace:SystemCare.Helpers"
       xmlns:controls="clr-namespace:SystemCare.Controls"
       xmlns:converters="clr-namespace:SystemCare.Converters"
       xmlns:vm="clr-namespace:SystemCare.ViewModels"
@@ -18,7 +19,7 @@
     </Page.Resources>
 
     <ScrollViewer VerticalScrollBarVisibility="Auto">
-        <Grid Margin="24,12,24,24">
+        <Grid Margin="24,12,24,24" helpers:Animations.StaggerChildren="True">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
@@ -62,7 +63,7 @@
                     <controls:HealthGauge Grid.Column="0" Width="150" Height="150" Score="{Binding HealthScoreValue}" />
                     <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="24,0,0,0">
                         <TextBlock Text="{Binding Headline}" FontSize="16" FontWeight="SemiBold" TextWrapping="Wrap" />
-                        <TextBlock Margin="0,6,0,0" FontSize="12" Opacity="0.65" TextWrapping="Wrap"
+                        <TextBlock Margin="0,6,0,0" Style="{StaticResource TextCaption}" TextWrapping="Wrap"
                                    Text="Direct fixes apply right here (with your restore-point safety net); review items open the matching tool." />
                     </StackPanel>
                 </Grid>

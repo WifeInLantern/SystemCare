@@ -19,7 +19,7 @@
     </Page.Resources>
 
     <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="24,12,24,24">
-        <StackPanel MaxWidth="1100">
+        <StackPanel MaxWidth="1100" helpers:Animations.StaggerChildren="True">
             <TextBlock Text="System Information" Style="{StaticResource CyberPageTitle}" />
             <TextBlock Text="{Binding SummaryText}" FontSize="13" Opacity="0.75" Margin="0,6,0,0" TextWrapping="Wrap" />
 
@@ -32,7 +32,7 @@
                         <TextBlock Text="Processor" FontWeight="SemiBold" Opacity="0.85" />
                         <TextBlock Text="{Binding CpuText}" FontSize="26" FontWeight="Bold" Margin="0,4,0,0" />
                         <TextBlock Text="{Binding CpuSubText}" FontSize="11" Opacity="0.6" Margin="0,0,0,6" TextTrimming="CharacterEllipsis" />
-                        <controls:SparklineChart Height="52" Values="{Binding CpuHistory}" Max="100" Accent="#00E5FF" />
+                        <controls:SparklineChart Height="52" Values="{Binding CpuHistory}" Max="100" Accent="{StaticResource AccentColor}" />
                     </StackPanel>
                 </ui:Card>
                 <ui:Card Margin="8,0,8,0" Padding="18,14" helpers:Animations.HoverLift="True"
@@ -41,7 +41,7 @@
                         <TextBlock Text="Memory" FontWeight="SemiBold" Opacity="0.85" />
                         <TextBlock Text="{Binding RamText}" FontSize="26" FontWeight="Bold" Margin="0,4,0,0" />
                         <TextBlock Text="{Binding RamSubText}" FontSize="11" Opacity="0.6" Margin="0,0,0,6" />
-                        <controls:SparklineChart Height="52" Values="{Binding RamHistory}" Max="100" Accent="#00FFA3" />
+                        <controls:SparklineChart Height="52" Values="{Binding RamHistory}" Max="100" Accent="{StaticResource SuccessColor}" />
                     </StackPanel>
                 </ui:Card>
                 <ui:Card Margin="8,0,0,0" Padding="18,14" helpers:Animations.HoverLift="True"
@@ -50,7 +50,7 @@
                         <TextBlock Text="Network" FontWeight="SemiBold" Opacity="0.85" />
                         <TextBlock Text="{Binding NetText}" FontSize="15" FontWeight="Bold" Margin="0,8,0,0" />
                         <TextBlock Text="{Binding NetSubText}" FontSize="11" Opacity="0.6" Margin="0,0,0,6" TextTrimming="CharacterEllipsis" />
-                        <controls:SparklineChart Height="52" Values="{Binding NetHistory}" Max="{Binding NetMax}" Accent="#B14CFF" />
+                        <controls:SparklineChart Height="52" Values="{Binding NetHistory}" Max="{Binding NetMax}" Accent="{StaticResource VioletColor}" />
                     </StackPanel>
                 </ui:Card>
             </UniformGrid>
@@ -90,7 +90,7 @@
                                                                    VerticalAlignment="Center" Opacity="0.85" />
                                                     <StackPanel Grid.Column="1" Margin="12,0,8,0" VerticalAlignment="Center">
                                                         <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextWrapping="Wrap" />
-                                                        <TextBlock Text="{Binding Detail}" FontSize="12" Opacity="0.65" TextWrapping="Wrap" />
+                                                        <TextBlock Text="{Binding Detail}" Style="{StaticResource TextCaption}" TextWrapping="Wrap" />
                                                     </StackPanel>
                                                     <Border Grid.Column="2" VerticalAlignment="Center" Margin="0,0,8,0"
                                                             Background="{StaticResource ChipFillBrush}" CornerRadius="4" Padding="8,3"

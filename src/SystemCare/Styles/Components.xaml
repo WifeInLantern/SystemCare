@@ -30,35 +30,33 @@
         <Setter Property="Foreground" Value="{StaticResource TextFillColorTertiaryBrush}" />
     </Style>
 
+    <!-- Sub-section header: covers the tier pages previously faked with FontSize=12 SemiBold. -->
+    <Style x:Key="TextH3" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Foreground" Value="{StaticResource TextFillColorPrimaryBrush}" />
+        <Setter Property="Margin" Value="0,12,0,6" />
+    </Style>
+
     <!--  ==========  Buttons  ==========  -->
 
+    <!-- Hover glows are the HoverGlow behavior (fade in/out) rather than Effect triggers,
+         so the glow eases instead of popping. PressScale comes from the implicit ui:Button. -->
     <Style x:Key="CyberPrimaryButton" TargetType="ui:Button" BasedOn="{StaticResource {x:Type ui:Button}}">
         <Setter Property="Appearance" Value="Primary" />
         <Setter Property="Padding" Value="16,9" />
         <Setter Property="FontWeight" Value="SemiBold" />
-        <Style.Triggers>
-            <Trigger Property="IsMouseOver" Value="True">
-                <Setter Property="Effect">
-                    <Setter.Value>
-                        <DropShadowEffect Color="{StaticResource AccentColor}" ShadowDepth="0" BlurRadius="18" Opacity="0.6" />
-                    </Setter.Value>
-                </Setter>
-            </Trigger>
-        </Style.Triggers>
+        <Setter Property="helpers:Animations.HoverGlow" Value="True" />
     </Style>
 
     <Style x:Key="CyberGhostButton" TargetType="ui:Button" BasedOn="{StaticResource {x:Type ui:Button}}">
         <Setter Property="Appearance" Value="Secondary" />
         <Setter Property="Padding" Value="14,8" />
         <Setter Property="BorderBrush" Value="{StaticResource CyberStrokeBrush}" />
+        <Setter Property="helpers:Animations.HoverGlow" Value="True" />
         <Style.Triggers>
             <Trigger Property="IsMouseOver" Value="True">
                 <Setter Property="BorderBrush" Value="{StaticResource NeonCyanBrush}" />
-                <Setter Property="Effect">
-                    <Setter.Value>
-                        <DropShadowEffect Color="{StaticResource AccentColor}" ShadowDepth="0" BlurRadius="12" Opacity="0.4" />
-                    </Setter.Value>
-                </Setter>
             </Trigger>
         </Style.Triggers>
     </Style>
@@ -66,15 +64,8 @@
     <Style x:Key="CyberDangerButton" TargetType="ui:Button" BasedOn="{StaticResource {x:Type ui:Button}}">
         <Setter Property="Appearance" Value="Danger" />
         <Setter Property="Padding" Value="14,8" />
-        <Style.Triggers>
-            <Trigger Property="IsMouseOver" Value="True">
-                <Setter Property="Effect">
-                    <Setter.Value>
-                        <DropShadowEffect Color="{StaticResource DangerColor}" ShadowDepth="0" BlurRadius="16" Opacity="0.55" />
-                    </Setter.Value>
-                </Setter>
-            </Trigger>
-        </Style.Triggers>
+        <Setter Property="helpers:Animations.HoverGlow" Value="True" />
+        <Setter Property="helpers:Animations.HoverGlowColor" Value="{StaticResource DangerColor}" />
     </Style>
 
     <!--  ==========  Inputs: app-wide neon focus glow (implicit)  ==========  -->
@@ -110,10 +101,29 @@
         <Setter Property="Padding" Value="{StaticResource PadCard}" />
     </Style>
 
-    <!-- Interactive card: scale + glow lift on hover, baked in via the attached behavior. -->
+    <!-- Interactive card: scale + glow lift on hover, baked in via the attached behavior.
+         HoverGlow (inherited from the implicit ui:Card style) is disabled because HoverLift
+         already owns the element's Effect — the two must never share one element. -->
     <Style x:Key="CyberInteractiveCard" TargetType="ui:Card" BasedOn="{StaticResource {x:Type ui:Card}}">
         <Setter Property="Padding" Value="{StaticResource PadCard}" />
+        <Setter Property="helpers:Animations.HoverGlow" Value="False" />
         <Setter Property="helpers:Animations.HoverLift" Value="True" />
+    </Style>
+
+    <!--  ==========  Glass panels (hand-rolled glass surfaces for page-built layouts)  ==========  -->
+
+    <!-- Resting glass panel: Surface1 fill + the 1px rim-light stroke that sells the glass. -->
+    <Style x:Key="CyberGlassPanel" TargetType="Border">
+        <Setter Property="Background" Value="{StaticResource Surface1Brush}" />
+        <Setter Property="BorderBrush" Value="{StaticResource GlassRimBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="{StaticResource RadiusMd}" />
+        <Setter Property="Padding" Value="{StaticResource PadCard}" />
+    </Style>
+
+    <!-- Raised glass panel: one elevation step up (rows, inputs, hover surfaces). -->
+    <Style x:Key="CyberGlassPanelRaised" TargetType="Border" BasedOn="{StaticResource CyberGlassPanel}">
+        <Setter Property="Background" Value="{StaticResource Surface2Brush}" />
     </Style>
 
     <!--  ==========  Chips / inset rows / console  ==========  -->
@@ -122,6 +132,82 @@
         <Setter Property="Background" Value="{StaticResource ChipFillBrush}" />
         <Setter Property="CornerRadius" Value="4" />
         <Setter Property="Padding" Value="{StaticResource PadChip}" />
+    </Style>
+
+    <!-- Status chips: translucent status fill + matching stroke (tokens from Theme.xaml). -->
+    <Style x:Key="CyberChipSuccess" TargetType="Border" BasedOn="{StaticResource CyberChip}">
+        <Setter Property="Background" Value="{StaticResource SuccessSubtleBrush}" />
+        <Setter Property="BorderBrush" Value="{StaticResource SuccessSubtleStroke}" />
+        <Setter Property="BorderThickness" Value="1" />
+    </Style>
+    <Style x:Key="CyberChipWarning" TargetType="Border" BasedOn="{StaticResource CyberChip}">
+        <Setter Property="Background" Value="{StaticResource WarningSubtleBrush}" />
+        <Setter Property="BorderBrush" Value="{StaticResource WarningSubtleStroke}" />
+        <Setter Property="BorderThickness" Value="1" />
+    </Style>
+    <Style x:Key="CyberChipDanger" TargetType="Border" BasedOn="{StaticResource CyberChip}">
+        <Setter Property="Background" Value="{StaticResource DangerSubtleBrush}" />
+        <Setter Property="BorderBrush" Value="{StaticResource DangerSubtleStroke}" />
+        <Setter Property="BorderThickness" Value="1" />
+    </Style>
+    <Style x:Key="CyberChipInfo" TargetType="Border" BasedOn="{StaticResource CyberChip}">
+        <Setter Property="Background" Value="{StaticResource InfoSubtleBrush}" />
+        <Setter Property="BorderBrush" Value="{StaticResource InfoSubtleStroke}" />
+        <Setter Property="BorderThickness" Value="1" />
+    </Style>
+
+    <!-- Chip label text, matched to the status color. -->
+    <Style x:Key="ChipTextSuccess" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="11" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Foreground" Value="{StaticResource SuccessBrush}" />
+    </Style>
+    <Style x:Key="ChipTextWarning" TargetType="TextBlock" BasedOn="{StaticResource ChipTextSuccess}">
+        <Setter Property="Foreground" Value="{StaticResource WarningBrush}" />
+    </Style>
+    <Style x:Key="ChipTextDanger" TargetType="TextBlock" BasedOn="{StaticResource ChipTextSuccess}">
+        <Setter Property="Foreground" Value="{StaticResource DangerBrush}" />
+    </Style>
+    <Style x:Key="ChipTextInfo" TargetType="TextBlock" BasedOn="{StaticResource ChipTextSuccess}">
+        <Setter Property="Foreground" Value="{StaticResource NeonCyanBrush}" />
+    </Style>
+
+    <!--  ==========  Skeleton loading placeholders  ==========  -->
+
+    <!-- Shimmering placeholder line; show behind FadeVisible="{Binding IsBusy}" while loading. -->
+    <Style x:Key="SkeletonBlock" TargetType="Border">
+        <Setter Property="Background" Value="{StaticResource Surface2Brush}" />
+        <Setter Property="CornerRadius" Value="4" />
+        <Setter Property="Height" Value="12" />
+        <Setter Property="Margin" Value="0,0,0,8" />
+        <Setter Property="helpers:Animations.Shimmer" Value="True" />
+    </Style>
+
+    <!-- Card-sized placeholder for list/grid results. -->
+    <Style x:Key="SkeletonCard" TargetType="Border" BasedOn="{StaticResource SkeletonBlock}">
+        <Setter Property="Height" Value="64" />
+        <Setter Property="CornerRadius" Value="{StaticResource RadiusMd}" />
+    </Style>
+
+    <!--  ==========  Empty states  ==========
+          Composition pattern (no dedicated control): a centered StackPanel of
+          [ui:SymbolIcon FontSize=40 Opacity=0.4] + EmptyStateTitle + EmptyStateHint
+          + optional CyberGhostButton.  -->
+
+    <Style x:Key="EmptyStateTitle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource LabelFontFamily}" />
+        <Setter Property="FontSize" Value="15" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Foreground" Value="{StaticResource TextFillColorSecondaryBrush}" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="Margin" Value="0,12,0,4" />
+    </Style>
+
+    <Style x:Key="EmptyStateHint" TargetType="TextBlock" BasedOn="{StaticResource TextCaption}">
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="TextAlignment" Value="Center" />
+        <Setter Property="TextWrapping" Value="Wrap" />
+        <Setter Property="MaxWidth" Value="360" />
     </Style>
 
     <Style x:Key="CyberListRow" TargetType="Border">

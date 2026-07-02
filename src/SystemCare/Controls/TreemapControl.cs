@@ -58,7 +58,7 @@ public class TreemapControl : FrameworkElement
         _level2Rects.Clear();
 
         var bounds = new Rect(0, 0, ActualWidth, ActualHeight);
-        dc.DrawRectangle(new SolidColorBrush(Color.FromRgb(0x0A, 0x0E, 0x14)), null, bounds);
+        dc.DrawRectangle(new SolidColorBrush(Helpers.CyberPalette.Background), null, bounds);
 
         var root = RootNode;
         if (root is null || ActualWidth < 20 || ActualHeight < 20) return;
