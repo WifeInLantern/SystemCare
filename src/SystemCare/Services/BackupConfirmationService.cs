@@ -1,4 +1,5 @@
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Threading;
 using Wpf.Ui;
 using Wpf.Ui.Controls;
@@ -60,14 +61,33 @@ public sealed class BackupConfirmationService(ISettingsService settings, IConten
 
     private async Task<bool> PromptAsync(string operation)
     {
+        var message = new System.Windows.Controls.TextBlock
+        {
+            Text = $"Create a system restore point before {operation}?\n\n" +
+                   "It lets you roll back if something goes wrong. Choose Skip to continue without one.",
+            TextWrapping = TextWrapping.Wrap,
+        };
+        var dontAskAgain = new CheckBox
+        {
+            Content = "Always create restore points automatically (don't ask again)",
+            Margin = new Thickness(0, 12, 0, 0),
+        };
+        var content = new StackPanel { Children = { message, dontAskAgain } };
+
         var result = await dialogs.ShowSimpleDialogAsync(new SimpleContentDialogCreateOptions
         {
             Title = "Create a restore point?",
-            Content = $"Create a system restore point before {operation}?\n\n" +
-                      "It lets you roll back if something goes wrong. Choose Skip to continue without one.",
+            Content = content,
             PrimaryButtonText = "Create restore point",
             CloseButtonText = "Skip",
         });
+
+        if (dontAskAgain.IsChecked == true)
+        {
+            settings.Current.AskBeforeBackup = false;
+            settings.Save();
+        }
+
         return result == ContentDialogResult.Primary;
     }
 }
