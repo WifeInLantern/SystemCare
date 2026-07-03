@@ -98,9 +98,12 @@
                             <ui:SymbolIcon Symbol="DeveloperBoard24" />
                             <TextBlock Text="CPU" FontWeight="SemiBold" FontSize="15" Margin="8,0,0,0" VerticalAlignment="Center" />
                         </StackPanel>
-                        <TextBlock Text="{Binding CpuText}" FontSize="20" Margin="0,8,0,0" Style="{StaticResource CyberDisplayText}" />
+                        <TextBlock FontSize="20" Margin="0,8,0,0" Style="{StaticResource CyberDisplayText}"
+                                   helpers:Animations.CountUpText="{Binding CpuMOps}"
+                                   helpers:Animations.CountUpFormat="N0"
+                                   helpers:Animations.CountUpSuffix=" MOps/s" />
                         <TextBlock Text="multi-thread compute" FontSize="11" Opacity="0.6" />
-                        <ProgressBar Height="6" Maximum="100" Value="{Binding CpuScore}" Margin="0,8,0,0" />
+                        <ProgressBar Height="6" Maximum="100" helpers:Animations.SmoothValue="{Binding CpuScore}" Margin="0,8,0,0" />
                     </StackPanel>
                 </ui:Card>
 
@@ -110,9 +113,12 @@
                             <ui:SymbolIcon Symbol="Ram20" />
                             <TextBlock Text="Memory" FontWeight="SemiBold" FontSize="15" Margin="8,0,0,0" VerticalAlignment="Center" />
                         </StackPanel>
-                        <TextBlock Text="{Binding RamText}" FontSize="20" Margin="0,8,0,0" Style="{StaticResource CyberDisplayText}" />
+                        <TextBlock FontSize="20" Margin="0,8,0,0" Style="{StaticResource CyberDisplayText}"
+                                   helpers:Animations.CountUpText="{Binding RamGBps}"
+                                   helpers:Animations.CountUpFormat="0.0"
+                                   helpers:Animations.CountUpSuffix=" GB/s" />
                         <TextBlock Text="copy bandwidth" FontSize="11" Opacity="0.6" />
-                        <ProgressBar Height="6" Maximum="100" Value="{Binding RamScore}" Margin="0,8,0,0" />
+                        <ProgressBar Height="6" Maximum="100" helpers:Animations.SmoothValue="{Binding RamScore}" Margin="0,8,0,0" />
                     </StackPanel>
                 </ui:Card>
 
@@ -122,9 +128,12 @@
                             <ui:SymbolIcon Symbol="HardDrive24" />
                             <TextBlock Text="Disk" FontWeight="SemiBold" FontSize="15" Margin="8,0,0,0" VerticalAlignment="Center" />
                         </StackPanel>
-                        <TextBlock Text="{Binding DiskText}" FontSize="20" Margin="0,8,0,0" Style="{StaticResource CyberDisplayText}" />
+                        <TextBlock FontSize="20" Margin="0,8,0,0" Style="{StaticResource CyberDisplayText}"
+                                   helpers:Animations.CountUpText="{Binding DiskMBps}"
+                                   helpers:Animations.CountUpFormat="N0"
+                                   helpers:Animations.CountUpSuffix=" MB/s" />
                         <TextBlock Text="sequential write" FontSize="11" Opacity="0.6" />
-                        <ProgressBar Height="6" Maximum="100" Value="{Binding DiskScore}" Margin="0,8,0,0" />
+                        <ProgressBar Height="6" Maximum="100" helpers:Animations.SmoothValue="{Binding DiskScore}" Margin="0,8,0,0" />
                     </StackPanel>
                 </ui:Card>
             </Grid>

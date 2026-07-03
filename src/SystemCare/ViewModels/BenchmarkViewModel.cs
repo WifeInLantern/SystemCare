@@ -27,10 +27,13 @@ public partial class BenchmarkViewModel : ObservableObject
 
     [ObservableProperty] private string _cpuText = "—";
     [ObservableProperty] private double _cpuScore;
+    [ObservableProperty] private double _cpuMOps;
     [ObservableProperty] private string _ramText = "—";
     [ObservableProperty] private double _ramScore;
+    [ObservableProperty] private double _ramGBps;
     [ObservableProperty] private string _diskText = "—";
     [ObservableProperty] private double _diskScore;
+    [ObservableProperty] private double _diskMBps;
 
     [ObservableProperty] private IReadOnlyList<double>? _trend;
     [ObservableProperty] private double _trendMax = 100;
@@ -66,9 +69,9 @@ public partial class BenchmarkViewModel : ObservableObject
         {
             var r = await _benchmark.RunAsync(progress, _cts.Token);
 
-            CpuText = r.CpuText; CpuScore = r.CpuScore;
-            RamText = r.RamText; RamScore = r.RamScore;
-            DiskText = r.DiskText; DiskScore = r.DiskScore;
+            CpuText = r.CpuText; CpuScore = r.CpuScore; CpuMOps = r.CpuMOps;
+            RamText = r.RamText; RamScore = r.RamScore; RamGBps = r.RamGBps;
+            DiskText = r.DiskText; DiskScore = r.DiskScore; DiskMBps = r.DiskMBps;
             Points = r.Points;
             Tier = TierFor(r.OverallIndex);
             OverallScore = r.OverallIndex;

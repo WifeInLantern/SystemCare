@@ -68,9 +68,13 @@ public partial class SensorsViewModel : ObservableObject
     // Headline graphs.
     [ObservableProperty] private bool _hasGpu;
     [ObservableProperty] private string _cpuTempText = "—";
+    [ObservableProperty] private double _cpuTempValue = double.NaN;
     [ObservableProperty] private string _cpuLoadText = "—";
+    [ObservableProperty] private double _cpuLoadValue = double.NaN;
     [ObservableProperty] private string _gpuTempText = "—";
+    [ObservableProperty] private double _gpuTempValue = double.NaN;
     [ObservableProperty] private string _gpuLoadText = "—";
+    [ObservableProperty] private double _gpuLoadValue = double.NaN;
     [ObservableProperty] private IReadOnlyList<double>? _cpuTempHistory;
     [ObservableProperty] private IReadOnlyList<double>? _cpuLoadHistory;
     [ObservableProperty] private IReadOnlyList<double>? _gpuTempHistory;
@@ -147,18 +151,20 @@ public partial class SensorsViewModel : ObservableObject
         var gpuTemp = Pick(readings, "Graphics", SensorKind.Temperature);
         var gpuLoad = Pick(readings, "Graphics", SensorKind.Load, prefer: "core");
 
-        SetHeadline(cpuTemp, v => CpuTempText = v, h => CpuTempHistory = h);
-        SetHeadline(cpuLoad, v => CpuLoadText = v, h => CpuLoadHistory = h);
+        SetHeadline(cpuTemp, v => CpuTempText = v, h => CpuTempHistory = h, v => CpuTempValue = v);
+        SetHeadline(cpuLoad, v => CpuLoadText = v, h => CpuLoadHistory = h, v => CpuLoadValue = v);
         HasGpu = gpuTemp is not null || gpuLoad is not null;
-        SetHeadline(gpuTemp, v => GpuTempText = v, h => GpuTempHistory = h);
-        SetHeadline(gpuLoad, v => GpuLoadText = v, h => GpuLoadHistory = h);
+        SetHeadline(gpuTemp, v => GpuTempText = v, h => GpuTempHistory = h, v => GpuTempValue = v);
+        SetHeadline(gpuLoad, v => GpuLoadText = v, h => GpuLoadHistory = h, v => GpuLoadValue = v);
     }
 
-    private void SetHeadline(SensorReading? r, Action<string> setText, Action<IReadOnlyList<double>?> setHistory)
+    private void SetHeadline(SensorReading? r, Action<string> setText, Action<IReadOnlyList<double>?> setHistory,
+        Action<double> setValue)
     {
-        if (r is null) { setText("—"); setHistory(null); return; }
+        if (r is null) { setText("—"); setHistory(null); setValue(double.NaN); return; }
         setText(SensorFormatting.Format(r.Kind, r.Value));
         setHistory(_sensors.History(SensorMonitorService.Key(r)));
+        setValue(Math.Round(r.Value));
     }
 
     // Highest-value sensor of a category+kind (the representative reading), preferring a name match.

@@ -40,6 +40,8 @@ internal static class Program
             "SuccessSubtleBrush","WarningSubtleBrush","DangerSubtleBrush","InfoSubtleBrush","VioletSubtleBrush",
             "AccentSubtleBrush","SuccessSubtleStroke","WarningSubtleStroke","DangerSubtleStroke","InfoSubtleStroke",
             "VioletSubtleStroke","DangerSoftBrush","SuccessGradientBrush","GlowMagentaMd","GlowSuccessSm",
+            // Design System v4 (glow/contrast intensification)
+            "GlowVioletMd","GlowXl",
         })
             Try($"token '{key}' resolves", () => { if (app.Resources[key] is null) throw new Exception("not found"); });
 
@@ -164,6 +166,12 @@ internal static class Program
         stagger.Children.Add(new TextBlock { Text = "b" });
         Animations.SetStaggerChildren(stagger, true);
         panel.Children.Add(stagger);
+
+        // v4: EntranceSpring's subtle overshoot, paired with RevealOnLoad as it would be on a hero element.
+        var spring = new Border { Width = 40, Height = 40 };
+        Animations.SetRevealOnLoad(spring, true);
+        Animations.SetEntranceSpring(spring, true);
+        panel.Children.Add(spring);
 
         // Root in a Page so the implicit Page text style is exercised, then force layout without a window.
         var page = new Page { Content = panel };

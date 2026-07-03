@@ -52,25 +52,34 @@
                 <ui:Card Margin="0,0,8,0" Padding="16,12">
                     <StackPanel>
                         <TextBlock Text="SPACE FREED" FontSize="11" Opacity="0.6" Style="{StaticResource CyberSectionHeader}" />
-                        <TextBlock Text="{Binding TotalFreedText}" FontSize="24" Margin="0,4,0,0" Style="{StaticResource CyberDisplayText}" />
+                        <TextBlock FontSize="24" Margin="0,4,0,0" Style="{StaticResource CyberDisplayText}"
+                                   helpers:Animations.CountUpBytes="True"
+                                   helpers:Animations.CountUpText="{Binding TotalFreedBytes}" />
                     </StackPanel>
                 </ui:Card>
                 <ui:Card Margin="0,0,8,0" Padding="16,12">
                     <StackPanel>
                         <TextBlock Text="ACTIONS" FontSize="11" Opacity="0.6" Style="{StaticResource CyberSectionHeader}" />
-                        <TextBlock Text="{Binding TotalActionsText}" FontSize="24" Margin="0,4,0,0" Style="{StaticResource CyberDisplayText}" />
+                        <TextBlock FontSize="24" Margin="0,4,0,0" Style="{StaticResource CyberDisplayText}"
+                                   helpers:Animations.CountUpText="{Binding TotalActionsValue}"
+                                   helpers:Animations.CountUpFormat="N0" />
                     </StackPanel>
                 </ui:Card>
                 <ui:Card Margin="0,0,8,0" Padding="16,12">
                     <StackPanel>
                         <TextBlock Text="HEALTH SCORE" FontSize="11" Opacity="0.6" Style="{StaticResource CyberSectionHeader}" />
-                        <TextBlock Text="{Binding HealthScoreText}" FontSize="24" Margin="0,4,0,0" Style="{StaticResource CyberDisplayText}" />
+                        <TextBlock FontSize="24" Margin="0,4,0,0" Style="{StaticResource CyberDisplayText}"
+                                   helpers:Animations.CountUpText="{Binding HealthScoreValue}"
+                                   helpers:Animations.CountUpFormat="0" />
                     </StackPanel>
                 </ui:Card>
                 <ui:Card Padding="16,12">
                     <StackPanel>
                         <TextBlock Text="LATEST BENCHMARK" FontSize="11" Opacity="0.6" Style="{StaticResource CyberSectionHeader}" />
-                        <TextBlock Text="{Binding LatestBenchmarkText}" FontSize="24" Margin="0,4,0,0" Style="{StaticResource CyberDisplayText}" />
+                        <TextBlock FontSize="24" Margin="0,4,0,0" Style="{StaticResource CyberDisplayText}"
+                                   helpers:Animations.CountUpText="{Binding LatestBenchmarkValue}"
+                                   helpers:Animations.CountUpFormat="N0"
+                                   helpers:Animations.CountUpSuffix=" pts" />
                     </StackPanel>
                 </ui:Card>
             </UniformGrid>

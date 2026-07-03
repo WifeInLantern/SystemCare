@@ -46,7 +46,10 @@
                 <ui:Card Grid.Column="0" Margin="0,0,6,0" Padding="16,12">
                     <StackPanel>
                         <TextBlock Text="CPU TEMP" FontSize="11" Opacity="0.65" />
-                        <TextBlock Text="{Binding CpuTempText}" FontSize="22" Style="{StaticResource CyberDisplayText}" />
+                        <TextBlock FontSize="22" Style="{StaticResource CyberDisplayText}"
+                                   helpers:Animations.CountUpText="{Binding CpuTempValue}"
+                                   helpers:Animations.CountUpFormat="0"
+                                   helpers:Animations.CountUpSuffix=" °C" />
                         <controls:SparklineChart Height="44" Margin="0,4,0,0" Max="100"
                                                  Values="{Binding CpuTempHistory}" Accent="{StaticResource AccentColor}" />
                     </StackPanel>
@@ -55,7 +58,10 @@
                 <ui:Card Grid.Column="1" Margin="6,0,6,0" Padding="16,12">
                     <StackPanel>
                         <TextBlock Text="CPU LOAD" FontSize="11" Opacity="0.65" />
-                        <TextBlock Text="{Binding CpuLoadText}" FontSize="22" Style="{StaticResource CyberDisplayText}" />
+                        <TextBlock FontSize="22" Style="{StaticResource CyberDisplayText}"
+                                   helpers:Animations.CountUpText="{Binding CpuLoadValue}"
+                                   helpers:Animations.CountUpFormat="0"
+                                   helpers:Animations.CountUpSuffix=" %" />
                         <controls:SparklineChart Height="44" Margin="0,4,0,0" Max="100"
                                                  Values="{Binding CpuLoadHistory}" Accent="{StaticResource SuccessColor}" />
                     </StackPanel>
@@ -65,7 +71,10 @@
                          Visibility="{Binding HasGpu, Converter={StaticResource VisibleWhenTrue}}">
                     <StackPanel>
                         <TextBlock Text="GPU TEMP" FontSize="11" Opacity="0.65" />
-                        <TextBlock Text="{Binding GpuTempText}" FontSize="22" Style="{StaticResource CyberDisplayText}" />
+                        <TextBlock FontSize="22" Style="{StaticResource CyberDisplayText}"
+                                   helpers:Animations.CountUpText="{Binding GpuTempValue}"
+                                   helpers:Animations.CountUpFormat="0"
+                                   helpers:Animations.CountUpSuffix=" °C" />
                         <controls:SparklineChart Height="44" Margin="0,4,0,0" Max="100"
                                                  Values="{Binding GpuTempHistory}" Accent="{StaticResource VioletColor}" />
                     </StackPanel>
@@ -75,7 +84,10 @@
                          Visibility="{Binding HasGpu, Converter={StaticResource VisibleWhenTrue}}">
                     <StackPanel>
                         <TextBlock Text="GPU LOAD" FontSize="11" Opacity="0.65" />
-                        <TextBlock Text="{Binding GpuLoadText}" FontSize="22" Style="{StaticResource CyberDisplayText}" />
+                        <TextBlock FontSize="22" Style="{StaticResource CyberDisplayText}"
+                                   helpers:Animations.CountUpText="{Binding GpuLoadValue}"
+                                   helpers:Animations.CountUpFormat="0"
+                                   helpers:Animations.CountUpSuffix=" %" />
                         <controls:SparklineChart Height="44" Margin="0,4,0,0" Max="100"
                                                  Values="{Binding GpuLoadHistory}" Accent="{StaticResource WarningColor}" />
                     </StackPanel>

@@ -1,9 +1,10 @@
-# SystemCare Design System (v3)
+# SystemCare Design System (v4)
 
 The cyberpunk "Night City" visual language: neon cyan + magenta on near-black, layered glass
-surfaces, disciplined glow, and a motion system that is **always Reduce-motion aware**. This doc is
-the contract for anyone adding UI — tokens and styles live in three dictionaries merged in
-`App.xaml` in a load-bearing order:
+surfaces, disciplined glow, and a motion system that is **always Reduce-motion aware**. v4 is
+additive-only over v3 — stronger glow/contrast and richer easing on the same identity, no new
+dictionaries, no renamed keys. This doc is the contract for anyone adding UI — tokens and styles
+live in three dictionaries merged in `App.xaml` in a load-bearing order:
 
 ```
 ui:ThemesDictionary (Dark)  →  ui:ControlsDictionary  →  Styles/Theme.xaml
@@ -41,9 +42,14 @@ Alpha increases with elevation so panels read as stacked glass over the animated
 | `Surface0Brush` | `#FF0A0E14` | Page floor |
 | `Surface1Brush` | `#A611192A` | Resting cards (also the `ui:Card` fill) |
 | `Surface2Brush` | `#C81A2438` | Rows, inputs, hover surfaces, skeletons |
-| `Surface3Brush` | `#E6202C46` | Flyouts, dialogs, sticky headers |
+| `Surface3Brush` | `#F0202C46` | Flyouts, dialogs, sticky headers (v4: alpha raised from `#E6` for a clearer "lifted" read) |
 | `GlassRimBrush` | white→stroke vertical gradient | The 1px top rim-light stroke that sells the glass |
 | `GlassSheenBrush` | `#14FFFFFF → transparent` | Optional top sheen overlay |
+
+v4 also deepened `CyberBackgroundDeepColor` from `#05070B` to `#03040A` — a small widen of the
+background gradient range, more contrast for panels to sit on. `CyberBackgroundColor`,
+`CyberPanelColor`, `CyberStrokeColor`, `AccentColor`, `SecondaryColor` are identity anchors and stay
+untouched.
 
 Hand-rolled panels use `CyberGlassPanel` (Surface1 + rim) or `CyberGlassPanelRaised` (Surface2).
 
@@ -58,11 +64,13 @@ Danger/Info` with `ChipTextSuccess/Warning/Danger/Info` labels. Never inline a `
 
 | Effect | Blur / opacity | Law |
 |---|---|---|
-| `GlowSm` / `GlowSuccessSm` | 10 / 0.35 | Static accents: section headers, icons |
-| `GlowMd` / `GlowMagentaMd` | 18 / 0.45–0.5 | Hover states (prefer the `HoverGlow` behavior) |
-| `GlowLg` | 28 / 0.6 | **Max 1–2 hero elements per page** (gauge, primary CTA) |
+| `GlowSm` / `GlowSuccessSm` | 12 / 0.40 | Static accents: section headers, icons |
+| `GlowMd` / `GlowMagentaMd` / `GlowVioletMd` | 22 / 0.52, 20 / 0.58, 20 / 0.55 | Hover states (prefer the `HoverGlow` behavior) |
+| `GlowLg` | 34 / 0.68 | **Max 1–2 hero elements per page** (gauge, primary CTA) |
+| `GlowXl` | 44 / 0.75 | **Reserved — one per app, not one per page.** The single loudest hero (e.g. the health gauge). Distinct from `GlowLg`'s per-page allowance so pages don't all reach for the loudest tier. |
 
-Never put a glow on body text. Max one *breathing* (NeonPulse) element per screen.
+(v4 pushed every value one step stronger than v3; `GlowVioletMd` and `GlowXl` are new.) Never put a
+glow on body text. Max one *breathing* (NeonPulse) element per screen.
 
 ## 5. Typography ramp
 
@@ -94,11 +102,14 @@ the `Motion` constants:
 | `Motion.Fast` | 120 | CubicEase Out | Press-down, chip hover, focus glow in |
 | `Motion.Base` | 200 | CubicEase Out | Hover-in glow/lift, press release (BackEase 0.3) |
 | `Motion.Gentle` | 300 | CubicEase Out | Hover-out, fade-swaps, badge changes |
-| `Motion.EntranceMs` | 260 | CubicEase Out | `FadeInOnLoad` |
-| `Motion.RevealMs` | 320 | CubicEase Out | `RevealOnLoad` (+ one-shot power-on flash) |
+| `Motion.EntranceMs` | 280 | CubicEase Out | `FadeInOnLoad` (v4: was 260) |
+| `Motion.RevealMs` | 340 | CubicEase Out | `RevealOnLoad` (+ one-shot power-on flash) (v4: was 320) |
 | `Motion.StaggerStepMs` | 40 | — | Sibling delay, capped at 400ms total |
 | `Motion.LoopMs` | 1600 | SineEase InOut | NeonPulse breathing |
 | `Motion.ShimmerLoopMs` | 1100 | SineEase InOut | Skeleton shimmer |
+
+`Motion.Entrance`/`Reveal`/`Loop` `TimeSpan` properties now exist alongside the `*Ms` doubles (v4 —
+previously these three were inline `TimeSpan.FromMilliseconds` literals; use the named properties).
 
 **Laws:** nothing interactive exceeds 300ms; hover is in=Base / out=Gentle; only entrances go
 longer (via stagger delay); one breathing element per screen.
@@ -112,12 +123,13 @@ longer (via stagger delay); one breathing element per screen.
 | `Animations.RevealOnLoad` | Entrance + one-shot cyan power-on flash (hero elements) |
 | `Animations.FadeVisible` (bool binding) | Animated Visibility swap for busy/results states |
 | `Animations.HoverGlow` (+`HoverGlowColor`) | Glow that fades in/out on hover (default accent) |
-| `Animations.HoverLift` | Scale 1.02 + glow (interactive cards). **Never combine with HoverGlow/NeonPulse** — each owns `Effect`. |
+| `Animations.HoverLift` | Scale 1.02 + glow that **fades in/out like HoverGlow** (v4: was an instant pop before). **Never combine with HoverGlow/NeonPulse** — each owns `Effect`. |
 | `Animations.PressScale` | Press-down 0.96 / spring-back (implicit on all `ui:Button`) |
 | `Animations.NeonPulse` | Forever-breathing glow — heroes only, one per screen |
 | `Animations.Shimmer` | Opacity breathing for `SkeletonBlock`/`SkeletonCard` |
 | `Animations.SmoothValue` | Glides a ProgressBar/RangeBase value |
 | `Animations.CountUpText` (+Format/Bytes/Suffix) | Counting numeric TextBlock |
+| `Animations.EntranceSpring` (v4) | Opt-in subtle `BackEase` overshoot (amplitude 0.25) on `FadeInOnLoad`/`RevealOnLoad`'s Y-translate only — never opacity, never `Effect`. For a couple of true hero elements (health gauge, a primary CTA), not bulk `StaggerChildren` cascades. |
 
 ### WPF Freezable rules (why behaviors, not Style storyboards)
 
@@ -143,16 +155,32 @@ settles instantly (`Opacity = 1`). Every value animation snaps. The nav transiti
 - **Buttons**: `CyberPrimaryButton` / `CyberGhostButton` / `CyberDangerButton`; all get PressScale
   from the implicit `ui:Button` style and an animated HoverGlow.
 - **Status chip**: `<Border Style="{StaticResource CyberChipSuccess}"><TextBlock Style="{StaticResource ChipTextSuccess}" Text="OK"/></Border>`
-- **Loading state**: skeletons behind the swap —
+- **Loading state**: skeletons behind the swap, real example from `CleanupPage.xaml` (scan results) —
   ```xaml
-  <StackPanel helpers:Animations.FadeVisible="{Binding IsBusy}">
-      <Border Style="{StaticResource SkeletonCard}" />
-      <Border Style="{StaticResource SkeletonBlock}" />
-  </StackPanel>
-  <ItemsControl helpers:Animations.FadeVisible="{Binding HasResults}" … />
+  <Grid>
+      <StackPanel helpers:Animations.FadeVisible="{Binding IsBusy}">
+          <Border Style="{StaticResource SkeletonCard}" />
+          <Border Style="{StaticResource SkeletonCard}" />
+          <Border Style="{StaticResource SkeletonCard}" />
+      </StackPanel>
+      <ScrollViewer helpers:Animations.FadeVisible="{Binding IsBusy, Converter={StaticResource Not}}">
+          <ItemsControl ItemsSource="{Binding Categories}" … />
+      </ScrollViewer>
+  </Grid>
   ```
+  Fixed placeholder borders (not a per-item template) avoid unnecessary `Shimmer`-host churn on
+  rapid scan/cancel/rescan cycles.
 - **Empty state** (composition, no control): centered StackPanel of `ui:SymbolIcon` (FontSize 40,
   Opacity 0.4) → `EmptyStateTitle` → `EmptyStateHint` → optional `CyberGhostButton`.
+
+## 8b. Navigation
+
+`MainWindow.xaml`'s `NavigationView` keeps `Transition="FadeInWithSlide"` (WPF-UI's `Transition`
+enum has no easing hook, so a deeper transition redesign would mean forking `NavigationView`
+internals — out of scope). `TransitionDuration` is `260` (v4: was 220), aligned just under
+`Motion.RevealMs` since a full-page transition is the largest "reveal" in the app and shouldn't
+feel faster than a card's own reveal. `MainWindow.xaml.cs`'s `ApplyNavigationTransition()` swaps to
+`Transition.None` under Reduce motion live (duration is irrelevant when `None`).
 
 ## 9. New-page checklist
 

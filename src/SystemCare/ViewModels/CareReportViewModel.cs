@@ -39,9 +39,13 @@ public partial class CareReportViewModel : ObservableObject
 
     // Headline tiles
     [ObservableProperty] private string _totalFreedText = "—";
+    [ObservableProperty] private long _totalFreedBytes;
     [ObservableProperty] private string _totalActionsText = "—";
+    [ObservableProperty] private double _totalActionsValue;
     [ObservableProperty] private string _healthScoreText = "—";
+    [ObservableProperty] private double _healthScoreValue = double.NaN;
     [ObservableProperty] private string _latestBenchmarkText = "—";
+    [ObservableProperty] private double _latestBenchmarkValue = double.NaN;
     [ObservableProperty] private string _historyWindowText = "";
 
     // Space-freed bar charts
@@ -83,8 +87,11 @@ public partial class CareReportViewModel : ObservableObject
         var totals = CareReportAggregator.Totals(entries);
 
         TotalFreedText = ByteFormatter.Format(totals.TotalBytes);
+        TotalFreedBytes = totals.TotalBytes;
         TotalActionsText = totals.TotalActions.ToString("N0");
+        TotalActionsValue = totals.TotalActions;
         HealthScoreText = _settings.Current.LastHealthScore is int score ? $"{score}" : "—";
+        HealthScoreValue = _settings.Current.LastHealthScore is int hs ? hs : double.NaN;
         HistoryWindowText = totals.OldestUtc is DateTime oldest
             ? $"Based on the last {totals.TotalActions:N0} recorded action(s), since {oldest.ToLocalTime():d} (history keeps the most recent 500)."
             : "Run scans and cleanups to build up trend data.";
@@ -118,11 +125,13 @@ public partial class CareReportViewModel : ObservableObject
             BenchmarkTrendValues = points;
             BenchmarkTrendMax = Math.Max(100, points.Max() * 1.1);
             LatestBenchmarkText = $"{runs[^1].Points:N0} pts";
+            LatestBenchmarkValue = runs[^1].Points;
         }
         else
         {
             BenchmarkTrendValues = null;
             LatestBenchmarkText = runs.Count == 1 ? $"{runs[^1].Points:N0} pts" : "—";
+            LatestBenchmarkValue = runs.Count == 1 ? runs[^1].Points : double.NaN;
         }
     }
 

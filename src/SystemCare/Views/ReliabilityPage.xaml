@@ -74,7 +74,7 @@
                                   ItemsSource="{Binding Counts}">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
-                                <UniformGrid Columns="3" />
+                                <UniformGrid Columns="3" helpers:Animations.StaggerChildren="True" />
                             </ItemsPanelTemplate>
                         </ItemsControl.ItemsPanel>
                         <ItemsControl.ItemTemplate>
@@ -84,8 +84,10 @@
                                     <StackPanel>
                                         <StackPanel Orientation="Horizontal">
                                             <ui:SymbolIcon Symbol="{Binding Icon}" FontSize="16" Opacity="0.8" />
-                                            <TextBlock Text="{Binding Count}" FontSize="22" Margin="8,0,0,0"
-                                                       Style="{StaticResource CyberDisplayText}" />
+                                            <TextBlock FontSize="22" Margin="8,0,0,0"
+                                                       Style="{StaticResource CyberDisplayText}"
+                                                       helpers:Animations.CountUpText="{Binding Count}"
+                                                       helpers:Animations.CountUpFormat="0" />
                                         </StackPanel>
                                         <TextBlock Text="{Binding Label}" Style="{StaticResource TextCaption}" Margin="0,2,0,0" />
                                     </StackPanel>

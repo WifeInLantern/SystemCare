@@ -65,8 +65,7 @@
                               Visibility="{Binding HasAlerts, Converter={StaticResource VisibleWhenTrue}}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <Border CornerRadius="8" Padding="14,10" Margin="0,0,0,8" Background="{StaticResource PanelInsetBrush}"
-                                    BorderBrush="{StaticResource CyberStrokeBrush}" BorderThickness="1"
+                            <Border Style="{StaticResource CyberGlassPanelRaised}" Margin="0,0,0,8"
                                     helpers:Animations.FadeInOnLoad="True">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
@@ -131,9 +130,9 @@
                                                     Visibility="{Binding HasHours, Converter={StaticResource VisibleWhenTrue}}">
                                                 <TextBlock Text="{Binding HoursText}" FontSize="11" />
                                             </Border>
-                                            <Border Background="{StaticResource DangerSubtleBrush}" CornerRadius="4" Padding="7,3" Margin="0,0,6,6"
+                                            <Border Style="{StaticResource CyberChipDanger}" Margin="0,0,6,6"
                                                     Visibility="{Binding HasErrors, Converter={StaticResource VisibleWhenTrue}}">
-                                                <TextBlock Text="{Binding ErrorsText}" FontSize="11" Foreground="{StaticResource DangerSoftBrush}" />
+                                                <TextBlock Text="{Binding ErrorsText}" Style="{StaticResource ChipTextDanger}" />
                                             </Border>
                                         </WrapPanel>
                                     </StackPanel>

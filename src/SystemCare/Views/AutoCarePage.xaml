@@ -39,7 +39,9 @@
                 <StackPanel Orientation="Horizontal">
                     <ui:Button Content="Analyze this PC" Appearance="Primary" Padding="32,12" FontSize="15"
                                Command="{Binding AnalyzeCommand}"
-                               Visibility="{Binding IsWorking, Converter={StaticResource VisibleWhenFalse}}">
+                               Visibility="{Binding IsWorking, Converter={StaticResource VisibleWhenFalse}}"
+                               helpers:Animations.RevealOnLoad="True"
+                               helpers:Animations.EntranceSpring="True">
                         <ui:Button.Icon><ui:SymbolIcon Symbol="Sparkle24" /></ui:Button.Icon>
                     </ui:Button>
                     <ui:Button Content="Cancel" Appearance="Danger" Padding="32,12" FontSize="15"

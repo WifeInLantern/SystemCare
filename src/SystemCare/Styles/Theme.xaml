@@ -10,7 +10,8 @@
 
     <!-- Surfaces -->
     <Color x:Key="CyberBackgroundColor">#0A0E14</Color>
-    <Color x:Key="CyberBackgroundDeepColor">#05070B</Color>
+    <!-- v4: deepened from #05070B for more contrast under panels (identity anchor CyberBackgroundColor unchanged). -->
+    <Color x:Key="CyberBackgroundDeepColor">#03040A</Color>
     <Color x:Key="CyberPanelColor">#C8121A28</Color>      <!-- glass panel fill (~78% alpha) -->
     <Color x:Key="CyberPanelSolidColor">#121A28</Color>
     <Color x:Key="CyberStrokeColor">#2A3A55</Color>
@@ -101,10 +102,10 @@
     <SolidColorBrush x:Key="OverlayScrimBrush" Color="#B305070B" />
     <SolidColorBrush x:Key="FocusGlowBrush" Color="{StaticResource AccentColor}" />
 
-    <!-- Reusable cyan glow levels (static, shareable) -->
-    <DropShadowEffect x:Key="GlowSm" Color="{StaticResource AccentColor}" ShadowDepth="0" BlurRadius="10" Opacity="0.35" />
-    <DropShadowEffect x:Key="GlowMd" Color="{StaticResource AccentColor}" ShadowDepth="0" BlurRadius="18" Opacity="0.45" />
-    <DropShadowEffect x:Key="GlowLg" Color="{StaticResource AccentColor}" ShadowDepth="0" BlurRadius="28" Opacity="0.6" />
+    <!-- Reusable cyan glow levels (static, shareable). v4: pushed one step stronger than v3. -->
+    <DropShadowEffect x:Key="GlowSm" Color="{StaticResource AccentColor}" ShadowDepth="0" BlurRadius="12" Opacity="0.40" />
+    <DropShadowEffect x:Key="GlowMd" Color="{StaticResource AccentColor}" ShadowDepth="0" BlurRadius="22" Opacity="0.52" />
+    <DropShadowEffect x:Key="GlowLg" Color="{StaticResource AccentColor}" ShadowDepth="0" BlurRadius="34" Opacity="0.68" />
 
     <!-- ===========================  Design System v3 tokens  =========================== -->
 
@@ -115,7 +116,8 @@
     <SolidColorBrush x:Key="Surface0Brush" Color="#FF0A0E14" />
     <SolidColorBrush x:Key="Surface1Brush" Color="#A611192A" />
     <SolidColorBrush x:Key="Surface2Brush" Color="#C81A2438" />
-    <SolidColorBrush x:Key="Surface3Brush" Color="#E6202C46" />
+    <!-- v4: alpha raised from #E6 for a clearer "lifted above everything" read on dialogs/flyouts. -->
+    <SolidColorBrush x:Key="Surface3Brush" Color="#F0202C46" />
 
     <!-- 1px "rim light" stroke that sells the glass: bright at the top edge, fading to stroke. -->
     <LinearGradientBrush x:Key="GlassRimBrush" StartPoint="0,0" EndPoint="0,1">
@@ -153,8 +155,19 @@
     </LinearGradientBrush>
 
     <!-- Colored glow variants so danger/success glows stop being inlined per page.
-         Glow law: Sm = static accents, Md = hover states, Lg = at most 1-2 hero elements per page. -->
-    <DropShadowEffect x:Key="GlowMagentaMd" Color="{StaticResource SecondaryColor}" ShadowDepth="0" BlurRadius="16" Opacity="0.5" />
-    <DropShadowEffect x:Key="GlowSuccessSm" Color="{StaticResource SuccessColor}" ShadowDepth="0" BlurRadius="10" Opacity="0.35" />
+         Glow law: Sm = static accents, Md = hover states, Lg = at most 1-2 hero elements per page.
+         v4: pushed to match the Sm/Md bump above. -->
+    <DropShadowEffect x:Key="GlowMagentaMd" Color="{StaticResource SecondaryColor}" ShadowDepth="0" BlurRadius="20" Opacity="0.58" />
+    <DropShadowEffect x:Key="GlowSuccessSm" Color="{StaticResource SuccessColor}" ShadowDepth="0" BlurRadius="12" Opacity="0.40" />
+
+    <!-- ===========================  Design System v4 tokens  =========================== -->
+
+    <!-- Violet accent glow (Md tier), matching GlowMagentaMd/GlowSuccessSm — v3 shipped a violet
+         accent color and VioletSubtleBrush/Stroke pair but no matching glow. -->
+    <DropShadowEffect x:Key="GlowVioletMd" Color="{StaticResource VioletColor}" ShadowDepth="0" BlurRadius="20" Opacity="0.55" />
+
+    <!-- Reserved for the single loudest hero element in the whole app (e.g. the health gauge) -
+         NOT a per-page tier like GlowLg (which allows 1-2 heroes per page). Use at most once. -->
+    <DropShadowEffect x:Key="GlowXl" Color="{StaticResource AccentColor}" ShadowDepth="0" BlurRadius="44" Opacity="0.75" />
 
 </ResourceDictionary>

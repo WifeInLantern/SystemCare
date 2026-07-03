@@ -102,14 +102,36 @@ public static class Animations
         element.Opacity = 0;
 
         var ease = new CubicEase { EasingMode = EasingMode.EaseOut };
-        var duration = TimeSpan.FromMilliseconds(260);
+        var duration = Motion.Entrance;
         var delay = TimeSpan.FromMilliseconds(GetRevealDelay(element));
 
         element.BeginAnimation(UIElement.OpacityProperty,
             new DoubleAnimation(0, 1, duration) { EasingFunction = ease, BeginTime = delay });
         translate.BeginAnimation(TranslateTransform.YProperty,
-            new DoubleAnimation(12, 0, duration) { EasingFunction = ease, BeginTime = delay });
+            new DoubleAnimation(12, 0, duration) { EasingFunction = GetEntrancePositionEase(element), BeginTime = delay });
     }
+
+    // ---------- EntranceSpring (opt-in subtle overshoot on FadeInOnLoad/RevealOnLoad's Y-rise) ----------
+
+    /// <summary>
+    /// Set alongside FadeInOnLoad/RevealOnLoad on a hero element to give its Y-translate entrance a
+    /// small spring overshoot (BackEase) instead of a plain ease-out. Opacity is never affected (a
+    /// bouncing opacity reads as flicker, not spring) and this never touches Effect, so it's
+    /// Freezable-rule-safe by construction. Intended for a couple of true heroes per page (e.g. the
+    /// health gauge), not bulk StaggerChildren cascades — many overshooting siblings at once looks
+    /// busy rather than smooth.
+    /// </summary>
+    public static readonly DependencyProperty EntranceSpringProperty =
+        DependencyProperty.RegisterAttached(
+            "EntranceSpring", typeof(bool), typeof(Animations), new PropertyMetadata(false));
+
+    public static bool GetEntranceSpring(DependencyObject o) => (bool)o.GetValue(EntranceSpringProperty);
+    public static void SetEntranceSpring(DependencyObject o, bool v) => o.SetValue(EntranceSpringProperty, v);
+
+    private static IEasingFunction GetEntrancePositionEase(FrameworkElement element) =>
+        GetEntranceSpring(element)
+            ? new BackEase { Amplitude = 0.25, EasingMode = EasingMode.EaseOut }
+            : new CubicEase { EasingMode = EasingMode.EaseOut };
 
     // ---------- RevealDelay (stagger: shared by FadeInOnLoad and RevealOnLoad) ----------
 
@@ -151,13 +173,9 @@ public static class Animations
     {
         var element = (FrameworkElement)sender;
         var (scale, _) = GetTransforms(element);
-        element.Effect = new DropShadowEffect
-        {
-            Color = NeonCyan,
-            ShadowDepth = 0,
-            BlurRadius = 28,
-            Opacity = 0.7,
-        };
+        // v4: was an instant static-Effect pop; now fades in like HoverGlow (same visual strength,
+        // 28/0.7, only the pop->fade mechanics changed).
+        FadeGlowIn(element, NeonCyan, 28, 0.7);
         var ease = new CubicEase { EasingMode = EasingMode.EaseOut };
         var d = TimeSpan.FromMilliseconds(150);
         scale.BeginAnimation(ScaleTransform.ScaleXProperty, new DoubleAnimation(1.02, d) { EasingFunction = ease });
@@ -171,7 +189,7 @@ public static class Animations
         var d = TimeSpan.FromMilliseconds(200);
         scale.BeginAnimation(ScaleTransform.ScaleXProperty, new DoubleAnimation(1, d));
         scale.BeginAnimation(ScaleTransform.ScaleYProperty, new DoubleAnimation(1, d));
-        element.Effect = null;
+        FadeGlowOut(element);
     }
 
     // ---------- SmoothValue (glide a ProgressBar/RangeBase) ----------
@@ -239,7 +257,7 @@ public static class Animations
         element.Effect = glow;
         if (ReduceMotion) return; // keep a static glow, skip the forever-breathing loop
         glow.BeginAnimation(DropShadowEffect.OpacityProperty,
-            new DoubleAnimation(0.3, 0.8, TimeSpan.FromSeconds(1.6))
+            new DoubleAnimation(0.3, 0.8, Motion.Loop)
             {
                 AutoReverse = true,
                 RepeatBehavior = RepeatBehavior.Forever,
@@ -296,13 +314,13 @@ public static class Animations
         element.Opacity = 0;
 
         var ease = new CubicEase { EasingMode = EasingMode.EaseOut };
-        var duration = TimeSpan.FromMilliseconds(320);
+        var duration = Motion.Reveal;
         var delay = TimeSpan.FromMilliseconds(GetRevealDelay(element));
 
         element.BeginAnimation(UIElement.OpacityProperty,
             new DoubleAnimation(0, 1, duration) { EasingFunction = ease, BeginTime = delay });
         translate.BeginAnimation(TranslateTransform.YProperty,
-            new DoubleAnimation(14, 0, duration) { EasingFunction = ease, BeginTime = delay });
+            new DoubleAnimation(14, 0, duration) { EasingFunction = GetEntrancePositionEase(element), BeginTime = delay });
 
         // One-shot cyan "power-on" flash that fades out, then clears the effect.
         var glow = new DropShadowEffect { Color = NeonCyan, ShadowDepth = 0, BlurRadius = 26, Opacity = 0 };
@@ -622,30 +640,44 @@ public static class Animations
         var element = (FrameworkElement)sender;
         var color = GetHoverGlowColor(element);
         if (color == default) color = NeonCyan;
+        FadeGlowIn(element, color, 18, 0.55);
+    }
 
-        // Reuse the glow if we're mid fade-out from a previous hover.
+    private static void OnHoverGlowLeave(object sender, RoutedEventArgs e) => FadeGlowOut((FrameworkElement)sender);
+
+    /// <summary>
+    /// Shared fade-in primitive for hover glows (used by <see cref="HoverGlow"/> and
+    /// <see cref="HoverLift"/>): fades a per-element <see cref="DropShadowEffect"/> in to
+    /// <paramref name="toOpacity"/> over <see cref="Motion.Base"/>, reusing the effect instance if
+    /// one is already mid fade-out from a previous hover. Snaps instantly under ReduceMotion.
+    /// </summary>
+    private static void FadeGlowIn(FrameworkElement element, Color color, double blur, double toOpacity)
+    {
         if (element.GetValue(HoverGlowEffectProperty) is not DropShadowEffect glow ||
             !ReferenceEquals(element.Effect, glow))
         {
-            glow = new DropShadowEffect { Color = color, ShadowDepth = 0, BlurRadius = 18, Opacity = 0 };
+            glow = new DropShadowEffect { Color = color, ShadowDepth = 0, BlurRadius = blur, Opacity = 0 };
             element.Effect = glow;
             element.SetValue(HoverGlowEffectProperty, glow);
         }
         glow.Color = color;
+        glow.BlurRadius = blur;
 
         if (ReduceMotion)
         {
             glow.BeginAnimation(DropShadowEffect.OpacityProperty, null);
-            glow.Opacity = 0.55;
+            glow.Opacity = toOpacity;
             return;
         }
         glow.BeginAnimation(DropShadowEffect.OpacityProperty,
-            new DoubleAnimation(0.55, Motion.Base) { EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut } });
+            new DoubleAnimation(toOpacity, Motion.Base) { EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut } });
     }
 
-    private static void OnHoverGlowLeave(object sender, RoutedEventArgs e)
+    /// <summary>Shared fade-out primitive: fades the tracked glow to 0 over <see cref="Motion.Gentle"/>,
+    /// then clears <see cref="UIElement.Effect"/> if still owned and the pointer hasn't re-entered.
+    /// Snaps instantly under ReduceMotion.</summary>
+    private static void FadeGlowOut(FrameworkElement element)
     {
-        var element = (FrameworkElement)sender;
         if (element.GetValue(HoverGlowEffectProperty) is not DropShadowEffect glow ||
             !ReferenceEquals(element.Effect, glow))
         {
@@ -743,8 +775,8 @@ public static class Motion
     public const double FastMs = 120;        // press-down, chip hover, focus glow in
     public const double BaseMs = 200;        // hover-in glow/lift, press release
     public const double GentleMs = 300;      // hover-out, fade-swap, badge changes
-    public const double EntranceMs = 260;    // FadeInOnLoad
-    public const double RevealMs = 320;      // RevealOnLoad
+    public const double EntranceMs = 280;    // FadeInOnLoad (v4: was 260)
+    public const double RevealMs = 340;      // RevealOnLoad (v4: was 320)
     public const double StaggerStepMs = 40;  // delay increment between staggered siblings
     public const double StaggerCapMs = 400;  // total stagger delay ceiling
     public const double LoopMs = 1600;       // NeonPulse breathing
@@ -753,5 +785,8 @@ public static class Motion
     public static TimeSpan Fast => TimeSpan.FromMilliseconds(FastMs);
     public static TimeSpan Base => TimeSpan.FromMilliseconds(BaseMs);
     public static TimeSpan Gentle => TimeSpan.FromMilliseconds(GentleMs);
+    public static TimeSpan Entrance => TimeSpan.FromMilliseconds(EntranceMs);
+    public static TimeSpan Reveal => TimeSpan.FromMilliseconds(RevealMs);
+    public static TimeSpan Loop => TimeSpan.FromMilliseconds(LoopMs);
     public static TimeSpan ShimmerLoop => TimeSpan.FromMilliseconds(ShimmerLoopMs);
 }

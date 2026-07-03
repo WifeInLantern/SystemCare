@@ -2,6 +2,21 @@
 
 All notable changes to SystemCare are documented here. Versions follow [SemVer](https://semver.org/).
 
+## [2.4.2] - 2026-07-03
+
+### Changed
+- **UI polish: Design System v4.** A follow-up pass on top of 2.4.1's overhaul — every neon glow
+  (section headers, hover states, hero elements) is pushed noticeably stronger, dialogs and flyouts
+  read with more contrast against the backdrop, and hover cards now fade their glow in and out
+  consistently everywhere (the one remaining spot that still popped instantly is fixed). Page
+  entrances and reveals run a touch longer for a smoother feel, and a couple of hero elements (the
+  health gauge, Auto Care's primary button) get a subtle spring overshoot on entrance. Live stat
+  numbers on the Benchmark, Reliability, Sensors, and Care Report pages now count up smoothly
+  instead of snapping to their final value, matching the Dashboard. The Cleanup page shows a
+  shimmering placeholder while scanning instead of blank rows, and a couple of pages adopt the
+  glass-panel and status-chip styles introduced last release. Visual/interaction refresh only — no
+  functional changes.
+
 ## [2.4.1] - 2026-07-02
 
 ### Changed

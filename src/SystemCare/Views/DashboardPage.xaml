@@ -31,7 +31,9 @@
                 </Grid.ColumnDefinitions>
 
                 <controls:HealthGauge Grid.Column="0" Width="260" Height="260"
-                                      Score="{Binding HealthScoreValue}" />
+                                      Score="{Binding HealthScoreValue}"
+                                      helpers:Animations.RevealOnLoad="True"
+                                      helpers:Animations.EntranceSpring="True" />
 
                 <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="36,0,0,0">
                     <TextBlock Text="PC HEALTH" FontSize="30" Style="{StaticResource CyberDisplayText}" />
