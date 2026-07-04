@@ -12,7 +12,7 @@
     <ApplicationIcon>Assets\app.ico</ApplicationIcon>
     <AssemblyTitle>SystemCare</AssemblyTitle>
     <Product>SystemCare</Product>
-    <Version>2.4.3</Version>
+    <Version>2.4.4</Version>
   </PropertyGroup>
 
   <ItemGroup>

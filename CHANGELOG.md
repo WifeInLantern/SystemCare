@@ -2,6 +2,19 @@
 
 All notable changes to SystemCare are documented here. Versions follow [SemVer](https://semver.org/).
 
+## [2.4.4] - 2026-07-05
+
+### Changed
+- **Software Hub: a much bigger, Ninite-style catalog.** The one-click installer grew from 20 to 58
+  curated free apps, organized into 12 categories (Web Browsers, Messaging, Media, Imaging,
+  Documents, Developer Tools, Utilities, Compression, Security, Online Storage, Runtimes, File
+  Sharing). Every winget package id is validated against the live winget catalog by a new
+  `tools/verify-softwarehub-ids` checker.
+
+### Fixed
+- **Brave's install id was stale.** The Software Hub used the retired `BraveSoftware.BraveBrowser`
+  id, so installing Brave silently failed; it now uses the current `Brave.Brave`.
+
 ## [2.4.3] - 2026-07-05
 
 ### Added
