@@ -2,6 +2,19 @@
 
 All notable changes to SystemCare are documented here. Versions follow [SemVer](https://semver.org/).
 
+## [2.4.3] - 2026-07-05
+
+### Added
+- **Defender page (Protect).** A dedicated Microsoft Defender panel that reads live protection status
+  via WMI — real-time protection, tamper protection, definition version/age, and the last quick/full
+  scan times — and runs **Quick scan**, **Full scan**, or a **definition update** through
+  `MpCmdRun.exe` with streaming console output and cancel support. Results are recorded to Activity
+  History, and a shortcut opens Windows Security for details.
+- **Battery Health page (Analyze).** A laptop battery report that computes **wear level** from design
+  vs. full-charge capacity (via WMI), shown on the neon health gauge alongside cycle count, current
+  charge, chemistry, and power state. An **Export detailed report** button generates Windows'
+  `powercfg /batteryreport` HTML and opens it. Desktops without a battery get a clean empty state.
+
 ## [2.4.2] - 2026-07-03
 
 ### Changed

@@ -77,6 +77,8 @@ public partial class App : Application
         services.AddSingleton<IAppPackageService, AppPackageService>();
         services.AddSingleton<IUpdateService, UpdateService>();
         services.AddSingleton<ISecurityCheckService, SecurityCheckService>();
+        services.AddSingleton<IDefenderService, DefenderService>();
+        services.AddSingleton<IBatteryHealthService, BatteryHealthService>();
         services.AddSingleton<INetworkToolsService, NetworkToolsService>();
         services.AddSingleton<INetworkUsageService, NetworkUsageService>();
         services.AddSingleton<IFirewallService, FirewallService>();
@@ -115,6 +117,8 @@ public partial class App : Application
         services.AddSingleton<BloatwareViewModel>();
         services.AddSingleton<DebloatViewModel>();
         services.AddSingleton<SecurityCheckupViewModel>();
+        services.AddSingleton<DefenderViewModel>();
+        services.AddSingleton<BatteryHealthViewModel>();
         services.AddSingleton<NetworkToolsViewModel>();
         services.AddSingleton<NetworkMonitorViewModel>();
         services.AddSingleton<NetworkSecurityAuditViewModel>();
@@ -153,6 +157,8 @@ public partial class App : Application
         services.AddTransient<BloatwarePage>();
         services.AddTransient<DebloatPage>();
         services.AddTransient<SecurityCheckupPage>();
+        services.AddTransient<DefenderPage>();
+        services.AddTransient<BatteryHealthPage>();
         services.AddTransient<NetworkToolsPage>();
         services.AddTransient<NetworkMonitorPage>();
         services.AddTransient<NetworkSecurityAuditPage>();

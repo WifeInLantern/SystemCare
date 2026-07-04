@@ -170,6 +170,11 @@
                         <ui:SymbolIcon Symbol="Info24" />
                     </ui:NavigationViewItem.Icon>
                 </ui:NavigationViewItem>
+                <ui:NavigationViewItem Content="Battery Health" TargetPageType="{x:Type views:BatteryHealthPage}" ToolTipService.ToolTip="Battery Health &amp; wear report">
+                    <ui:NavigationViewItem.Icon>
+                        <ui:SymbolIcon Symbol="Battery1024" />
+                    </ui:NavigationViewItem.Icon>
+                </ui:NavigationViewItem>
                 <ui:NavigationViewItem Content="History" TargetPageType="{x:Type views:HistoryPage}" ToolTipService.ToolTip="Activity History">
                     <ui:NavigationViewItem.Icon>
                         <ui:SymbolIcon Symbol="History24" />
@@ -205,6 +210,11 @@
                 <ui:NavigationViewItem Content="Security" TargetPageType="{x:Type views:SecurityCheckupPage}" ToolTipService.ToolTip="Security Checkup">
                     <ui:NavigationViewItem.Icon>
                         <ui:SymbolIcon Symbol="ShieldCheckmark24" />
+                    </ui:NavigationViewItem.Icon>
+                </ui:NavigationViewItem>
+                <ui:NavigationViewItem Content="Defender" TargetPageType="{x:Type views:DefenderPage}" ToolTipService.ToolTip="Microsoft Defender — status &amp; scan">
+                    <ui:NavigationViewItem.Icon>
+                        <ui:SymbolIcon Symbol="ShieldTask24" />
                     </ui:NavigationViewItem.Icon>
                 </ui:NavigationViewItem>
                 <ui:NavigationViewItem Content="Repair Toolkit" TargetPageType="{x:Type views:RepairToolkitPage}" ToolTipService.ToolTip="System Repair Toolkit (SFC / DISM / CHKDSK)">
