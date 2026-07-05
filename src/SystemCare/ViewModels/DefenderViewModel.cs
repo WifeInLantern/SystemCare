@@ -22,7 +22,11 @@ public partial class DefenderViewModel : ObservableObject
     [NotifyCanExecuteChangedFor(nameof(RefreshCommand))]
     private bool _isRunning;
 
-    [ObservableProperty] private bool _isAvailable = true;
+    [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(QuickScanCommand))]
+    [NotifyCanExecuteChangedFor(nameof(FullScanCommand))]
+    [NotifyCanExecuteChangedFor(nameof(UpdateSignaturesCommand))]
+    private bool _isAvailable = true;
     [ObservableProperty] private string _headline = "Reading Defender status…";
     [ObservableProperty] private string _statusIcon = "ShieldCheckmark24";
     [ObservableProperty] private string _realTimeText = "—";
@@ -60,10 +64,10 @@ public partial class DefenderViewModel : ObservableObject
     private static string FormatDate(DateTime? dt) =>
         dt is null ? "Never" : dt.Value.ToLocalTime().ToString("g");
 
-    [RelayCommand(CanExecute = nameof(CanRun))]
+    [RelayCommand(CanExecute = nameof(CanScan))]
     private Task QuickScan() => RunScanAsync(DefenderScanType.Quick, "Quick scan");
 
-    [RelayCommand(CanExecute = nameof(CanRun))]
+    [RelayCommand(CanExecute = nameof(CanScan))]
     private Task FullScan() => RunScanAsync(DefenderScanType.Full, "Full scan");
 
     private async Task RunScanAsync(DefenderScanType type, string label)
@@ -100,7 +104,7 @@ public partial class DefenderViewModel : ObservableObject
         }
     }
 
-    [RelayCommand(CanExecute = nameof(CanRun))]
+    [RelayCommand(CanExecute = nameof(CanScan))]
     private async Task UpdateSignatures()
     {
         if (IsRunning) return;
@@ -138,6 +142,9 @@ public partial class DefenderViewModel : ObservableObject
     private void OpenSecurity() => _defender.OpenWindowsSecurity();
 
     private bool CanRun() => !IsRunning;
+
+    // Scans/updates additionally require Defender to be the active, readable antivirus.
+    private bool CanScan() => !IsRunning && IsAvailable;
 
     private void AppendLine(string line)
     {

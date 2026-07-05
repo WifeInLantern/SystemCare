@@ -84,7 +84,11 @@ public class DefenderService : IDefenderService
         try
         {
             if (mo[field] is string s && !string.IsNullOrWhiteSpace(s))
-                return ManagementDateTimeConverter.ToDateTime(s);
+            {
+                var dt = ManagementDateTimeConverter.ToDateTime(s);
+                // A never-run scan comes back as a zero/epoch sentinel; treat that as "Never".
+                if (dt.Year > 1980) return dt;
+            }
         }
         catch (Exception) { }
         return null;
@@ -175,8 +179,10 @@ public class DefenderService : IDefenderService
             string platformRoot = Path.Combine(programData, "Microsoft", "Windows Defender", "Platform");
             if (Directory.Exists(platformRoot))
             {
+                // Platform folders are named by version (e.g. 4.18.24010.12); sort by parsed Version
+                // so 4.18.10 ranks above 4.18.9, which a lexical sort would get wrong.
                 var newest = new DirectoryInfo(platformRoot).GetDirectories()
-                    .OrderByDescending(d => d.Name)
+                    .OrderByDescending(d => Version.TryParse(d.Name, out var v) ? v : new Version(0, 0))
                     .Select(d => Path.Combine(d.FullName, "MpCmdRun.exe"))
                     .FirstOrDefault(File.Exists);
                 if (newest is not null) return newest;

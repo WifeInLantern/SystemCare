@@ -36,20 +36,20 @@ public class BatteryHealthService : IBatteryHealthService
             var scope = new ManagementScope(@"\\.\root\WMI");
             scope.Connect();
 
-            foreach (ManagementBaseObject mo in Query(scope, "SELECT * FROM BatteryStaticData"))
+            ForEach(scope, "SELECT * FROM BatteryStaticData", mo =>
             {
                 present = true;
                 design = ToLong(mo, "DesignedCapacity");
-                manufacturer = mo["ManufactureName"] as string ?? "";
-                name = mo["DeviceName"] as string ?? "";
-                chemistry = ReadChemistry(mo["Chemistry"]);
-            }
+                // Read each field defensively — not every provider exposes every property, and a
+                // missing one throws, which would otherwise skip the reads that follow it.
+                manufacturer = ReadString(mo, "ManufactureName");
+                name = ReadString(mo, "DeviceName");
+                chemistry = ReadChemistry(SafeGet(mo, "Chemistry"));
+            });
 
-            foreach (ManagementBaseObject mo in Query(scope, "SELECT * FROM BatteryFullChargedCapacity"))
-                full = ToLong(mo, "FullChargedCapacity");
+            ForEach(scope, "SELECT * FROM BatteryFullChargedCapacity", mo => full = ToLong(mo, "FullChargedCapacity"));
 
-            foreach (ManagementBaseObject mo in Query(scope, "SELECT * FROM BatteryCycleCount"))
-                cycles = (int)ToLong(mo, "CycleCount");
+            ForEach(scope, "SELECT * FROM BatteryCycleCount", mo => cycles = (int)ToLong(mo, "CycleCount"));
         }
         catch (Exception ex)
         {
@@ -61,14 +61,19 @@ public class BatteryHealthService : IBatteryHealthService
         {
             using var searcher = new ManagementObjectSearcher(
                 "SELECT EstimatedChargeRemaining, BatteryStatus, Chemistry, Name FROM Win32_Battery");
-            foreach (ManagementBaseObject mo in searcher.Get())
+            using var results = searcher.Get();
+            foreach (ManagementBaseObject mo in results)
             {
-                present = true;
-                charge = (int)(mo["EstimatedChargeRemaining"] as ushort? ?? 0);
-                // BatteryStatus 2 == "AC connected" per the Win32_Battery schema.
-                onAc = (mo["BatteryStatus"] as ushort? ?? 0) == 2;
-                if (string.IsNullOrEmpty(name)) name = mo["Name"] as string ?? "";
-                if (string.IsNullOrEmpty(chemistry)) chemistry = ReadWin32Chemistry(mo["Chemistry"]);
+                try
+                {
+                    present = true;
+                    charge = (int)(mo["EstimatedChargeRemaining"] as ushort? ?? 0);
+                    // BatteryStatus 2 == "AC connected" per the Win32_Battery schema.
+                    onAc = (mo["BatteryStatus"] as ushort? ?? 0) == 2;
+                    if (string.IsNullOrEmpty(name)) name = ReadString(mo, "Name");
+                    if (string.IsNullOrEmpty(chemistry)) chemistry = ReadWin32Chemistry(SafeGet(mo, "Chemistry"));
+                }
+                finally { mo.Dispose(); }
             }
         }
         catch (Exception ex)
@@ -93,10 +98,30 @@ public class BatteryHealthService : IBatteryHealthService
         };
     });
 
-    private static ManagementObjectCollection Query(ManagementScope scope, string wql)
+    // Runs a WMI query and invokes <paramref name="onItem"/> for each result, disposing the searcher,
+    // the result collection, and every result object afterward. (Returning the collection while the
+    // searcher is disposed via `using` is undefined behavior — the collection must not outlive it.)
+    private static void ForEach(ManagementScope scope, string wql, Action<ManagementBaseObject> onItem)
     {
         using var searcher = new ManagementObjectSearcher(scope, new ObjectQuery(wql));
-        return searcher.Get();
+        using var results = searcher.Get();
+        foreach (ManagementBaseObject mo in results)
+        {
+            try { onItem(mo); }
+            finally { mo.Dispose(); }
+        }
+    }
+
+    private static string ReadString(ManagementBaseObject mo, string field)
+    {
+        try { return mo[field] as string ?? ""; }
+        catch (Exception) { return ""; }
+    }
+
+    private static object? SafeGet(ManagementBaseObject mo, string field)
+    {
+        try { return mo[field]; }
+        catch (Exception) { return null; }
     }
 
     private static long ToLong(ManagementBaseObject mo, string field)

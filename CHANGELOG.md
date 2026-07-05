@@ -2,6 +2,21 @@
 
 All notable changes to SystemCare are documented here. Versions follow [SemVer](https://semver.org/).
 
+## [2.4.5] - 2026-07-05
+
+### Fixed
+- **Hardening for the Defender & Battery Health tools** (from a code review of 2.4.3):
+  - Battery WMI queries now dispose their searcher, result collection, and result objects correctly,
+    and read every field defensively — a device that doesn't expose a property (e.g. `DeviceName`)
+    no longer aborts the remaining reads.
+  - Defender's **Quick scan / Full scan / Update definitions** actions are now disabled when Defender
+    isn't the active antivirus, instead of failing after the click.
+  - The newest Defender platform build is selected by parsed version rather than lexical order.
+  - A never-run scan now shows "Never" instead of an epoch date.
+
+### Internal
+- Added unit tests for battery wear/health math and Defender status mapping.
+
 ## [2.4.4] - 2026-07-05
 
 ### Changed

@@ -28,11 +28,15 @@ public partial class BatteryHealthViewModel : ObservableObject
     [ObservableProperty] private string _powerStateText = "—";
     [ObservableProperty] private string _exportStatus = "";
 
+    private bool _hasLoaded;
+
     public BatteryHealthViewModel(IBatteryHealthService battery) => _battery = battery;
 
     public async void OnNavigatedTo()
     {
-        if (SummaryText.StartsWith("Reading")) await RefreshAsync();
+        if (_hasLoaded || IsBusy) return;
+        _hasLoaded = true;
+        await RefreshAsync();
     }
 
     [RelayCommand(CanExecute = nameof(NotBusy))]
