@@ -86,6 +86,16 @@
                         <ui:SymbolIcon Symbol="FolderProhibited24" />
                     </ui:NavigationViewItem.Icon>
                 </ui:NavigationViewItem>
+                <ui:NavigationViewItem Content="Large Files" TargetPageType="{x:Type views:LargeFilesPage}" ToolTipService.ToolTip="Large &amp; Old Files finder">
+                    <ui:NavigationViewItem.Icon>
+                        <ui:SymbolIcon Symbol="DocumentSearch24" />
+                    </ui:NavigationViewItem.Icon>
+                </ui:NavigationViewItem>
+                <ui:NavigationViewItem Content="Browser Cleanup" TargetPageType="{x:Type views:BrowserCleanupPage}" ToolTipService.ToolTip="Clear browser caches, cookies &amp; history">
+                    <ui:NavigationViewItem.Icon>
+                        <ui:SymbolIcon Symbol="Globe24" />
+                    </ui:NavigationViewItem.Icon>
+                </ui:NavigationViewItem>
 
                 <ui:NavigationViewItemHeader Text="Optimize" />
                 <ui:NavigationViewItem Content="Boost" TargetPageType="{x:Type views:BoostPage}" ToolTipService.ToolTip="One-click Boost">
@@ -138,6 +148,16 @@
                         <ui:SymbolIcon Symbol="ArrowDownload24" />
                     </ui:NavigationViewItem.Icon>
                 </ui:NavigationViewItem>
+                <ui:NavigationViewItem Content="Scheduled Tasks" TargetPageType="{x:Type views:ScheduledTasksPage}" ToolTipService.ToolTip="Manage third-party scheduled tasks">
+                    <ui:NavigationViewItem.Icon>
+                        <ui:SymbolIcon Symbol="ClockAlarm24" />
+                    </ui:NavigationViewItem.Icon>
+                </ui:NavigationViewItem>
+                <ui:NavigationViewItem Content="Context Menu" TargetPageType="{x:Type views:ContextMenuPage}" ToolTipService.ToolTip="Declutter the right-click menu">
+                    <ui:NavigationViewItem.Icon>
+                        <ui:SymbolIcon Symbol="ContentSettings24" />
+                    </ui:NavigationViewItem.Icon>
+                </ui:NavigationViewItem>
 
                 <ui:NavigationViewItemHeader Text="Analyze" />
                 <ui:NavigationViewItem Content="Disk" TargetPageType="{x:Type views:DiskAnalyzerPage}" ToolTipService.ToolTip="Disk Analyzer">
@@ -173,6 +193,16 @@
                 <ui:NavigationViewItem Content="Battery Health" TargetPageType="{x:Type views:BatteryHealthPage}" ToolTipService.ToolTip="Battery Health &amp; wear report">
                     <ui:NavigationViewItem.Icon>
                         <ui:SymbolIcon Symbol="Battery1024" />
+                    </ui:NavigationViewItem.Icon>
+                </ui:NavigationViewItem>
+                <ui:NavigationViewItem Content="Boot Time" TargetPageType="{x:Type views:BootAnalyzerPage}" ToolTipService.ToolTip="Boot-time analyzer">
+                    <ui:NavigationViewItem.Icon>
+                        <ui:SymbolIcon Symbol="Timer24" />
+                    </ui:NavigationViewItem.Icon>
+                </ui:NavigationViewItem>
+                <ui:NavigationViewItem Content="Speed Test" TargetPageType="{x:Type views:SpeedTestPage}" ToolTipService.ToolTip="Network download/upload speed test">
+                    <ui:NavigationViewItem.Icon>
+                        <ui:SymbolIcon Symbol="TopSpeed24" />
                     </ui:NavigationViewItem.Icon>
                 </ui:NavigationViewItem>
                 <ui:NavigationViewItem Content="History" TargetPageType="{x:Type views:HistoryPage}" ToolTipService.ToolTip="Activity History">
@@ -215,6 +245,26 @@
                 <ui:NavigationViewItem Content="Defender" TargetPageType="{x:Type views:DefenderPage}" ToolTipService.ToolTip="Microsoft Defender — status &amp; scan">
                     <ui:NavigationViewItem.Icon>
                         <ui:SymbolIcon Symbol="ShieldTask24" />
+                    </ui:NavigationViewItem.Icon>
+                </ui:NavigationViewItem>
+                <ui:NavigationViewItem Content="Ransomware Shield" TargetPageType="{x:Type views:RansomwareShieldPage}" ToolTipService.ToolTip="Controlled Folder Access (ransomware protection)">
+                    <ui:NavigationViewItem.Icon>
+                        <ui:SymbolIcon Symbol="ShieldKeyhole24" />
+                    </ui:NavigationViewItem.Icon>
+                </ui:NavigationViewItem>
+                <ui:NavigationViewItem Content="Secure DNS" TargetPageType="{x:Type views:DnsPage}" ToolTipService.ToolTip="Switch to a private/fast DNS resolver">
+                    <ui:NavigationViewItem.Icon>
+                        <ui:SymbolIcon Symbol="Globe24" />
+                    </ui:NavigationViewItem.Icon>
+                </ui:NavigationViewItem>
+                <ui:NavigationViewItem Content="Ad Blocker" TargetPageType="{x:Type views:HostsBlockerPage}" ToolTipService.ToolTip="Block ad/tracker domains via the hosts file">
+                    <ui:NavigationViewItem.Icon>
+                        <ui:SymbolIcon Symbol="Prohibited24" />
+                    </ui:NavigationViewItem.Icon>
+                </ui:NavigationViewItem>
+                <ui:NavigationViewItem Content="Breach Checker" TargetPageType="{x:Type views:BreachCheckPage}" ToolTipService.ToolTip="Check a password against known breaches">
+                    <ui:NavigationViewItem.Icon>
+                        <ui:SymbolIcon Symbol="ShieldKeyhole24" />
                     </ui:NavigationViewItem.Icon>
                 </ui:NavigationViewItem>
                 <ui:NavigationViewItem Content="Repair Toolkit" TargetPageType="{x:Type views:RepairToolkitPage}" ToolTipService.ToolTip="System Repair Toolkit (SFC / DISM / CHKDSK)">

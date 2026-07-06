@@ -1,0 +1,49 @@
+<Page x:Class="SystemCare.Views.HostsBlockerPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+      xmlns:helpers="clr-namespace:SystemCare.Helpers"
+      xmlns:controls="clr-namespace:SystemCare.Controls"
+      xmlns:vm="clr-namespace:SystemCare.ViewModels"
+      mc:Ignorable="d"
+      TextElement.Foreground="{StaticResource TextFillColorPrimaryBrush}"
+      d:DataContext="{d:DesignInstance Type=vm:HostsBlockerViewModel}"
+      Title="Ad/Tracker Blocker"
+      Loaded="OnPageLoaded">
+
+    <Grid Margin="24,12,24,24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0">
+            <TextBlock Text="Ad / Tracker Blocker" Style="{StaticResource CyberPageTitle}" />
+            <TextBlock Text="Blocks a curated list of ad and tracking domains system-wide by editing the Windows hosts file. Your original hosts file is backed up first, and removal restores it exactly."
+                       FontSize="13" Opacity="0.78" Margin="0,4,0,0" TextWrapping="Wrap" />
+        </StackPanel>
+
+        <ui:Card Grid.Row="1" Margin="0,16,0,0" Padding="18,16">
+            <StackPanel>
+                <TextBlock Text="{Binding StatusText}" FontSize="14" TextWrapping="Wrap" />
+                <StackPanel Orientation="Horizontal" Margin="0,14,0,0">
+                    <ui:Button Content="Apply blocklist" Appearance="Primary" Padding="18,9" Command="{Binding ApplyCommand}">
+                        <ui:Button.Icon><ui:SymbolIcon Symbol="ShieldCheckmark24" /></ui:Button.Icon>
+                    </ui:Button>
+                    <ui:Button Content="Remove" Padding="18,9" Margin="10,0,0,0" Command="{Binding RemoveCommand}">
+                        <ui:Button.Icon><ui:SymbolIcon Symbol="ArrowUndo24" /></ui:Button.Icon>
+                    </ui:Button>
+                    <controls:TaskProgress IsActive="{Binding IsBusy}" Margin="14,0,0,0" VerticalAlignment="Center" />
+                </StackPanel>
+            </StackPanel>
+        </ui:Card>
+
+        <ui:InfoBar Grid.Row="2" Margin="0,14,0,0" IsOpen="True" Severity="Informational"
+                    Title="Good to know"
+                    Message="This is a lightweight, conservative list aimed at obvious trackers — it won't replace a dedicated ad blocker, but it works across every browser and app with no extension needed." />
+    </Grid>
+</Page>

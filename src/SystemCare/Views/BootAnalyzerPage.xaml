@@ -1,0 +1,104 @@
+<Page x:Class="SystemCare.Views.BootAnalyzerPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+      xmlns:helpers="clr-namespace:SystemCare.Helpers"
+      xmlns:controls="clr-namespace:SystemCare.Controls"
+      xmlns:vm="clr-namespace:SystemCare.ViewModels"
+      mc:Ignorable="d"
+      TextElement.Foreground="{StaticResource TextFillColorPrimaryBrush}"
+      d:DataContext="{d:DesignInstance Type=vm:BootAnalyzerViewModel}"
+      Title="Boot Time"
+      Loaded="OnPageLoaded">
+
+    <Grid Margin="24,12,24,20" helpers:Animations.StaggerChildren="True">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0">
+            <TextBlock Text="Boot-Time Analyzer" Style="{StaticResource CyberPageTitle}" />
+            <TextBlock Text="{Binding SummaryText}" FontSize="13" Opacity="0.78" Margin="0,4,0,0" TextWrapping="Wrap" />
+        </StackPanel>
+
+        <Grid Grid.Row="1" Margin="0,16,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <ui:Card Grid.Column="0" Margin="0,0,6,0" Padding="16,14">
+                <StackPanel>
+                    <TextBlock Text="Boot duration" Opacity="0.7" FontSize="12" />
+                    <TextBlock Text="{Binding BootDurationText}" FontSize="26" Style="{StaticResource CyberDisplayText}" Margin="0,4,0,0" />
+                </StackPanel>
+            </ui:Card>
+            <ui:Card Grid.Column="1" Margin="6,0,6,0" Padding="16,14">
+                <StackPanel>
+                    <TextBlock Text="Uptime" Opacity="0.7" FontSize="12" />
+                    <TextBlock Text="{Binding UptimeText}" FontSize="26" Style="{StaticResource CyberDisplayText}" Margin="0,4,0,0" />
+                </StackPanel>
+            </ui:Card>
+            <ui:Card Grid.Column="2" Margin="6,0,0,0" Padding="16,14">
+                <StackPanel>
+                    <TextBlock Text="Last boot" Opacity="0.7" FontSize="12" />
+                    <TextBlock Text="{Binding LastBootText}" FontSize="18" FontWeight="SemiBold" Margin="0,8,0,0" TextWrapping="Wrap" />
+                </StackPanel>
+            </ui:Card>
+        </Grid>
+
+        <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,14,0,0">
+            <ui:Button Content="Refresh" Padding="16,8" Command="{Binding RefreshCommand}">
+                <ui:Button.Icon><ui:SymbolIcon Symbol="ArrowClockwise24" /></ui:Button.Icon>
+            </ui:Button>
+            <controls:TaskProgress IsActive="{Binding IsBusy}" Margin="14,0,0,0" VerticalAlignment="Center" />
+        </StackPanel>
+
+        <ScrollViewer Grid.Row="3" VerticalScrollBarVisibility="Auto" Margin="0,14,0,0">
+            <StackPanel>
+                <TextBlock Text="Slowest to start" Style="{StaticResource CyberSectionHeader}" Margin="0,0,0,8" />
+                <ItemsControl ItemsSource="{Binding Apps}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <ui:Card Margin="0,0,0,6" Padding="14,10">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                        <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+                                        <TextBlock Text="{Binding Kind}" Style="{StaticResource TextCaption}" />
+                                    </StackPanel>
+                                    <Border Grid.Column="1" CornerRadius="10" Padding="9,3" VerticalAlignment="Center" Margin="0,0,10,0">
+                                        <Border.Style>
+                                            <Style TargetType="Border">
+                                                <Setter Property="Background" Value="{StaticResource SuccessSubtleBrush}" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Level}" Value="Medium">
+                                                        <Setter Property="Background" Value="{StaticResource WarningSubtleBrush}" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Level}" Value="High">
+                                                        <Setter Property="Background" Value="{StaticResource DangerSubtleBrush}" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Border.Style>
+                                        <TextBlock Text="{Binding Level}" FontSize="11" FontWeight="SemiBold" />
+                                    </Border>
+                                    <TextBlock Grid.Column="2" Text="{Binding DurationText}" VerticalAlignment="Center" FontWeight="SemiBold" MinWidth="52" TextAlignment="Right" />
+                                </Grid>
+                            </ui:Card>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</Page>

@@ -1,0 +1,79 @@
+<Page x:Class="SystemCare.Views.DnsPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+      xmlns:helpers="clr-namespace:SystemCare.Helpers"
+      xmlns:controls="clr-namespace:SystemCare.Controls"
+      xmlns:vm="clr-namespace:SystemCare.ViewModels"
+      mc:Ignorable="d"
+      TextElement.Foreground="{StaticResource TextFillColorPrimaryBrush}"
+      d:DataContext="{d:DesignInstance Type=vm:DnsViewModel}"
+      Title="Secure DNS"
+      Loaded="OnPageLoaded">
+
+    <Grid Margin="24,12,24,24" helpers:Animations.StaggerChildren="True">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0">
+            <TextBlock Text="Secure DNS" Style="{StaticResource CyberPageTitle}" />
+            <TextBlock Text="Switch your DNS resolver for privacy, speed, or malware filtering. Changes are reversible — pick Automatic to restore your router's DNS."
+                       FontSize="13" Opacity="0.78" Margin="0,4,0,0" TextWrapping="Wrap" />
+        </StackPanel>
+
+        <ui:Card Grid.Row="1" Margin="0,14,0,0" Padding="16,12">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="220" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Text="Adapter" VerticalAlignment="Center" Opacity="0.85" Margin="0,0,10,0" />
+                <ComboBox Grid.Column="1" ItemsSource="{Binding Adapters}" SelectedItem="{Binding SelectedAdapter}" />
+                <TextBlock Grid.Column="2" Margin="16,0,0,0" VerticalAlignment="Center" TextTrimming="CharacterEllipsis">
+                    <Run Text="Current: " Foreground="{StaticResource TextFillColorSecondaryBrush}" />
+                    <Run Text="{Binding CurrentDnsText}" FontWeight="SemiBold" />
+                </TextBlock>
+                <ui:Button Grid.Column="3" Content="Refresh" Padding="12,6" Command="{Binding RefreshCommand}">
+                    <ui:Button.Icon><ui:SymbolIcon Symbol="ArrowClockwise24" /></ui:Button.Icon>
+                </ui:Button>
+            </Grid>
+        </ui:Card>
+
+        <controls:TaskProgress Grid.Row="2" IsActive="{Binding IsBusy}" Margin="0,10,0,0" />
+        <TextBlock Grid.Row="2" Text="{Binding StatusText}" Margin="0,10,0,0" Opacity="0.85" FontSize="12"
+                   HorizontalAlignment="Right" VerticalAlignment="Center" />
+
+        <ScrollViewer Grid.Row="3" VerticalScrollBarVisibility="Auto" Margin="0,12,0,0">
+            <ItemsControl ItemsSource="{Binding Providers}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <ui:Card Margin="0,0,0,8" Padding="16,12" helpers:Animations.FadeInOnLoad="True">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                    <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="14" />
+                                    <TextBlock Text="{Binding Description}" Style="{StaticResource TextCaption}" TextWrapping="Wrap" />
+                                    <TextBlock Text="{Binding ServersText}" FontSize="12" Opacity="0.7" Margin="0,3,0,0" />
+                                </StackPanel>
+                                <ui:Button Grid.Column="1" Content="Apply" Appearance="Primary" Padding="16,7" VerticalAlignment="Center"
+                                           Command="{Binding DataContext.ApplyCommand, RelativeSource={RelativeSource AncestorType=Page}}"
+                                           CommandParameter="{Binding}" />
+                            </Grid>
+                        </ui:Card>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+    </Grid>
+</Page>

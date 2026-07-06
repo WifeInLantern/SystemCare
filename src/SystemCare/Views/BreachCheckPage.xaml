@@ -1,0 +1,72 @@
+<Page x:Class="SystemCare.Views.BreachCheckPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+      xmlns:helpers="clr-namespace:SystemCare.Helpers"
+      xmlns:converters="clr-namespace:SystemCare.Converters"
+      xmlns:controls="clr-namespace:SystemCare.Controls"
+      xmlns:vm="clr-namespace:SystemCare.ViewModels"
+      mc:Ignorable="d"
+      TextElement.Foreground="{StaticResource TextFillColorPrimaryBrush}"
+      d:DataContext="{d:DesignInstance Type=vm:BreachCheckViewModel}"
+      Title="Breach Checker">
+    <Page.Resources>
+        <converters:BoolToVisibilityConverter x:Key="VisibleWhenTrue" />
+        <converters:InverseBoolConverter x:Key="Not" />
+    </Page.Resources>
+
+    <Grid Margin="24,12,24,24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0">
+            <TextBlock Text="Password Breach Checker" Style="{StaticResource CyberPageTitle}" />
+            <TextBlock Text="Check whether a password has appeared in a known data breach. Your password never leaves this PC — only the first 5 characters of its hash are sent (k-anonymity)."
+                       FontSize="13" Opacity="0.78" Margin="0,4,0,0" TextWrapping="Wrap" />
+        </StackPanel>
+
+        <ui:Card Grid.Row="1" Margin="0,16,0,0" Padding="18,16">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <PasswordBox x:Name="PasswordInput" Grid.Column="0" VerticalContentAlignment="Center"
+                             MinHeight="36" FontSize="14" />
+                <ui:Button Grid.Column="1" Content="Check" Appearance="Primary" Padding="22,9" Margin="10,0,0,0"
+                           Click="OnCheckClick" IsEnabled="{Binding IsBusy, Converter={StaticResource Not}}">
+                    <ui:Button.Icon><ui:SymbolIcon Symbol="ShieldKeyhole24" /></ui:Button.Icon>
+                </ui:Button>
+            </Grid>
+        </ui:Card>
+
+        <controls:TaskProgress Grid.Row="2" IsActive="{Binding IsBusy}" Margin="0,12,0,0" />
+
+        <Border Grid.Row="3" Margin="0,12,0,0" CornerRadius="8" Padding="16,14"
+                Visibility="{Binding HasResult, Converter={StaticResource VisibleWhenTrue}}">
+            <Border.Style>
+                <Style TargetType="Border">
+                    <Setter Property="Background" Value="#22445566" />
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding ResultSeverity}" Value="Success">
+                            <Setter Property="Background" Value="{StaticResource SuccessSubtleBrush}" />
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding ResultSeverity}" Value="Danger">
+                            <Setter Property="Background" Value="{StaticResource DangerSubtleBrush}" />
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding ResultSeverity}" Value="Caution">
+                            <Setter Property="Background" Value="{StaticResource WarningSubtleBrush}" />
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Border.Style>
+            <TextBlock Text="{Binding ResultText}" FontSize="14" FontWeight="SemiBold" TextWrapping="Wrap" />
+        </Border>
+    </Grid>
+</Page>

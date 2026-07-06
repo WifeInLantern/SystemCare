@@ -2,6 +2,31 @@
 
 All notable changes to SystemCare are documented here. Versions follow [SemVer](https://semver.org/).
 
+## [2.5.0] - 2026-07-05
+
+### Added
+Ten new tools across every section:
+
+- **Secure DNS (Protect).** Switch your adapter's DNS to Cloudflare, Google, Quad9, or OpenDNS in one
+  click — or revert to automatic (DHCP). Applied via `netsh`.
+- **Ransomware Shield (Protect).** Turn Windows Defender's Controlled Folder Access on/off and see your
+  protected folders.
+- **Ad / Tracker Blocker (Protect).** Apply a curated ad/tracker blocklist to the hosts file
+  system-wide, with a one-time backup of your original hosts file and clean removal.
+- **Breach Checker (Protect).** Check whether a password appears in a known breach via Have I Been
+  Pwned's k-anonymity API — only the first 5 characters of the hash ever leave your PC.
+- **Large & Old Files (Clean).** Scan any folder for the biggest files, see when each was last opened,
+  and send the ones you don't need to the Recycle Bin.
+- **Browser Cleanup (Clean).** Detect installed browsers (Chrome, Edge, Brave, Firefox) and clear
+  cache, cookies, and history per-browser.
+- **Scheduled Tasks (Optimize).** List and enable/disable third-party Windows scheduled tasks
+  (updaters, telemetry, helpers).
+- **Context-Menu Manager (Optimize).** Declutter the right-click menu by toggling shell extensions on
+  or off — fully reversible.
+- **Boot-Time Analyzer (Analyze).** See your boot duration, uptime, and the apps/services that slow
+  startup the most.
+- **Network Speed Test (Analyze).** Measure download, upload, and ping against Cloudflare's network.
+
 ## [2.4.5] - 2026-07-05
 
 ### Fixed

@@ -1,0 +1,75 @@
+<Page x:Class="SystemCare.Views.SpeedTestPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+      xmlns:helpers="clr-namespace:SystemCare.Helpers"
+      xmlns:converters="clr-namespace:SystemCare.Converters"
+      xmlns:controls="clr-namespace:SystemCare.Controls"
+      xmlns:vm="clr-namespace:SystemCare.ViewModels"
+      mc:Ignorable="d"
+      TextElement.Foreground="{StaticResource TextFillColorPrimaryBrush}"
+      d:DataContext="{d:DesignInstance Type=vm:SpeedTestViewModel}"
+      Title="Speed Test">
+    <Page.Resources>
+        <converters:BoolToVisibilityConverter x:Key="VisibleWhenTrue" />
+    </Page.Resources>
+
+    <Grid Margin="24,12,24,24" helpers:Animations.StaggerChildren="True">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0">
+            <TextBlock Text="Network Speed Test" Style="{StaticResource CyberPageTitle}" />
+            <TextBlock Text="Measure your download and upload speeds and ping against Cloudflare's global network."
+                       FontSize="13" Opacity="0.78" Margin="0,4,0,0" TextWrapping="Wrap" />
+        </StackPanel>
+
+        <Grid Grid.Row="1" Margin="0,18,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <ui:Card Grid.Column="0" Margin="0,0,6,0" Padding="16,20">
+                <StackPanel HorizontalAlignment="Center">
+                    <ui:SymbolIcon Symbol="ArrowDownload24" FontSize="22" HorizontalAlignment="Center" Opacity="0.8" />
+                    <TextBlock Text="Download" Opacity="0.7" FontSize="12" HorizontalAlignment="Center" Margin="0,6,0,2" />
+                    <TextBlock Text="{Binding DownloadText}" FontSize="24" Style="{StaticResource CyberDisplayText}" HorizontalAlignment="Center" />
+                </StackPanel>
+            </ui:Card>
+            <ui:Card Grid.Column="1" Margin="6,0,6,0" Padding="16,20">
+                <StackPanel HorizontalAlignment="Center">
+                    <ui:SymbolIcon Symbol="ArrowUpload24" FontSize="22" HorizontalAlignment="Center" Opacity="0.8" />
+                    <TextBlock Text="Upload" Opacity="0.7" FontSize="12" HorizontalAlignment="Center" Margin="0,6,0,2" />
+                    <TextBlock Text="{Binding UploadText}" FontSize="24" Style="{StaticResource CyberDisplayText}" HorizontalAlignment="Center" />
+                </StackPanel>
+            </ui:Card>
+            <ui:Card Grid.Column="2" Margin="6,0,0,0" Padding="16,20">
+                <StackPanel HorizontalAlignment="Center">
+                    <ui:SymbolIcon Symbol="Pulse24" FontSize="22" HorizontalAlignment="Center" Opacity="0.8" />
+                    <TextBlock Text="Ping" Opacity="0.7" FontSize="12" HorizontalAlignment="Center" Margin="0,6,0,2" />
+                    <TextBlock Text="{Binding LatencyText}" FontSize="24" Style="{StaticResource CyberDisplayText}" HorizontalAlignment="Center" />
+                </StackPanel>
+            </ui:Card>
+        </Grid>
+
+        <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,18,0,0">
+            <ui:Button Content="Start test" Appearance="Primary" Padding="24,10" FontSize="15"
+                       helpers:Animations.NeonPulse="True" Command="{Binding RunCommand}">
+                <ui:Button.Icon><ui:SymbolIcon Symbol="Play24" /></ui:Button.Icon>
+            </ui:Button>
+            <ui:Button Content="Cancel" Appearance="Danger" Padding="18,10" Margin="10,0,0,0"
+                       Command="{Binding CancelCommand}"
+                       Visibility="{Binding IsRunning, Converter={StaticResource VisibleWhenTrue}}" />
+            <controls:TaskProgress IsActive="{Binding IsRunning}" Margin="14,0,0,0" VerticalAlignment="Center" />
+        </StackPanel>
+
+        <TextBlock Grid.Row="3" Text="{Binding StatusText}" Margin="2,16,0,0" Opacity="0.85" FontSize="13" TextWrapping="Wrap" />
+    </Grid>
+</Page>
