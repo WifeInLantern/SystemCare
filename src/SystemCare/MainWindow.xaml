@@ -103,7 +103,7 @@
                         <ui:SymbolIcon Symbol="Flash24" />
                     </ui:NavigationViewItem.Icon>
                 </ui:NavigationViewItem>
-                <ui:NavigationViewItem Content="Game Mode" TargetPageType="{x:Type views:GameModePage}" ToolTipService.ToolTip="Game / Focus Mode">
+                <ui:NavigationViewItem Content="Game Booster" TargetPageType="{x:Type views:GameBoosterPage}" ToolTipService.ToolTip="Game Booster — reversible one-click gaming optimization">
                     <ui:NavigationViewItem.Icon>
                         <ui:SymbolIcon Symbol="Games24" />
                     </ui:NavigationViewItem.Icon>

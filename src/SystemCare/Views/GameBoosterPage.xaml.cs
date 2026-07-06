@@ -4,11 +4,11 @@ using SystemCare.ViewModels;
 
 namespace SystemCare.Views;
 
-public partial class GameModePage : Page
+public partial class GameBoosterPage : Page
 {
-    private readonly GameModeViewModel _viewModel;
+    private readonly GameBoosterViewModel _viewModel;
 
-    public GameModePage(GameModeViewModel viewModel)
+    public GameBoosterPage(GameBoosterViewModel viewModel)
     {
         _viewModel = viewModel;
         DataContext = viewModel;

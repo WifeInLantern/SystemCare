@@ -3,6 +3,7 @@ using System.Windows;
 using System.Windows.Threading;
 using Microsoft.Extensions.DependencyInjection;
 using SystemCare.Services;
+using SystemCare.Services.GameBooster;
 using SystemCare.ViewModels;
 using SystemCare.Views;
 using Wpf.Ui;
@@ -96,7 +97,14 @@ public partial class App : Application
         services.AddSingleton<IPowerPlanService, PowerPlanService>();
         services.AddSingleton<ITweaksService, TweaksService>();
         services.AddSingleton<IBoostService, BoostService>();
-        services.AddSingleton<IGameModeService, GameModeService>();
+        // Game Booster: reversible-optimization engine + journaled optimizations.
+        services.AddSingleton<IRollbackJournal, RollbackJournal>();
+        services.AddSingleton<IReversibleOptimization, PowerPlanOptimization>();
+        services.AddSingleton<IReversibleOptimization, AppSuspendOptimization>();
+        services.AddSingleton<IReversibleOptimization, MemoryOptimization>();
+        services.AddSingleton<IReversibleOptimization, NotificationOptimization>();
+        services.AddSingleton<IOptimizationEngine, OptimizationEngine>();
+        services.AddSingleton<IGameBoosterService, GameBoosterService>();
         services.AddSingleton<IFileShredderService, FileShredderService>();
         services.AddSingleton<IDriverUpdateService, DriverUpdateService>();
         services.AddSingleton<IWingetRunner, WingetRunner>();
@@ -143,7 +151,7 @@ public partial class App : Application
         services.AddSingleton<NetworkSecurityAuditViewModel>();
         services.AddSingleton<WindowsTweaksViewModel>();
         services.AddSingleton<BoostViewModel>();
-        services.AddSingleton<GameModeViewModel>();
+        services.AddSingleton<GameBoosterViewModel>();
         services.AddSingleton<FileShredderViewModel>();
         services.AddSingleton<DriverUpdateViewModel>();
         services.AddSingleton<SoftwareUpdateViewModel>();
@@ -193,7 +201,7 @@ public partial class App : Application
         services.AddTransient<NetworkSecurityAuditPage>();
         services.AddTransient<WindowsTweaksPage>();
         services.AddTransient<BoostPage>();
-        services.AddTransient<GameModePage>();
+        services.AddTransient<GameBoosterPage>();
         services.AddTransient<FileShredderPage>();
         services.AddTransient<DriverUpdatePage>();
         services.AddTransient<SoftwareUpdatePage>();
@@ -298,6 +306,8 @@ public partial class App : Application
         _services.GetRequiredService<IScheduledMaintenanceService>().Sync();
         // Keep the "start with Windows" logon task in sync (and refresh its exe path after upgrades).
         _services.GetRequiredService<IStartupLauncherService>().Sync();
+        // If a previous Game Booster session didn't close cleanly, restore the system now (journal replay).
+        _ = _services.GetRequiredService<IGameBoosterService>().RecoverIfInterruptedAsync();
 
         // Restore the live monitor (tray stats + mini-widget) if the user left them on.
         if (settings.Current.ShowTrayStats) trayIcon.EnableLiveStats(true);

@@ -6,9 +6,9 @@ using SystemCare.Services;
 
 namespace SystemCare.ViewModels;
 
-public partial class GameModeViewModel : ObservableObject
+public partial class GameBoosterViewModel : ObservableObject
 {
-    // Background apps worth pausing during a game/focus session (matched against process names).
+    // Background apps worth pausing during a game session (matched against process names).
     private static readonly HashSet<string> CommonBackground = new(StringComparer.OrdinalIgnoreCase)
     {
         "chrome", "msedge", "firefox", "opera", "brave", "Discord", "Spotify", "Slack", "Teams",
@@ -20,7 +20,7 @@ public partial class GameModeViewModel : ObservableObject
         "explorer", "SystemCare", "Idle", "System", "csrss", "winlogon", "services", "lsass", "smss", "dwm",
     };
 
-    private readonly IGameModeService _gameMode;
+    private readonly IGameBoosterService _booster;
     private readonly IProcessService _processes;
     private readonly IHistoryService _history;
 
@@ -30,21 +30,19 @@ public partial class GameModeViewModel : ObservableObject
     [ObservableProperty] private bool _isBusy;
     [ObservableProperty] private bool _silenceNotifications = true;
     [ObservableProperty] private string _statusText =
-        "Game Mode switches to High Performance, frees memory, pauses background apps, and (optionally) silences notifications. Exit to restore everything.";
+        "Game Booster switches to High Performance, frees memory, pauses background apps, and (optionally) silences notifications. Every change is journaled and fully restored when you exit — even after a crash.";
 
-    public GameModeViewModel(IGameModeService gameMode, IProcessService processes, IHistoryService history)
+    public GameBoosterViewModel(IGameBoosterService booster, IProcessService processes, IHistoryService history)
     {
-        _gameMode = gameMode;
+        _booster = booster;
         _processes = processes;
         _history = history;
-        IsActive = gameMode.IsActive;
+        IsActive = booster.IsActive;
     }
 
     public void OnNavigatedTo()
     {
-        // Game Mode and Boost drive the same underlying engine; re-sync so the toggle reflects reality
-        // even if the other page changed the state since this (singleton) view-model was last shown.
-        IsActive = _gameMode.IsActive;
+        IsActive = _booster.IsActive;
         if (Apps.Count > 0) return;
         int self = Environment.ProcessId;
         var candidates = _processes.GetProcesses()
@@ -56,24 +54,23 @@ public partial class GameModeViewModel : ObservableObject
         foreach (var p in candidates)
             Apps.Add(new BoostAppViewModel(p.Pid, p.Name, p.WorkingSetBytes)
             {
-                // Pre-select the well-known background talkers.
                 IsSelected = CommonBackground.Contains(p.Name),
             });
     }
 
     [RelayCommand]
-    private async Task EnterAsync()
+    private async Task ActivateAsync()
     {
         IsBusy = true;
         try
         {
             var pids = Apps.Where(a => a.IsSelected).Select(a => a.Pid).ToList();
-            var result = await _gameMode.EnterAsync(pids, SilenceNotifications);
+            var result = await _booster.ActivateAsync(pids, SilenceNotifications);
             IsActive = true;
-            StatusText = $"Game Mode active — {result.PowerPlanName}, freed {ByteFormatter.Format(result.BytesFreed)}" +
+            StatusText = $"Game Booster active — {result.PowerPlanName}, freed {ByteFormatter.Format(result.BytesFreed)}" +
                          (result.AppsPaused > 0 ? $", paused {result.AppsPaused} app(s)" : "") +
                          (result.NotificationsSilenced ? ", notifications silenced." : ".");
-            _history.Record("Game Mode",
+            _history.Record("Game Booster",
                 $"High Performance · freed {ByteFormatter.Format(result.BytesFreed)} of RAM" +
                 (result.AppsPaused > 0 ? $" · paused {result.AppsPaused} app(s)" : ""),
                 result.BytesFreed, result.AppsPaused, "Flash24");
@@ -85,14 +82,14 @@ public partial class GameModeViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private async Task ExitAsync()
+    private async Task DeactivateAsync()
     {
         IsBusy = true;
         try
         {
-            var result = await _gameMode.ExitAsync();
+            var result = await _booster.DeactivateAsync();
             IsActive = false;
-            StatusText = $"Exited Game Mode — power plan back to {result.PowerPlanName}; paused apps resumed and notifications restored.";
+            StatusText = $"Game Booster off — power plan back to {result.PowerPlanName}; paused apps resumed and notifications restored.";
         }
         finally
         {

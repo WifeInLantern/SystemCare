@@ -2,6 +2,18 @@
 
 All notable changes to SystemCare are documented here. Versions follow [SemVer](https://semver.org/).
 
+## [2.6.0] - 2026-07-06
+
+### Changed
+- **Game Mode is now Game Booster.** The feature is renamed throughout, and its internals are rebuilt on a
+  new **reversible-optimization engine**: every change (High Performance power plan, background-app suspend,
+  RAM trim, notification silence) captures its prior state and is written to a durable session journal at
+  `%AppData%\SystemCare\gamebooster\session.json`.
+- **Crash-safe rollback.** If the app crashes or the PC loses power mid-session, the next launch detects the
+  interrupted session and restores every change automatically — the previous release could only roll back
+  in-memory. Behaviour is otherwise identical to Game Mode; this is the foundation for upcoming Game Booster
+  layers (service pausing, scheduled-task deferral, CPU/GPU/network tuning, and automatic game detection).
+
 ## [2.5.5] - 2026-07-06
 
 ### Added
