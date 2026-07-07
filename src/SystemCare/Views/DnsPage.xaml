@@ -31,12 +31,12 @@
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="220" />
+                    <ColumnDefinition Width="Auto" MinWidth="160" MaxWidth="260" />
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
                 <TextBlock Grid.Column="0" Text="Adapter" VerticalAlignment="Center" Opacity="0.85" Margin="0,0,10,0" />
-                <ComboBox Grid.Column="1" ItemsSource="{Binding Adapters}" SelectedItem="{Binding SelectedAdapter}" />
+                <ComboBox Grid.Column="1" ItemsSource="{Binding Adapters}" SelectedItem="{Binding SelectedAdapter}" HorizontalAlignment="Stretch" />
                 <TextBlock Grid.Column="2" Margin="16,0,0,0" VerticalAlignment="Center" TextTrimming="CharacterEllipsis">
                     <Run Text="Current: " Foreground="{StaticResource TextFillColorSecondaryBrush}" />
                     <Run Text="{Binding CurrentDnsText}" FontWeight="SemiBold" />

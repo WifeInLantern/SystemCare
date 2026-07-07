@@ -2,6 +2,14 @@
 
 All notable changes to SystemCare are documented here. Versions follow [SemVer](https://semver.org/).
 
+## [2.8.1] - 2026-07-07
+
+### Changed
+- **Responsive layout polish** (from the UI/UX audit). Action toolbars on Browser Cleanup, Ransomware Shield,
+  and the Ad/Tracker Blocker now wrap to a second line instead of clipping when the window is made narrow, and
+  the Secure DNS adapter selector resizes fluidly instead of using a fixed width. Desktop window-resize
+  resilience only — no functional change.
+
 ## [2.8.0] - 2026-07-07
 
 ### Added

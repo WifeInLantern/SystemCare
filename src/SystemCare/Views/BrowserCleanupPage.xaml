@@ -28,18 +28,19 @@
         </StackPanel>
 
         <ui:Card Grid.Row="1" Margin="0,14,0,0" Padding="16,12">
-            <StackPanel Orientation="Horizontal">
-                <TextBlock Text="Clear:" VerticalAlignment="Center" Opacity="0.85" Margin="0,0,12,0" />
-                <CheckBox Content="Cache" IsChecked="{Binding ClearCache}" Margin="0,0,16,0" />
-                <CheckBox Content="Cookies" IsChecked="{Binding ClearCookies}" Margin="0,0,16,0" />
-                <CheckBox Content="History" IsChecked="{Binding ClearHistory}" Margin="0,0,16,0" />
-                <ui:Button Content="Clean selected" Appearance="Primary" Padding="16,7" Margin="8,0,0,0" Command="{Binding CleanCommand}">
+            <!-- WrapPanel so the options + buttons wrap to a new line instead of clipping at narrow widths. -->
+            <WrapPanel>
+                <TextBlock Text="Clear:" VerticalAlignment="Center" Opacity="0.85" Margin="0,4,12,4" />
+                <CheckBox Content="Cache" IsChecked="{Binding ClearCache}" VerticalAlignment="Center" Margin="0,4,16,4" />
+                <CheckBox Content="Cookies" IsChecked="{Binding ClearCookies}" VerticalAlignment="Center" Margin="0,4,16,4" />
+                <CheckBox Content="History" IsChecked="{Binding ClearHistory}" VerticalAlignment="Center" Margin="0,4,16,4" />
+                <ui:Button Content="Clean selected" Appearance="Primary" Padding="16,7" Margin="8,4,0,4" Command="{Binding CleanCommand}">
                     <ui:Button.Icon><ui:SymbolIcon Symbol="Broom24" /></ui:Button.Icon>
                 </ui:Button>
-                <ui:Button Content="Rescan" Padding="14,7" Margin="8,0,0,0" Command="{Binding ScanCommand}">
+                <ui:Button Content="Rescan" Padding="14,7" Margin="8,4,0,4" Command="{Binding ScanCommand}">
                     <ui:Button.Icon><ui:SymbolIcon Symbol="ArrowClockwise24" /></ui:Button.Icon>
                 </ui:Button>
-            </StackPanel>
+            </WrapPanel>
         </ui:Card>
 
         <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="2,12,0,0">

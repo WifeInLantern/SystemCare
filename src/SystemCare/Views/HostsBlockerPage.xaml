@@ -30,15 +30,15 @@
         <ui:Card Grid.Row="1" Margin="0,16,0,0" Padding="18,16">
             <StackPanel>
                 <TextBlock Text="{Binding StatusText}" FontSize="14" TextWrapping="Wrap" />
-                <StackPanel Orientation="Horizontal" Margin="0,14,0,0">
-                    <ui:Button Content="Apply blocklist" Appearance="Primary" Padding="18,9" Command="{Binding ApplyCommand}">
+                <WrapPanel Margin="0,14,0,0">
+                    <ui:Button Content="Apply blocklist" Appearance="Primary" Padding="18,9" Margin="0,4,0,4" Command="{Binding ApplyCommand}">
                         <ui:Button.Icon><ui:SymbolIcon Symbol="ShieldCheckmark24" /></ui:Button.Icon>
                     </ui:Button>
-                    <ui:Button Content="Remove" Padding="18,9" Margin="10,0,0,0" Command="{Binding RemoveCommand}">
+                    <ui:Button Content="Remove" Padding="18,9" Margin="10,4,0,4" Command="{Binding RemoveCommand}">
                         <ui:Button.Icon><ui:SymbolIcon Symbol="ArrowUndo24" /></ui:Button.Icon>
                     </ui:Button>
                     <controls:TaskProgress IsActive="{Binding IsBusy}" Margin="14,0,0,0" VerticalAlignment="Center" />
-                </StackPanel>
+                </WrapPanel>
             </StackPanel>
         </ui:Card>
 

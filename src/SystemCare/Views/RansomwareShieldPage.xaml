@@ -45,15 +45,15 @@
         <TextBlock Grid.Row="1" Margin="2,12,0,0" TextWrapping="Wrap" Opacity="0.8" FontSize="12"
                    Text="Uses Windows Defender's Controlled Folder Access. Your Documents, Pictures, Videos, Music, and Desktop are protected by default; any extra folders you've added appear below." />
 
-        <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,12,0,0">
-            <ui:Button Content="Re-check" Padding="14,7" Command="{Binding RefreshCommand}">
+        <WrapPanel Grid.Row="2" Margin="0,12,0,0">
+            <ui:Button Content="Re-check" Padding="14,7" Margin="0,4,0,4" Command="{Binding RefreshCommand}">
                 <ui:Button.Icon><ui:SymbolIcon Symbol="ArrowClockwise24" /></ui:Button.Icon>
             </ui:Button>
-            <ui:Button Content="Manage in Windows Security" Padding="14,7" Margin="10,0,0,0" Command="{Binding OpenSecurityCommand}">
+            <ui:Button Content="Manage in Windows Security" Padding="14,7" Margin="10,4,0,4" Command="{Binding OpenSecurityCommand}">
                 <ui:Button.Icon><ui:SymbolIcon Symbol="Open24" /></ui:Button.Icon>
             </ui:Button>
             <controls:TaskProgress IsActive="{Binding IsBusy}" Margin="14,0,0,0" VerticalAlignment="Center" />
-        </StackPanel>
+        </WrapPanel>
 
         <ScrollViewer Grid.Row="3" VerticalScrollBarVisibility="Auto" Margin="0,14,0,0">
             <StackPanel>
