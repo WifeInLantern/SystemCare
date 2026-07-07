@@ -302,5 +302,8 @@
         <ui:SnackbarPresenter x:Name="SnackbarPresenter" Grid.Row="1"
                               VerticalAlignment="Bottom" HorizontalAlignment="Center"
                               MaxWidth="600" Margin="0,0,0,16" />
+
+        <!-- Ctrl+K command palette overlay (on top of everything). -->
+        <controls:CommandPalette x:Name="Palette" Grid.Row="0" Grid.RowSpan="2" />
     </Grid>
 </ui:FluentWindow>

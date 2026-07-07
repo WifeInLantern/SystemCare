@@ -1,10 +1,13 @@
+using System.Collections;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
+using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Threading;
+using SystemCare.Controls;
 using SystemCare.Services;
 using SystemCare.Views;
 using Wpf.Ui;
@@ -45,6 +48,41 @@ public partial class MainWindow
 
         StateChanged += OnStateChanged;
         Closing += OnClosing;
+
+        // Ctrl+K command palette: global hotkey + navigate on pick.
+        PreviewKeyDown += OnWindowKeyDown;
+        Palette.Invoked += type => RootNavigation.Navigate(type);
+    }
+
+    private void OnWindowKeyDown(object sender, KeyEventArgs e)
+    {
+        if (e.Key == Key.K && (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
+        {
+            Palette.Toggle();
+            e.Handled = true;
+        }
+    }
+
+    /// <summary>Builds the palette's tool list from the live navigation items (no duplicate registry).</summary>
+    private List<NavEntry> BuildNavCatalog()
+    {
+        var list = new List<NavEntry>();
+
+        void Walk(IEnumerable items)
+        {
+            string category = "General";
+            foreach (var obj in items)
+            {
+                if (obj is NavigationViewItemHeader header)
+                    category = header.Text ?? category;
+                else if (obj is NavigationViewItem item && item.TargetPageType is Type pageType && item.Content is string title)
+                    list.Add(new NavEntry(title, category, pageType));
+            }
+        }
+
+        Walk(RootNavigation.MenuItems);
+        Walk(RootNavigation.FooterMenuItems);
+        return list;
     }
 
     private void ApplyNavigationTransition() =>
@@ -92,6 +130,7 @@ public partial class MainWindow
     private void OnLoaded(object sender, RoutedEventArgs e)
     {
         RootNavigation.Navigate(typeof(DashboardPage));
+        Palette.SetCatalog(BuildNavCatalog());
         PlayEntranceAnimation();
     }
 

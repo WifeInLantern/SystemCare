@@ -2,6 +2,15 @@
 
 All notable changes to SystemCare are documented here. Versions follow [SemVer](https://semver.org/).
 
+## [2.8.0] - 2026-07-07
+
+### Added
+- **Command palette (Ctrl+K).** Press Ctrl+K anywhere to open a search overlay and jump to any of the app's
+  tools by name — no more scrolling the sidebar. Type to filter, Up/Down to move, Enter to open, Esc (or a
+  click outside) to close. The list is built from the live navigation, so it always stays in sync, and it
+  honours the Reduce-motion setting. This is the navigation-at-scale improvement from the UI/UX audit for an
+  app that now has ~50 tools.
+
 ## [2.7.0] - 2026-07-07
 
 ### Changed
