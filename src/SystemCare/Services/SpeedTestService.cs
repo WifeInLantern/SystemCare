@@ -24,30 +24,37 @@ public class SpeedTestService : ISpeedTestService
 
     public async Task<SpeedTestResult> RunAsync(Action<string> onStatus, CancellationToken ct)
     {
-        try
-        {
-            onStatus("Measuring latency…");
-            long latency = await MeasureLatencyAsync(ct);
+        // Measure each leg independently so one failing endpoint (e.g. the upload host) doesn't discard a
+        // perfectly good download/ping result. Cancellation still aborts the whole run.
+        long latency = 0;
+        double down = 0, up = 0;
+        int succeeded = 0;
+        var unavailable = new List<string>();
 
-            onStatus("Testing download speed…");
-            double down = await MeasureDownloadAsync(ct);
+        onStatus("Measuring latency…");
+        try { latency = await MeasureLatencyAsync(ct); if (latency > 0) succeeded++; else unavailable.Add("ping"); }
+        catch (OperationCanceledException) { return Cancelled(); }
+        catch (Exception ex) { unavailable.Add("ping"); _log.Warn("SpeedTest", $"Latency failed: {ex.Message}"); }
 
-            onStatus("Testing upload speed…");
-            double up = await MeasureUploadAsync(ct);
+        onStatus("Testing download speed…");
+        try { down = await MeasureDownloadAsync(ct); succeeded++; }
+        catch (OperationCanceledException) { return Cancelled(); }
+        catch (Exception ex) { unavailable.Add("download"); _log.Warn("SpeedTest", $"Download failed: {ex.Message}"); }
 
-            onStatus("Done.");
-            return new SpeedTestResult(down, up, latency, true, "Speed test complete.");
-        }
-        catch (OperationCanceledException)
-        {
-            return new SpeedTestResult(0, 0, 0, false, "Cancelled.");
-        }
-        catch (Exception ex)
-        {
-            _log.Warn("SpeedTest", $"Failed: {ex.Message}");
+        onStatus("Testing upload speed…");
+        try { up = await MeasureUploadAsync(ct); succeeded++; }
+        catch (OperationCanceledException) { return Cancelled(); }
+        catch (Exception ex) { unavailable.Add("upload"); _log.Warn("SpeedTest", $"Upload failed: {ex.Message}"); }
+
+        if (succeeded == 0)
             return new SpeedTestResult(0, 0, 0, false, "Speed test failed — check your internet connection.");
-        }
+
+        string message = "Speed test complete."
+            + (unavailable.Count > 0 ? $" ({string.Join(", ", unavailable)} unavailable)" : "");
+        return new SpeedTestResult(down, up, latency, true, message);
     }
+
+    private static SpeedTestResult Cancelled() => new(0, 0, 0, false, "Cancelled.");
 
     private static async Task<long> MeasureLatencyAsync(CancellationToken ct)
     {

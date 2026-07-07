@@ -2,6 +2,19 @@
 
 All notable changes to SystemCare are documented here. Versions follow [SemVer](https://semver.org/).
 
+## [2.6.1] - 2026-07-07
+
+### Fixed
+- **Speed Test now reports partial results.** Previously, if the upload leg failed (e.g. the upload host was
+  briefly unreachable), a perfectly good download + ping result was discarded and the whole test showed
+  "failed." Each measurement now runs independently, so you still see what succeeded, with a note about any
+  leg that was unavailable.
+
+### Internal
+- Added unit tests for the Game Booster rollback engine (apply/journal/revert round-trip, reverse-order
+  revert, Safe/Advanced tier gating, best-effort revert, and interrupted-session recovery), locking in the
+  crash-safe rollback contract introduced in 2.6.0.
+
 ## [2.6.0] - 2026-07-06
 
 ### Changed
