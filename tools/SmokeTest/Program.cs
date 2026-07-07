@@ -54,6 +54,8 @@ internal static class Program
             "TextH3","CyberGlassPanel","CyberGlassPanelRaised","CyberChipSuccess","CyberChipWarning",
             "CyberChipDanger","CyberChipInfo","ChipTextSuccess","ChipTextWarning","ChipTextDanger","ChipTextInfo",
             "SkeletonBlock","SkeletonCard","EmptyStateTitle","EmptyStateHint",
+            // Design System v5 (accessibility + compliance pass)
+            "TextBodyStrong","TextMetricValue","CyberChipNeutral","ChipTextNeutral","CyberFocusVisual",
         })
             Try($"style '{key}' resolves", () => { if (app.Resources[key] is not Style) throw new Exception("missing or not a Style"); });
 

@@ -52,7 +52,7 @@
                 Visibility="{Binding HasResult, Converter={StaticResource VisibleWhenTrue}}">
             <Border.Style>
                 <Style TargetType="Border">
-                    <Setter Property="Background" Value="#22445566" />
+                    <Setter Property="Background" Value="{StaticResource Surface2Brush}" />
                     <Style.Triggers>
                         <DataTrigger Binding="{Binding ResultSeverity}" Value="Success">
                             <Setter Property="Background" Value="{StaticResource SuccessSubtleBrush}" />

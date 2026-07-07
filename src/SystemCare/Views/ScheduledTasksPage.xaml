@@ -57,7 +57,7 @@
                                             <Setter Property="Background" Value="{StaticResource SuccessSubtleBrush}" />
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding Enabled}" Value="False">
-                                                    <Setter Property="Background" Value="#33445566" />
+                                                    <Setter Property="Background" Value="{StaticResource Surface2Brush}" />
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>

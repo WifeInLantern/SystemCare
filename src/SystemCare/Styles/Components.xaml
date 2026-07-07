@@ -38,6 +38,22 @@
         <Setter Property="Margin" Value="0,12,0,6" />
     </Style>
 
+    <!-- Emphasised inline label (replaces ad-hoc FontWeight=SemiBold on primary text). -->
+    <Style x:Key="TextBodyStrong" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Foreground" Value="{StaticResource TextFillColorPrimaryBrush}" />
+    </Style>
+
+    <!-- Right-aligned numeric value (sizes, speeds, durations) in the label numeral font. -->
+    <Style x:Key="TextMetricValue" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource LabelFontFamily}" />
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Foreground" Value="{StaticResource TextFillColorPrimaryBrush}" />
+        <Setter Property="TextAlignment" Value="Right" />
+    </Style>
+
     <!--  ==========  Buttons  ==========  -->
 
     <!-- Hover glows are the HoverGlow behavior (fade in/out) rather than Effect triggers,
@@ -108,6 +124,8 @@
         <Setter Property="Padding" Value="{StaticResource PadCard}" />
         <Setter Property="helpers:Animations.HoverGlow" Value="False" />
         <Setter Property="helpers:Animations.HoverLift" Value="True" />
+        <!-- Accessible keyboard-focus ring for clickable cards. -->
+        <Setter Property="FocusVisualStyle" Value="{StaticResource CyberFocusVisual}" />
     </Style>
 
     <!--  ==========  Glass panels (hand-rolled glass surfaces for page-built layouts)  ==========  -->
@@ -170,6 +188,29 @@
     </Style>
     <Style x:Key="ChipTextInfo" TargetType="TextBlock" BasedOn="{StaticResource ChipTextSuccess}">
         <Setter Property="Foreground" Value="{StaticResource NeonCyanBrush}" />
+    </Style>
+
+    <!-- Neutral / disabled chip (replaces ad-hoc inline #33445566 fills). -->
+    <Style x:Key="CyberChipNeutral" TargetType="Border" BasedOn="{StaticResource CyberChip}">
+        <Setter Property="Background" Value="{StaticResource Surface2Brush}" />
+        <Setter Property="BorderBrush" Value="{StaticResource CyberStrokeBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+    </Style>
+    <Style x:Key="ChipTextNeutral" TargetType="TextBlock" BasedOn="{StaticResource ChipTextSuccess}">
+        <Setter Property="Foreground" Value="{StaticResource TextFillColorSecondaryBrush}" />
+    </Style>
+
+    <!-- Accessible keyboard-focus ring for custom-drawn controls and interactive cards that
+         otherwise suppress the default focus adorner. Apply via FocusVisualStyle. -->
+    <Style x:Key="CyberFocusVisual">
+        <Setter Property="Control.Template">
+            <Setter.Value>
+                <ControlTemplate>
+                    <Border BorderBrush="{StaticResource NeonCyanBrush}" BorderThickness="2"
+                            CornerRadius="8" Margin="-2" SnapsToDevicePixels="True" />
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
     </Style>
 
     <!--  ==========  Skeleton loading placeholders  ==========  -->

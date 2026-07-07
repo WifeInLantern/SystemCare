@@ -58,7 +58,7 @@
                                 <Border Grid.Column="2" CornerRadius="10" Padding="9,3" VerticalAlignment="Center" Margin="0,0,8,0">
                                     <Border.Style>
                                         <Style TargetType="Border">
-                                            <Setter Property="Background" Value="#33445566" />
+                                            <Setter Property="Background" Value="{StaticResource Surface2Brush}" />
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding StatusText}" Value="OK">
                                                     <Setter Property="Background" Value="{StaticResource SuccessSubtleBrush}" />

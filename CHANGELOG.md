@@ -2,6 +2,17 @@
 
 All notable changes to SystemCare are documented here. Versions follow [SemVer](https://semver.org/).
 
+## [2.7.0] - 2026-07-07
+
+### Changed
+- **Design-system compliance & accessibility pass (v5, additive).** Following a full UI/UX audit, the design
+  system gained a few missing tokens — `TextBodyStrong`, `TextMetricValue` (right-aligned numerals),
+  `CyberChipNeutral`/`ChipTextNeutral` — and an accessible keyboard-focus ring (`CyberFocusVisual`), now
+  applied to interactive cards so keyboard users get a visible focus indicator. Several pages that had drifted
+  off the system by inlining a `#33…` chip colour literal (Security, Breach Checker, Scheduled Tasks, Context
+  Menu) now use the neutral surface token instead. Purely visual-parity + accessibility; no functional change.
+  All new keys are verified by the design-system smoke test in CI.
+
 ## [2.6.1] - 2026-07-07
 
 ### Fixed

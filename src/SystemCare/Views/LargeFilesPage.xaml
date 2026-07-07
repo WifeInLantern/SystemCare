@@ -93,8 +93,8 @@
                                     <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
                                     <TextBlock Text="{Binding Directory}" Style="{StaticResource TextCaption}" TextTrimming="CharacterEllipsis" />
                                 </StackPanel>
-                                <TextBlock Grid.Column="2" Text="{Binding SizeText}" VerticalAlignment="Center" FontWeight="SemiBold" />
-                                <TextBlock Grid.Column="3" Text="{Binding LastAccessText}" VerticalAlignment="Center" Opacity="0.8" />
+                                <TextBlock Grid.Column="2" Text="{Binding SizeText}" Style="{StaticResource TextMetricValue}" VerticalAlignment="Center" />
+                                <TextBlock Grid.Column="3" Text="{Binding LastAccessText}" Style="{StaticResource TextCaption}" VerticalAlignment="Center" />
                             </Grid>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
