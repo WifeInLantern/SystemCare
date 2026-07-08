@@ -27,7 +27,7 @@
 
         <StackPanel Grid.Row="0">
             <TextBlock Text="Bloatware &amp; Store Apps" Style="{StaticResource CyberPageTitle}" />
-            <TextBlock Text="Remove Microsoft Store / built-in apps. System-critical packages are hidden for safety."
+            <TextBlock Text="Remove pre-installed Store / built-in bloatware for all users and stop it reinstalling (removes the provisioned package too). System-critical apps are hidden for safety."
                        FontSize="13" Opacity="0.7" Margin="0,4,0,0" TextWrapping="Wrap" />
         </StackPanel>
 

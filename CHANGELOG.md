@@ -2,6 +2,19 @@
 
 All notable changes to SystemCare are documented here. Versions follow [SemVer](https://semver.org/).
 
+## [2.9.0] - 2026-07-08
+
+### Changed
+- **Bloatware removal now works like Win11Debloat.** Removing a flagged app uninstalls it **for all users**
+  and also removes the **provisioned package**, so it no longer reinstalls for new user accounts or comes back
+  after removal. The page now enumerates apps installed for all users, and success is verified (the app is
+  re-checked after removal).
+- **Bloatware list aligned with Win11Debloat's curated catalog.** The flagged set was expanded to cover the
+  Bing suite, Copilot, Dev Home, the new Outlook & Teams, Xbox overlays, OEM apps (HP/Dell/Lenovo), and common
+  third-party preinstalls (King games, Spotify, Disney+, Netflix, TikTok, LinkedIn, etc.). Genuinely useful
+  apps (Calculator, Camera, Photos, Notepad, classic Paint, Snipping Tool, Terminal) and game-required Xbox
+  components (TCUI, Identity Provider, Speech-to-Text) are deliberately left unflagged.
+
 ## [2.8.1] - 2026-07-07
 
 ### Changed

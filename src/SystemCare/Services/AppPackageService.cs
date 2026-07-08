@@ -30,23 +30,41 @@ public class AppPackageService : IAppPackageService
         "PrintQueueActionCenter", "SecureAssessmentBrowser", "XboxGameCallableUI",
     ];
 
-    // Names commonly considered bloatware (badged for quick selection).
+    // Bloatware name fragments, aligned with Win11Debloat's supported-apps list (matched as substrings
+    // against the package Name). Genuinely useful apps (Calculator, Camera, Photos, Notepad, classic
+    // Paint, Snipping Tool, Terminal, Sticky Notes) and game-required Xbox components (TCUI,
+    // IdentityProvider, SpeechToText) are deliberately NOT flagged.
     private static readonly string[] Bloat =
     [
-        "BingWeather", "BingNews", "BingFinance", "BingSports", "Bing.Search", "Xbox", "GamingApp",
-        "ZuneMusic", "ZuneVideo", "Microsoft.People", "windowscommunicationsapps", "SolitaireCollection",
-        "Clipchamp", "Todos", "PowerAutomate", "Teams", "YourPhone", "Windows.Phone", "GetHelp",
-        "Getstarted", "MixedReality", "OneConnect", "FeedbackHub", "WindowsMaps", "3DBuilder",
-        "MicrosoftOfficeHub", "SkypeApp", "Disney", "Spotify", "Netflix", "CandyCrush", "Facebook",
-        "Twitter", "Instagram", "Wunderlist", "Microsoft.OneNote", "MSPaint", "Print3D", "Office.OneNote",
-        "Microsoft.Advertising", "Dolby", "MicrosoftSolitaire", "Microsoft.Messaging",
+        // Microsoft first-party bloat (Bing suite, discontinued & ad apps)
+        "BingNews", "BingWeather", "BingSearch", "BingFinance", "BingSports", "BingTranslator",
+        "BingFoodAndDrink", "BingHealthAndFitness", "BingTravel", "Microsoft.News", "549981C3F5F10",
+        "Clipchamp", "Copilot", "DevHome", "GetHelp", "Getstarted", "Messaging", "MicrosoftOfficeHub",
+        "SolitaireCollection", "Microsoft.People", "PowerAutomate", "Todos", "windowscommunicationsapps",
+        "FeedbackHub", "WindowsMaps", "SoundRecorder", "YourPhone", "ZuneMusic", "ZuneVideo",
+        "MixedReality", "3DBuilder", "Microsoft3DViewer", "Print3D", "MSPaint", "SkypeApp", "Whiteboard",
+        "MicrosoftJournal", "NetworkSpeedTest", "OneConnect", "OutlookForWindows", "MSTeams", "MicrosoftTeams",
+        "MicrosoftFamily", "QuickAssist", "PCManager", "Office.Sway", "Office.OneNote",
+        "MicrosoftPowerBIForWindows", "Microsoft.Wallet", "M365Companions",
+        // Xbox overlays / apps (game-required Xbox components are excluded above)
+        "XboxGamingOverlay", "XboxGameOverlay", "GamingApp", "XboxApp",
+        // Common third-party preinstalls
+        "king.com", "CandyCrush", "BubbleWitch", "Spotify", "Disney", "Netflix", "Facebook", "Twitter",
+        "Instagram", "TikTok", "LinkedIn", "Amazon", "PrimeVideo", "Duolingo", "Wunderlist", "Flipboard",
+        "Viber", "Shazam", "Plex", "Hulu", "iHeartRadio", "Pandora", "PicsArt", "Fitbit",
+        "AdobePhotoshopExpress", "DrawboardPDF", "WinZipUniversal", "Asphalt8", "MarchofEmpires", "FarmVille",
+        "HiddenCity", "CookingFever", "CaesarsSlots", "NYTCrossword", "SlingTV", "TuneIn",
+        // OEM bloat (HP / Dell / Lenovo / CyberLink / Actipro)
+        "AD2F1837", "DellInc", "LenovoCompanion", "LenovoVantage", "E046963F", "CyberLink", "ActiproSoftware",
     ];
 
     public Task<List<AppPackage>> GetPackagesAsync() => Task.Run(() =>
     {
         var result = new List<AppPackage>();
+        // -AllUsers (the app runs elevated) so apps installed for any user are listed and can be
+        // removed for everyone, matching Win11Debloat's all-users removal model.
         string json = RunPowerShell(
-            "Get-AppxPackage | Select-Object Name,PackageFullName,Publisher,NonRemovable,IsFramework,SignatureKind | ConvertTo-Json -Compress");
+            "Get-AppxPackage -AllUsers | Select-Object Name,PackageFullName,Publisher,NonRemovable,IsFramework,SignatureKind | ConvertTo-Json -Compress");
         if (string.IsNullOrWhiteSpace(json)) return result;
 
         try
@@ -83,6 +101,7 @@ public class AppPackageService : IAppPackageService
         catch (Exception) { }
 
         return result
+            .DistinctBy(p => p.PackageFullName)
             .OrderByDescending(p => p.IsBloatware)
             .ThenBy(p => p.Name, StringComparer.OrdinalIgnoreCase)
             .ToList();
@@ -92,10 +111,20 @@ public class AppPackageService : IAppPackageService
     {
         try
         {
-            int exit = RunPowerShellExit($"Remove-AppxPackage -Package '{package.PackageFullName}' -ErrorAction Stop");
+            // Win11Debloat-style thorough removal: uninstall for every user AND remove the provisioned
+            // package so it doesn't reinstall for new users. Verify it's actually gone for the exit code.
+            string name = package.Name.Replace("'", "''");
+            string command =
+                $"$n='{name}'; " +
+                "Get-AppxPackage -AllUsers -Name $n | Remove-AppxPackage -AllUsers -ErrorAction SilentlyContinue; " +
+                "Get-AppxProvisionedPackage -Online | Where-Object DisplayName -EQ $n | " +
+                "Remove-AppxProvisionedPackage -Online -ErrorAction SilentlyContinue; " +
+                "if (Get-AppxPackage -AllUsers -Name $n) { exit 1 } else { exit 0 }";
+
+            int exit = RunPowerShellExit(command);
             return exit == 0
-                ? (true, $"Removed {package.DisplayName}.")
-                : (false, $"Could not remove {package.DisplayName} (it may be provisioned for all users).");
+                ? (true, $"Removed {package.DisplayName} for all users.")
+                : (false, $"Could not fully remove {package.DisplayName} (it may be a protected system app).");
         }
         catch (Exception ex)
         {
