@@ -102,9 +102,12 @@ public partial class BloatwareViewModel : ObservableObject
             int removed = 0, failed = 0;
             // One PowerShell process removes every selected app (was one spawn per app).
             var byPackage = selected.ToDictionary(i => i.Package);
+            // Progress<T> is constructed on the UI thread, so its callback (which touches bound UI state)
+            // is marshalled back to the UI thread even though UninstallManyAsync reports from a worker.
+            IProgress<AppPackage> progress = new Progress<AppPackage>(pkg =>
+                StatusText = $"Removing {(byPackage.TryGetValue(pkg, out var i) ? i.DisplayName : pkg.Name)}…");
             var results = await _apps.UninstallManyAsync(
-                selected.Select(i => i.Package).ToList(),
-                pkg => StatusText = $"Removing {(byPackage.TryGetValue(pkg, out var i) ? i.DisplayName : pkg.Name)}…");
+                selected.Select(i => i.Package).ToList(), progress.Report);
 
             foreach (var (pkg, ok) in results)
             {

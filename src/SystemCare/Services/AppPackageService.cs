@@ -24,6 +24,10 @@ public interface IAppPackageService
 /// </summary>
 public class AppPackageService : IAppPackageService
 {
+    private readonly ILogService _log;
+
+    public AppPackageService(ILogService log) => _log = log;
+
     // OS-critical packages that must never be offered for removal.
     private static readonly string[] Protected =
     [
@@ -101,11 +105,11 @@ public class AppPackageService : IAppPackageService
                     Name = name,
                     PackageFullName = full,
                     Publisher = GetStr(el, "Publisher"),
-                    IsBloatware = Bloat.Any(b => name.Contains(b, StringComparison.OrdinalIgnoreCase)),
+                    IsBloatware = IsBloat(name),
                 });
             }
         }
-        catch (Exception) { }
+        catch (Exception ex) { _log.Warn("Bloatware", $"Package list parse failed: {ex.Message}"); }
 
         return result
             .DistinctBy(p => p.PackageFullName)
@@ -129,12 +133,13 @@ public class AppPackageService : IAppPackageService
                 "if (Get-AppxPackage -AllUsers -Name $n) { exit 1 } else { exit 0 }";
 
             int exit = RunPowerShellExit(command);
-            return exit == 0
-                ? (true, $"Removed {package.DisplayName} for all users.")
-                : (false, $"Could not fully remove {package.DisplayName} (it may be a protected system app).");
+            if (exit == 0) return (true, $"Removed {package.DisplayName} for all users.");
+            _log.Warn("Bloatware", $"'{package.Name}' still present after removal (exit {exit}).");
+            return (false, $"Could not fully remove {package.DisplayName} (it may be a protected system app).");
         }
         catch (Exception ex)
         {
+            _log.Error("Bloatware", $"Removal of '{package.Name}' failed", ex);
             return (false, ex.Message);
         }
     });
@@ -204,14 +209,45 @@ public class AppPackageService : IAppPackageService
             // Generous ceiling: many apps removed sequentially in one process.
             p.WaitForExit(Math.Max(120000, packages.Count * 30000));
         }
-        catch (Exception) { }
+        catch (Exception ex)
+        {
+            _log.Error("Bloatware", "Batch removal process failed", ex);
+        }
 
         // Any app that produced no result line (e.g. the process died early) counts as failed.
         foreach (var p in packages)
-            if (!seen.Contains(p.Name)) results.Add((p, false));
+            if (!seen.Contains(p.Name)) { results.Add((p, false)); _log.Warn("Bloatware", $"No result for '{p.Name}' — treated as failed."); }
 
         return results;
     });
+
+    // Boundary-anchored bloatware match. Package names look like "Microsoft.BingNews_8wekyb3d8bbwe";
+    // we strip the "_publisherhash" suffix and match each fragment against the dot-delimited family
+    // segments rather than doing a loose infix Contains over the whole string. This keeps every curated
+    // detection working while removing the false-positive risk of a fragment matching across a segment
+    // boundary or inside the publisher hash.
+    private static bool IsBloat(string name)
+    {
+        string family = name.Split('_')[0];                 // drop the _publisherhash suffix
+        string[] segments = family.Split('.');
+        foreach (var b in Bloat)
+        {
+            if (b.Contains('.'))
+            {
+                // Multi-segment fragment (e.g. "king.com", "Microsoft.People"): match as a
+                // boundary-anchored prefix of the family name.
+                if (family.StartsWith(b, StringComparison.OrdinalIgnoreCase) &&
+                    (family.Length == b.Length || family[b.Length] == '.'))
+                    return true;
+            }
+            else if (segments.Any(s => s.Contains(b, StringComparison.OrdinalIgnoreCase)))
+            {
+                // Single-word fragment: infix within one segment only (never across the whole name).
+                return true;
+            }
+        }
+        return false;
+    }
 
     private static IEnumerable<JsonElement> SingleArray(JsonElement obj)
     {
@@ -225,7 +261,7 @@ public class AppPackageService : IAppPackageService
         el.TryGetProperty(prop, out var v) && (v.ValueKind == JsonValueKind.True ||
             (v.ValueKind == JsonValueKind.Number && v.GetInt32() != 0));
 
-    private static string RunPowerShell(string command)
+    private string RunPowerShell(string command)
     {
         try
         {
@@ -238,13 +274,14 @@ public class AppPackageService : IAppPackageService
                 RedirectStandardError = true,
                 StandardOutputEncoding = Encoding.UTF8,
             });
-            if (p is null) return "";
+            if (p is null) { _log.Warn("Bloatware", "powershell.exe did not start when listing packages."); return ""; }
             string output = p.StandardOutput.ReadToEnd();
             p.WaitForExit(30000);
             return output;
         }
-        catch (Exception)
+        catch (Exception ex)
         {
+            _log.Warn("Bloatware", $"Package listing failed: {ex.Message}");
             return "";
         }
     }

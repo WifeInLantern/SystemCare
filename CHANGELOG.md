@@ -2,6 +2,25 @@
 
 All notable changes to SystemCare are documented here. Versions follow [SemVer](https://semver.org/).
 
+## [2.12.0] - 2026-07-08
+
+### Changed
+- **Safer bloatware detection.** App-name matching is now anchored to the package's family segments
+  instead of a loose substring search over the whole identifier, removing the risk of a keyword
+  matching across a name boundary or inside the publisher hash and flagging an app it shouldn't.
+- **Bloatware removal now logs failures.** Package-listing and removal operations that previously failed
+  silently now record a diagnostic entry (and no longer risk reporting success when nothing was removed),
+  so problems show up in the log under `%AppData%\SystemCare\logs`.
+
+### Fixed
+- **Removal progress updates are marshalled to the UI thread** via `IProgress<T>`, instead of writing
+  bound UI state directly from the background worker.
+
+### Build
+- **Optional code signing.** The release pipeline now signs `SystemCare.exe` and the installer with
+  Authenticode when a signing certificate is configured (`SYSTEMCARE_PFX` / `SYSTEMCARE_PFX_PASSWORD`),
+  and skips signing cleanly when none is present.
+
 ## [2.11.0] - 2026-07-08
 
 ### Performance
