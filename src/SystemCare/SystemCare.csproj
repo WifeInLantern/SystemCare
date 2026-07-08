@@ -12,7 +12,10 @@
     <ApplicationIcon>Assets\app.ico</ApplicationIcon>
     <AssemblyTitle>SystemCare</AssemblyTitle>
     <Product>SystemCare</Product>
-    <Version>2.10.0</Version>
+    <Version>2.11.0</Version>
+    <!-- Precompile IL to native code at publish time for faster cold start (R2R). Only takes
+         effect on `dotnet publish` for the matching runtime (win-x64); no effect on debug builds. -->
+    <PublishReadyToRun>true</PublishReadyToRun>
   </PropertyGroup>
 
   <ItemGroup>

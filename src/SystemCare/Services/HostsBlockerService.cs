@@ -1,5 +1,6 @@
 using System.Text;
 using SystemCare.Helpers;
+using SystemCare.Native;
 
 namespace SystemCare.Services;
 
@@ -88,7 +89,7 @@ public class HostsBlockerService : IHostsBlockerService
             sb.Append(EndMarker).Append("\r\n");
 
             await File.WriteAllTextAsync(HostsPath, sb.ToString(), Encoding.ASCII);
-            await ProcessRunner.RunAsync("ipconfig", "/flushdns");
+            NativeMethods.DnsFlushResolverCache(); // in-process DLL call instead of spawning ipconfig.exe
             _log.Info("Hosts", $"Applied blocklist ({BlockedDomains.Length} domains).");
             return (true, $"Blocking {BlockedDomains.Length} ad/tracker domains. A backup of your original hosts file was saved.");
         }
@@ -121,7 +122,7 @@ public class HostsBlockerService : IHostsBlockerService
 
             string cleaned = (text[..trimStart] + text[end..]).TrimEnd('\r', '\n') + "\r\n";
             await File.WriteAllTextAsync(HostsPath, cleaned, Encoding.ASCII);
-            await ProcessRunner.RunAsync("ipconfig", "/flushdns");
+            NativeMethods.DnsFlushResolverCache(); // in-process DLL call instead of spawning ipconfig.exe
             _log.Info("Hosts", "Removed blocklist.");
             return (true, "Blocklist removed — your original hosts entries are untouched.");
         }

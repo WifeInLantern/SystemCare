@@ -100,10 +100,15 @@ public partial class BloatwareViewModel : ObservableObject
         try
         {
             int removed = 0, failed = 0;
-            foreach (var item in selected)
+            // One PowerShell process removes every selected app (was one spawn per app).
+            var byPackage = selected.ToDictionary(i => i.Package);
+            var results = await _apps.UninstallManyAsync(
+                selected.Select(i => i.Package).ToList(),
+                pkg => StatusText = $"Removing {(byPackage.TryGetValue(pkg, out var i) ? i.DisplayName : pkg.Name)}…");
+
+            foreach (var (pkg, ok) in results)
             {
-                StatusText = $"Removing {item.DisplayName}…";
-                var (ok, _) = await _apps.UninstallAsync(item.Package);
+                if (!byPackage.TryGetValue(pkg, out var item)) continue;
                 if (ok) { removed++; _all.Remove(item); }
                 else failed++;
             }

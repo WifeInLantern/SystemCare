@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Management;
 using SystemCare.Helpers;
 using SystemCare.Models;
 
@@ -19,6 +20,49 @@ public class RansomwareShieldService : IRansomwareShieldService
     public RansomwareShieldService(ILogService log) => _log = log;
 
     public async Task<RansomwareStatus> GetStatusAsync(CancellationToken ct = default)
+    {
+        // Fast path: read Defender preferences straight from WMI — no powershell.exe spawn (was two).
+        var wmi = await Task.Run(TryGetStatusViaWmi, ct);
+        if (wmi is not null) return wmi;
+        // Fallback for configurations where the WMI class can't be queried.
+        return await GetStatusViaPowerShellAsync(ct);
+    }
+
+    // MSFT_MpPreference exposes the same values Get-MpPreference reads. Reading them via
+    // System.Management avoids launching PowerShell twice on every status refresh.
+    private RansomwareStatus? TryGetStatusViaWmi()
+    {
+        try
+        {
+            var scope = new ManagementScope(@"\\.\root\Microsoft\Windows\Defender");
+            scope.Connect();
+            using var searcher = new ManagementObjectSearcher(scope, new ObjectQuery(
+                "SELECT EnableControlledFolderAccess, ControlledFolderAccessProtectedFolders FROM MSFT_MpPreference"));
+            foreach (ManagementBaseObject mo in searcher.Get())
+            {
+                using (mo)
+                {
+                    var raw = mo["EnableControlledFolderAccess"];
+                    string state = raw is null
+                        ? "Unknown"
+                        : NormalizeState(Convert.ToInt32(raw).ToString());
+                    var folders = (mo["ControlledFolderAccessProtectedFolders"] as string[])?
+                        .Where(f => !string.IsNullOrWhiteSpace(f))
+                        .Select(f => f.Trim())
+                        .ToList() ?? new List<string>();
+                    return new RansomwareStatus { IsAvailable = true, State = state, ProtectedFolders = folders };
+                }
+            }
+            return null;
+        }
+        catch (Exception ex)
+        {
+            _log.Warn("Ransomware", $"WMI status read failed, falling back to PowerShell: {ex.Message}");
+            return null;
+        }
+    }
+
+    private async Task<RansomwareStatus> GetStatusViaPowerShellAsync(CancellationToken ct)
     {
         try
         {

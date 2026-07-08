@@ -2,6 +2,21 @@
 
 All notable changes to SystemCare are documented here. Versions follow [SemVer](https://semver.org/).
 
+## [2.11.0] - 2026-07-08
+
+### Performance
+- **Faster bloatware removal.** Removing several apps at once now runs in a **single** background process
+  instead of launching one `powershell.exe` per app, cutting per-app startup overhead on large cleanups
+  while still reporting progress app-by-app.
+- **Faster cold start.** The published app is now precompiled to native code (ReadyToRun) and its single-file
+  bundle is no longer compressed, so it launches noticeably quicker (at the cost of a larger on-disk exe; the
+  installer download stays compressed).
+- **Lower idle CPU.** The animated cyberpunk backdrop now pauses whenever the window is unfocused or minimized,
+  and resumes instantly when you return — no frames are drawn while you can't see them.
+- **Fewer process spawns.** Ransomware-protection status is now read directly from Windows Defender via WMI
+  (was two PowerShell launches per refresh), and the ad/tracker blocklist flushes the DNS cache with an
+  in-process system call instead of launching `ipconfig`.
+
 ## [2.10.0] - 2026-07-08
 
 ### Changed

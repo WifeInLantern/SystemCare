@@ -26,6 +26,8 @@ public class CyberBackground : FrameworkElement
     private readonly Stopwatch _clock = Stopwatch.StartNew();
     private double _lastRenderMs;
     private bool _hooked;
+    private bool _windowActive = true;   // false while the host window is unfocused or minimized
+    private Window? _window;
 
     public CyberBackground()
     {
@@ -52,6 +54,20 @@ public class CyberBackground : FrameworkElement
 
     private void OnLoaded(object sender, RoutedEventArgs e)
     {
+        // Track the host window so the backdrop can pause while it's unfocused or minimized —
+        // no point burning ~30 fps of CPU redrawing pixels the user can't see.
+        _window = Window.GetWindow(this);
+        if (_window is not null)
+        {
+            _window.Activated -= OnWindowActivityChanged;
+            _window.Deactivated -= OnWindowActivityChanged;
+            _window.StateChanged -= OnWindowActivityChanged;
+            _window.Activated += OnWindowActivityChanged;
+            _window.Deactivated += OnWindowActivityChanged;
+            _window.StateChanged += OnWindowActivityChanged;
+            _windowActive = _window.IsActive && _window.WindowState != WindowState.Minimized;
+        }
+
         Hook();
         Animations.ReduceMotionChanged -= OnReduceMotionChanged; // avoid a double subscription on reload
         Animations.ReduceMotionChanged += OnReduceMotionChanged;
@@ -60,7 +76,24 @@ public class CyberBackground : FrameworkElement
     private void OnUnloaded(object sender, RoutedEventArgs e)
     {
         Unhook();
+        if (_window is not null)
+        {
+            _window.Activated -= OnWindowActivityChanged;
+            _window.Deactivated -= OnWindowActivityChanged;
+            _window.StateChanged -= OnWindowActivityChanged;
+            _window = null;
+        }
         Animations.ReduceMotionChanged -= OnReduceMotionChanged;
+    }
+
+    // Window focus gained/lost or minimized/restored: resume or pause the animated backdrop.
+    private void OnWindowActivityChanged(object? sender, EventArgs e)
+    {
+        _windowActive = _window is not null
+            && _window.IsActive
+            && _window.WindowState != WindowState.Minimized;
+        if (_windowActive) Hook();
+        else Unhook(); // freeze on the current frame; nothing visible to update
     }
 
     // Reduce-motion toggled live: settle to a static frame, or resume the animated backdrop.
@@ -105,7 +138,7 @@ public class CyberBackground : FrameworkElement
 
     private void Hook()
     {
-        if (_hooked) return;
+        if (_hooked || !_windowActive) return; // don't animate while the window is unfocused/minimized
         if (Animations.ReduceMotion) { InvalidateVisual(); return; } // draw one static frame, don't animate
         CompositionTarget.Rendering += OnRendering;
         _hooked = true;

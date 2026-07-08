@@ -9,6 +9,13 @@ public interface IAppPackageService
 {
     Task<List<AppPackage>> GetPackagesAsync();
     Task<(bool Ok, string Message)> UninstallAsync(AppPackage package);
+
+    /// <summary>
+    /// Removes several packages in a single PowerShell process (one spawn instead of one per app),
+    /// reporting each app's display name via <paramref name="onProgress"/> as it starts.
+    /// </summary>
+    Task<List<(AppPackage Package, bool Ok)>> UninstallManyAsync(
+        IReadOnlyList<AppPackage> packages, Action<AppPackage>? onProgress = null);
 }
 
 /// <summary>
@@ -130,6 +137,80 @@ public class AppPackageService : IAppPackageService
         {
             return (false, ex.Message);
         }
+    });
+
+    public Task<List<(AppPackage Package, bool Ok)>> UninstallManyAsync(
+        IReadOnlyList<AppPackage> packages, Action<AppPackage>? onProgress = null) => Task.Run(() =>
+    {
+        var results = new List<(AppPackage, bool)>();
+        if (packages.Count == 0) return results;
+
+        // Map by Name so streamed "RESULT|<name>|OK" lines route back to the original package
+        // (and drive the progress callback). Names are unique per removable app in this list.
+        var byName = new Dictionary<string, AppPackage>(StringComparer.OrdinalIgnoreCase);
+        var arrayItems = new List<string>();
+        foreach (var p in packages)
+        {
+            byName[p.Name] = p;
+            arrayItems.Add("'" + p.Name.Replace("'", "''") + "'");
+        }
+
+        // ONE PowerShell process handles every app: for each name, remove for all users + remove the
+        // provisioned package, then verify and emit a machine-readable result line we parse as it streams.
+        string script =
+            "$names=@(" + string.Join(",", arrayItems) + "); " +
+            "foreach ($n in $names) { " +
+            "  Write-Output \"BEGIN|$n\"; " +
+            "  try { " +
+            "    Get-AppxPackage -AllUsers -Name $n | Remove-AppxPackage -AllUsers -ErrorAction SilentlyContinue; " +
+            "    Get-AppxProvisionedPackage -Online | Where-Object DisplayName -EQ $n | " +
+            "      Remove-AppxProvisionedPackage -Online -ErrorAction SilentlyContinue; " +
+            "  } catch {} " +
+            "  if (Get-AppxPackage -AllUsers -Name $n) { Write-Output \"RESULT|$n|FAIL\" } " +
+            "  else { Write-Output \"RESULT|$n|OK\" } " +
+            "}";
+
+        var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        try
+        {
+            using var p = Process.Start(new ProcessStartInfo("powershell.exe",
+                $"-NoProfile -NonInteractive -ExecutionPolicy Bypass -Command \"{script}\"")
+            {
+                UseShellExecute = false,
+                CreateNoWindow = true,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                StandardOutputEncoding = Encoding.UTF8,
+            });
+            if (p is null) return results;
+
+            string? line;
+            while ((line = p.StandardOutput.ReadLine()) is not null)
+            {
+                if (line.StartsWith("BEGIN|", StringComparison.Ordinal))
+                {
+                    string n = line[6..];
+                    if (onProgress is not null && byName.TryGetValue(n, out var pk)) onProgress(pk);
+                }
+                else if (line.StartsWith("RESULT|", StringComparison.Ordinal))
+                {
+                    int bar = line.LastIndexOf('|');
+                    string n = line[7..bar];
+                    bool ok = line[(bar + 1)..].Equals("OK", StringComparison.OrdinalIgnoreCase);
+                    if (byName.TryGetValue(n, out var pk) && seen.Add(n)) results.Add((pk, ok));
+                }
+            }
+            p.StandardError.ReadToEnd();
+            // Generous ceiling: many apps removed sequentially in one process.
+            p.WaitForExit(Math.Max(120000, packages.Count * 30000));
+        }
+        catch (Exception) { }
+
+        // Any app that produced no result line (e.g. the process died early) counts as failed.
+        foreach (var p in packages)
+            if (!seen.Contains(p.Name)) results.Add((p, false));
+
+        return results;
     });
 
     private static IEnumerable<JsonElement> SingleArray(JsonElement obj)
