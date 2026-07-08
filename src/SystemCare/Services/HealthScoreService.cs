@@ -9,16 +9,37 @@ public interface IHealthScoreService
 
 public class HealthScoreService : IHealthScoreService
 {
-    private const double JunkFullPenaltyBytes = 2L * 1024 * 1024 * 1024; // 2 GiB of junk ⇒ full 40-point penalty
+    // 5 GiB of junk ⇒ the full (small) 10-point junk penalty. Junk is housekeeping, not a health emergency.
+    private const double JunkFullPenaltyBytes = 5L * 1024 * 1024 * 1024;
 
+    /// <summary>
+    /// Weighted 0–100 penalty model (v2). The weights reflect real impact on a PC's health rather than mere
+    /// tidiness: <b>security posture</b> (30) and <b>low system-drive free space</b> (25) dominate because they
+    /// genuinely degrade safety, performance and stability; sustained <b>memory pressure</b> (20) matters only
+    /// past 70% load (Windows uses free RAM for caching); <b>startup load</b> (15) and <b>junk</b> (10) are
+    /// gentle so ordinary housekeeping can't tank an otherwise-healthy machine. Max total penalty = 100.
+    /// </summary>
     public HealthReport Compute(HealthInputs inputs)
     {
-        double junkPenalty = Math.Min(40, 40.0 * inputs.JunkBytes / JunkFullPenaltyBytes);
-        double startupPenalty = Math.Min(25, 3.0 * Math.Max(0, inputs.EnabledStartupItems - 4));
-        double ramPenalty = inputs.RamLoadPercent <= 50 ? 0 : Math.Min(35, (inputs.RamLoadPercent - 50) * 0.7);
-        double securityPenalty = Math.Min(20, 8.0 * inputs.SecurityIssues);
+        // Security — the single biggest real risk. Up to 30.
+        double securityPenalty = Math.Min(30, 10.0 * inputs.SecurityIssues);
 
-        int score = (int)Math.Clamp(100 - junkPenalty - startupPenalty - ramPenalty - securityPenalty, 0, 100);
+        // Low free space on the system drive. No penalty at/above 20% free; ramps to the full 25 at 0%.
+        // A 0% reading is treated as "unknown" (no penalty) so a missing value never tanks the score.
+        double p = inputs.SystemDriveFreePercent;
+        double diskPenalty = (p > 0 && p < 20) ? Math.Min(25, (20 - p) * 1.25) : 0;
+
+        // Sustained memory pressure — nothing below 70% load; ramps to the full 20 by ~95%.
+        double ramPenalty = inputs.RamLoadPercent <= 70 ? 0 : Math.Min(20, (inputs.RamLoadPercent - 70) * 0.8);
+
+        // Startup load — free allowance of 6 apps, then a gentle 2.5 points each, capped at 15.
+        double startupPenalty = Math.Min(15, 2.5 * Math.Max(0, inputs.EnabledStartupItems - 6));
+
+        // Junk — capped low so even a lot of it barely moves the score.
+        double junkPenalty = Math.Min(10, 10.0 * inputs.JunkBytes / JunkFullPenaltyBytes);
+
+        int score = (int)Math.Clamp(
+            100 - securityPenalty - diskPenalty - ramPenalty - startupPenalty - junkPenalty, 0, 100);
 
         return new HealthReport
         {
@@ -34,6 +55,7 @@ public class HealthScoreService : IHealthScoreService
             StartupPenalty = startupPenalty,
             RamPenalty = ramPenalty,
             SecurityPenalty = securityPenalty,
+            DiskPenalty = diskPenalty,
         };
     }
 }

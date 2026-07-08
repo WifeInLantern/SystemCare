@@ -21,7 +21,7 @@ internal static class RecommendationBuilder
                 Id = "junk",
                 Title = "Clean up junk files",
                 Explanation = $"{ByteFormatter.Format(r.Junk.TotalBytes)} of junk across {r.Junk.TotalFiles:N0} files is weighing on your health score.",
-                Severity = health.JunkPenalty >= 20 ? RecommendationSeverity.Important : RecommendationSeverity.Suggested,
+                Severity = health.JunkPenalty >= 6 ? RecommendationSeverity.Important : RecommendationSeverity.Suggested,
                 ImpactText = $"~{ByteFormatter.Format(r.Junk.TotalBytes)} reclaimable · +{health.JunkPenalty:0} points",
                 HealthPointsRecoverable = health.JunkPenalty,
                 Action = RecommendationAction.CleanJunk,
@@ -35,8 +35,8 @@ internal static class RecommendationBuilder
             {
                 Id = "startup",
                 Title = "Trim your startup apps",
-                Explanation = $"{r.EnabledStartupItems} apps launch with Windows — each one slows boot and stays resident. Four or fewer is healthy.",
-                Severity = health.StartupPenalty >= 15 ? RecommendationSeverity.Important : RecommendationSeverity.Suggested,
+                Explanation = $"{r.EnabledStartupItems} apps launch with Windows — each one slows boot and stays resident. Six or fewer is healthy.",
+                Severity = health.StartupPenalty >= 10 ? RecommendationSeverity.Important : RecommendationSeverity.Suggested,
                 ImpactText = $"+{health.StartupPenalty:0} points · faster boot",
                 HealthPointsRecoverable = health.StartupPenalty,
                 Action = RecommendationAction.ReviewStartup,
@@ -45,7 +45,7 @@ internal static class RecommendationBuilder
             });
         }
 
-        if (health.RamPenalty >= 7) // RAM load above ~60%
+        if (health.RamPenalty > 0) // RAM load above 70%
         {
             list.Add(new Recommendation
             {

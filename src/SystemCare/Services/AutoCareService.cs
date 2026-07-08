@@ -48,7 +48,7 @@ public class AutoCareService(
         int enabledStartup = startupTask.Result.Count(e => e.IsEnabled);
         int securityIssues = securityTask.Result.Count(c =>
             c.Status is SecurityStatus.Warning or SecurityStatus.Bad);
-        var snapshot = systemInfo.GetSnapshot(includeDrives: false);
+        var snapshot = systemInfo.GetSnapshot(includeDrives: true);
 
         var health = healthScore.Compute(new HealthInputs
         {
@@ -56,6 +56,7 @@ public class AutoCareService(
             EnabledStartupItems = enabledStartup,
             RamLoadPercent = snapshot.RamLoadPercent,
             SecurityIssues = securityIssues,
+            SystemDriveFreePercent = DriveMetrics.SystemDriveFreePercent(snapshot.Drives),
         });
 
         var probes = new AutoCareProbeResults

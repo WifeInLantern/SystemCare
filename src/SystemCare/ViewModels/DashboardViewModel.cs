@@ -174,7 +174,7 @@ public partial class DashboardViewModel : ObservableObject
             int enabledStartup = startupTask.Result.Count(e => e.IsEnabled);
             int securityIssues = securityTask.Result.Count(c =>
                 c.Status is Models.SecurityStatus.Warning or Models.SecurityStatus.Bad);
-            var snapshot = _systemInfo.GetSnapshot(includeDrives: false);
+            var snapshot = _systemInfo.GetSnapshot(includeDrives: true);
 
             var report = _healthScore.Compute(new HealthInputs
             {
@@ -182,6 +182,7 @@ public partial class DashboardViewModel : ObservableObject
                 EnabledStartupItems = enabledStartup,
                 RamLoadPercent = snapshot.RamLoadPercent,
                 SecurityIssues = securityIssues,
+                SystemDriveFreePercent = DriveMetrics.SystemDriveFreePercent(snapshot.Drives),
             });
 
             HealthScoreValue = report.Score;

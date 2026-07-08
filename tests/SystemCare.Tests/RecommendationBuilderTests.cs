@@ -61,8 +61,8 @@ public class RecommendationBuilderTests
     }
 
     [Theory]
-    [InlineData(200L * 1024 * 1024, RecommendationSeverity.Suggested)]   // ~4 points
-    [InlineData(1024L * 1024 * 1024, RecommendationSeverity.Important)]  // 1 GiB → 20 points
+    [InlineData(1024L * 1024 * 1024, RecommendationSeverity.Suggested)]      // 1 GiB → 2 points
+    [InlineData(4L * 1024 * 1024 * 1024, RecommendationSeverity.Important)]  // 4 GiB → 8 points
     public void JunkSeverity_EscalatesWithSize(long bytes, RecommendationSeverity expected)
     {
         var rec = Assert.Single(RecommendationBuilder.Build(Probes(junkBytes: bytes)));
@@ -74,8 +74,8 @@ public class RecommendationBuilderTests
     }
 
     [Theory]
-    [InlineData(4, false)]  // four or fewer startup apps = no penalty
-    [InlineData(5, true)]
+    [InlineData(6, false)]  // six or fewer startup apps = no penalty
+    [InlineData(7, true)]
     public void StartupRecommendation_TracksThePenaltyThreshold(int startupApps, bool expected)
     {
         var recs = RecommendationBuilder.Build(Probes(startup: startupApps));
@@ -84,8 +84,8 @@ public class RecommendationBuilderTests
     }
 
     [Theory]
-    [InlineData(55, false)]  // penalty 3.5 — below the 7-point "worth a card" bar
-    [InlineData(70, true)]
+    [InlineData(70, false)]  // at/below 70% load = no penalty, no card
+    [InlineData(75, true)]
     public void RamRecommendation_OnlyWhenPressureIsMeaningful(double ramLoad, bool expected)
     {
         Assert.Equal(expected, RecommendationBuilder.Build(Probes(ram: ramLoad)).Any(r => r.Id == "ram"));
@@ -101,16 +101,15 @@ public class RecommendationBuilderTests
     [Fact]
     public void SecurityIssues_AlwaysImportant_AndRankedFirst()
     {
-        // Big junk (Important, 40 pts) + 1 security issue (Important, 8 pts): security outranks by
-        // severity tie → falls to points… junk has more points. Verify security is Important and
-        // present; ranking among equals is by recoverable points.
+        // Big junk (Important, 8 pts) + 1 security issue (Important, 10 pts). Both Important; among equals,
+        // ranking is by recoverable points, so security (10) outranks junk (8).
         var recs = RecommendationBuilder.Build(Probes(junkBytes: 4L * 1024 * 1024 * 1024, security: 1));
 
         var sec = recs.Single(r => r.Id == "security");
         Assert.Equal(RecommendationSeverity.Important, sec.Severity);
         Assert.Equal("Security", sec.NavigateTarget);
-        Assert.Equal("junk", recs[0].Id); // 40 recoverable points beats 8
-        Assert.Equal("security", recs[1].Id);
+        Assert.Equal("security", recs[0].Id); // 10 recoverable points beats 8
+        Assert.Equal("junk", recs[1].Id);
     }
 
     [Theory]
@@ -134,8 +133,8 @@ public class RecommendationBuilderTests
     [Fact]
     public void Ranking_SeverityFirst_ThenRecoverablePoints()
     {
-        // Suggested junk (~8 pts) vs Important security (8 pts) vs Info updates.
-        var recs = RecommendationBuilder.Build(Probes(junkBytes: 400L * 1024 * 1024, security: 1, updates: 2));
+        // Suggested junk (2 pts) vs Important security (10 pts) vs Info updates.
+        var recs = RecommendationBuilder.Build(Probes(junkBytes: 1024L * 1024 * 1024, security: 1, updates: 2));
 
         Assert.Equal(["security", "junk", "updates"], recs.Select(r => r.Id).ToArray());
     }

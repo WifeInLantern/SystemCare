@@ -2,6 +2,18 @@
 
 All notable changes to SystemCare are documented here. Versions follow [SemVer](https://semver.org/).
 
+## [2.10.0] - 2026-07-08
+
+### Changed
+- **Revamped the PC Health score.** The 0–100 gauge now uses a rebalanced, weighted model (v2) that reflects
+  real impact rather than mere tidiness: **security posture** (up to 30) and **low system-drive free space**
+  (up to 25, a new factor) carry the most weight; **sustained memory pressure** (up to 20) counts only past
+  70% load since Windows uses free RAM for caching; and **startup load** (15) and **junk** (10) are now gentle,
+  so ordinary housekeeping no longer drags an otherwise-healthy PC down. Auto Care's recommendations were
+  re-anchored to the new weights.
+- **Removed the Quick Actions row from the Dashboard** for a cleaner hero area. Those actions remain available
+  from their own pages, and the hero's Scan / Fix all / Free up RAM buttons are unchanged.
+
 ## [2.9.0] - 2026-07-08
 
 ### Changed

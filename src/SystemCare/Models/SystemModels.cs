@@ -31,6 +31,8 @@ public class HealthInputs
     public double RamLoadPercent { get; init; }
     /// <summary>Number of security checks reporting a warning or worse.</summary>
     public int SecurityIssues { get; init; }
+    /// <summary>Free space on the system drive as a percentage (0–100). 0 = unknown ⇒ no penalty.</summary>
+    public double SystemDriveFreePercent { get; init; }
 }
 
 public enum HealthBand { Excellent, Good, NeedsAttention, Poor }
@@ -43,4 +45,5 @@ public class HealthReport
     public double StartupPenalty { get; init; }
     public double RamPenalty { get; init; }
     public double SecurityPenalty { get; init; }
+    public double DiskPenalty { get; init; }
 }

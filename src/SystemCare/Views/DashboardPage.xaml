@@ -67,33 +67,6 @@
                 </StackPanel>
             </Grid>
 
-            <!-- Quick actions (customizable in Settings) -->
-            <StackPanel Visibility="{Binding AnyQuickAction, Converter={StaticResource VisibleWhenTrue}}">
-                <TextBlock Text="QUICK ACTIONS" FontSize="16" Margin="0,28,0,12" Style="{StaticResource CyberSectionHeader}" />
-                <WrapPanel Orientation="Horizontal">
-                    <ui:Button Content="Scan &amp; Fix" Padding="18,9" Margin="0,0,8,8" Command="{Binding ScanCommand}"
-                               Visibility="{Binding ShowScanFix, Converter={StaticResource VisibleWhenTrue}}">
-                        <ui:Button.Icon><ui:SymbolIcon Symbol="Wrench24" /></ui:Button.Icon>
-                    </ui:Button>
-                    <ui:Button Content="Free up RAM" Padding="18,9" Margin="0,0,8,8" Command="{Binding OptimizeRamCommand}"
-                               Visibility="{Binding ShowFreeRam, Converter={StaticResource VisibleWhenTrue}}">
-                        <ui:Button.Icon><ui:SymbolIcon Symbol="Flash24" /></ui:Button.Icon>
-                    </ui:Button>
-                    <ui:Button Content="Flush DNS" Padding="18,9" Margin="0,0,8,8" Command="{Binding FlushDnsCommand}"
-                               Visibility="{Binding ShowFlushDns, Converter={StaticResource VisibleWhenTrue}}">
-                        <ui:Button.Icon><ui:SymbolIcon Symbol="Globe24" /></ui:Button.Icon>
-                    </ui:Button>
-                    <ui:Button Content="Empty Recycle Bin" Padding="18,9" Margin="0,0,8,8" Command="{Binding EmptyRecycleBinCommand}"
-                               Visibility="{Binding ShowEmptyBin, Converter={StaticResource VisibleWhenTrue}}">
-                        <ui:Button.Icon><ui:SymbolIcon Symbol="Delete24" /></ui:Button.Icon>
-                    </ui:Button>
-                    <ui:Button Content="Create restore point" Padding="18,9" Margin="0,0,8,8" Command="{Binding CreateRestorePointCommand}"
-                               Visibility="{Binding ShowRestorePoint, Converter={StaticResource VisibleWhenTrue}}">
-                        <ui:Button.Icon><ui:SymbolIcon Symbol="ShieldAdd24" /></ui:Button.Icon>
-                    </ui:Button>
-                </WrapPanel>
-            </StackPanel>
-
             <!-- Live stats -->
             <TextBlock Text="LIVE SYSTEM STATS" FontSize="16" Margin="0,28,0,12" Style="{StaticResource CyberSectionHeader}"
                        helpers:Animations.FadeInOnLoad="True" helpers:Animations.RevealDelay="40" />
