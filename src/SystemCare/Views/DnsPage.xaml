@@ -24,18 +24,19 @@
         <StackPanel Grid.Row="0">
             <TextBlock Text="Secure DNS" Style="{StaticResource CyberPageTitle}" />
             <TextBlock Text="Switch your DNS resolver for privacy, speed, or malware filtering. Changes are reversible — pick Automatic to restore your router's DNS."
-                       FontSize="13" Opacity="0.78" Margin="0,4,0,0" TextWrapping="Wrap" />
+                       Style="{StaticResource TextBody}" Margin="0,4,0,0" />
         </StackPanel>
 
         <ui:Card Grid.Row="1" Margin="0,14,0,0" Padding="16,12">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="Auto" MinWidth="160" MaxWidth="260" />
+                    <ColumnDefinition Width="Auto" MinWidth="160" />
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
-                <TextBlock Grid.Column="0" Text="Adapter" VerticalAlignment="Center" Opacity="0.85" Margin="0,0,10,0" />
+                <TextBlock Grid.Column="0" Text="Adapter" VerticalAlignment="Center"
+                           Foreground="{StaticResource TextFillColorSecondaryBrush}" Margin="0,0,10,0" />
                 <ComboBox Grid.Column="1" ItemsSource="{Binding Adapters}" SelectedItem="{Binding SelectedAdapter}" HorizontalAlignment="Stretch" />
                 <TextBlock Grid.Column="2" Margin="16,0,0,0" VerticalAlignment="Center" TextTrimming="CharacterEllipsis">
                     <Run Text="Current: " Foreground="{StaticResource TextFillColorSecondaryBrush}" />
@@ -48,7 +49,7 @@
         </ui:Card>
 
         <controls:TaskProgress Grid.Row="2" IsActive="{Binding IsBusy}" Margin="0,10,0,0" />
-        <TextBlock Grid.Row="2" Text="{Binding StatusText}" Margin="0,10,0,0" Opacity="0.85" FontSize="12"
+        <TextBlock Grid.Row="2" Text="{Binding StatusText}" Margin="0,10,0,0" Style="{StaticResource TextCaption}"
                    HorizontalAlignment="Right" VerticalAlignment="Center" />
 
         <ScrollViewer Grid.Row="3" VerticalScrollBarVisibility="Auto" Margin="0,12,0,0">
@@ -62,9 +63,9 @@
                                     <ColumnDefinition Width="Auto" />
                                 </Grid.ColumnDefinitions>
                                 <StackPanel Grid.Column="0" VerticalAlignment="Center">
-                                    <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="14" />
+                                    <TextBlock Text="{Binding Name}" Style="{StaticResource TextBodyStrong}" />
                                     <TextBlock Text="{Binding Description}" Style="{StaticResource TextCaption}" TextWrapping="Wrap" />
-                                    <TextBlock Text="{Binding ServersText}" FontSize="12" Opacity="0.7" Margin="0,3,0,0" />
+                                    <TextBlock Text="{Binding ServersText}" Style="{StaticResource TextCaption}" Margin="0,3,0,0" />
                                 </StackPanel>
                                 <ui:Button Grid.Column="1" Content="Apply" Appearance="Primary" Padding="16,7" VerticalAlignment="Center"
                                            Command="{Binding DataContext.ApplyCommand, RelativeSource={RelativeSource AncestorType=Page}}"

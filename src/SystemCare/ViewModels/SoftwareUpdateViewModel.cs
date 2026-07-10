@@ -60,7 +60,14 @@ public partial class SoftwareUpdateViewModel : ObservableObject
 
     public async void OnNavigatedTo()
     {
-        if (!HasChecked && !IsChecking) await CheckAsync(CancellationToken.None);
+        try
+        {
+            if (!HasChecked && !IsChecking) await CheckAsync(CancellationToken.None);
+        }
+        catch (Exception ex)
+        {
+            _log.Warn("SoftwareUpdate", "Initial load failed: " + ex.Message);
+        }
     }
 
     [RelayCommand(IncludeCancelCommand = true)]

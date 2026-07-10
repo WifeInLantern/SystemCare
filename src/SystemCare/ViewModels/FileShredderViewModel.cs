@@ -29,9 +29,11 @@ public partial class FileShredderViewModel : ObservableObject
     public ObservableCollection<ShredItemViewModel> Items { get; } = [];
 
     [ObservableProperty] private int _passes = 1;
-    [ObservableProperty] private bool _isBusy;
+    [ObservableProperty] [NotifyCanExecuteChangedFor(nameof(ShredCommand))] private bool _isBusy;
     [ObservableProperty] private string _progressText = "";
     [ObservableProperty] [NotifyCanExecuteChangedFor(nameof(ShredCommand))] private bool _hasItems;
+
+    private bool CanShred() => HasItems && !IsBusy;
 
     public FileShredderViewModel(IFileShredderService shredder, ISnackbarService snackbar,
         IContentDialogService dialogs, IHistoryService history)
@@ -85,7 +87,7 @@ public partial class FileShredderViewModel : ObservableObject
     [RelayCommand]
     private void Cancel() => _cts?.Cancel();
 
-    [RelayCommand(CanExecute = nameof(HasItems))]
+    [RelayCommand(CanExecute = nameof(CanShred))]
     private async Task ShredAsync()
     {
         var confirm = await _dialogs.ShowSimpleDialogAsync(new SimpleContentDialogCreateOptions

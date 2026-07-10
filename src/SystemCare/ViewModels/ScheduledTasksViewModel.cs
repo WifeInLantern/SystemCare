@@ -39,7 +39,14 @@ public partial class ScheduledTasksViewModel : ObservableObject
 
     public async void OnNavigatedTo()
     {
-        if (Tasks.Count == 0) await RefreshAsync();
+        try
+        {
+            if (Tasks.Count == 0) await RefreshAsync();
+        }
+        catch (Exception)
+        {
+            // async void: an unhandled exception here would surface as a raw error dialog, so contain it.
+        }
     }
 
     [RelayCommand(CanExecute = nameof(NotBusy))]

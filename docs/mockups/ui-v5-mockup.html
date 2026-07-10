@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SystemCare v5 — Before / After Mockups</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg0:#0A0E14; --bg-deep:#03040A;
+    --s1:rgba(17,25,42,.65); --s2:rgba(26,36,56,.78); --s3:rgba(32,44,70,.94);
+    --stroke:#2A3A55; --hairline:#1E2A3D;
+    --cyan:#00E5FF; --magenta:#FF2A6D; --violet:#B14CFF; --success:#00FFA3; --warning:#FFD300;
+    --t1:#E6F6FF; --t2:#8FA6C0; --t3:#6E86A6; --t4:#586C88; --dis-old:#3A4A60; --dis-new:#5A6E8C;
+    --cyan-sub:rgba(0,229,255,.13); --succ-sub:rgba(0,255,163,.2); --warn-sub:rgba(255,211,0,.2); --dang-sub:rgba(255,42,109,.2);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:linear-gradient(135deg,var(--bg0),var(--bg-deep));color:var(--t1);font-family:'Rajdhani',sans-serif;min-height:100vh;padding:28px 20px 60px}
+  .disp{font-family:'Orbitron',sans-serif}
+  h1{font-family:'Orbitron';font-size:22px;letter-spacing:2px;color:var(--cyan);text-shadow:0 0 18px rgba(0,229,255,.45)}
+  .sub{color:var(--t2);font-size:15px;margin:6px 0 24px}
+  /* tabs */
+  .tabs{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+  .tab{background:var(--s1);border:1px solid var(--stroke);color:var(--t2);padding:8px 18px;border-radius:4px;cursor:pointer;font-family:'Rajdhani';font-weight:600;font-size:15px;letter-spacing:.5px}
+  .tab.on{color:var(--cyan);border-color:var(--cyan);box-shadow:0 0 14px rgba(0,229,255,.25);background:var(--cyan-sub)}
+  .ba{display:flex;gap:8px;margin-bottom:20px}
+  .ba button{background:var(--s1);border:1px solid var(--stroke);color:var(--t2);padding:6px 16px;border-radius:999px;cursor:pointer;font-family:'Rajdhani';font-weight:600;font-size:14px}
+  .ba button.on-before{color:var(--magenta);border-color:var(--magenta);background:var(--dang-sub)}
+  .ba button.on-after{color:var(--success);border-color:var(--success);background:var(--succ-sub)}
+  .panel{display:none}.panel.show{display:block}
+  .note{font-size:13px;color:var(--t3);margin:10px 2px 0;max-width:980px;line-height:1.5}
+  .note b{color:var(--t2)}
+  /* app frame */
+  .frame{max-width:1180px;border:1px solid var(--stroke);border-radius:8px;overflow:hidden;background:linear-gradient(135deg,var(--bg0),var(--bg-deep));box-shadow:0 20px 60px rgba(0,0,0,.6);position:relative}
+  .frame::before{content:"";position:absolute;inset:0;background-image:linear-gradient(rgba(0,229,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,229,255,.03) 1px,transparent 1px);background-size:44px 44px;pointer-events:none}
+  .titlebar{display:flex;align-items:center;gap:10px;padding:9px 14px;border-bottom:1px solid var(--hairline);position:relative;z-index:1}
+  .titlebar .logo{width:16px;height:16px;border-radius:3px;background:linear-gradient(135deg,var(--cyan),var(--magenta))}
+  .titlebar .name{font-family:'Orbitron';font-size:11px;letter-spacing:2px;color:var(--t1)}
+  .titlebar .dots{margin-left:auto;display:flex;gap:14px;color:var(--t3);font-size:12px}
+  .searchpill{margin-left:auto;display:flex;align-items:center;gap:8px;background:var(--s2);border:1px solid var(--stroke);border-radius:999px;padding:4px 12px;color:var(--t3);font-size:12.5px}
+  .searchpill kbd{background:rgba(255,255,255,.08);border:1px solid var(--stroke);border-radius:3px;padding:0 5px;font-size:11px;color:var(--t2)}
+  .searchpill + .dots{margin-left:14px}
+  .body{display:flex;position:relative;z-index:1;min-height:560px}
+  /* nav pane */
+  .pane{width:190px;border-right:1px solid var(--hairline);padding:10px 8px;flex-shrink:0}
+  .pane.scrolly{max-height:560px;overflow-y:auto}
+  .pane::-webkit-scrollbar{width:5px}.pane::-webkit-scrollbar-thumb{background:var(--stroke);border-radius:3px}
+  .nhead{font-family:'Orbitron';font-size:9.5px;letter-spacing:1.6px;color:var(--t3);padding:10px 10px 5px}
+  .nitem{display:flex;align-items:center;gap:9px;padding:6px 10px;border-radius:4px;color:var(--t2);font-size:14px;font-weight:600;cursor:pointer;position:relative}
+  .nitem:hover{background:var(--s2);color:var(--t1)}
+  .nitem.sel{background:var(--cyan-sub);color:var(--cyan)}
+  .nitem.sel::before{content:"";position:absolute;left:0;top:6px;bottom:6px;width:2.5px;background:var(--cyan);border-radius:2px;box-shadow:0 0 8px var(--cyan)}
+  .nitem .ic{width:17px;text-align:center;font-size:13.5px;flex-shrink:0}
+  .nitem .count{margin-left:auto;font-size:11px;color:var(--t3)}
+  .nitem .star{margin-left:auto;color:var(--warning);font-size:11px}
+  .dup{outline:1px dashed rgba(255,42,109,.55);outline-offset:-1px}
+  /* content */
+  .content{flex:1;padding:22px 26px;min-width:0}
+  .ptitle{font-size:23px;font-weight:600;letter-spacing:1px}
+  .crumb{font-size:12.5px;color:var(--t3);margin-bottom:4px}
+  .crumb b{color:var(--cyan);font-weight:600}
+  .sect{font-family:'Orbitron';font-size:12.5px;letter-spacing:1.5px;color:var(--cyan);text-shadow:0 0 10px rgba(0,229,255,.35);margin:24px 0 12px}
+  /* cards */
+  .card{background:var(--s1);border:1px solid var(--stroke);border-radius:4px;padding:16px;position:relative}
+  .card::after{content:"";position:absolute;left:0;right:0;top:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.22),transparent);border-radius:4px 4px 0 0}
+  .grid{display:grid;gap:12px}
+  .g2{grid-template-columns:1fr 1fr}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}.g5{grid-template-columns:repeat(5,1fr)}
+  /* gauge */
+  .hero{display:flex;gap:34px;align-items:center;margin-bottom:6px}
+  .gwrap{position:relative;width:200px;height:200px;flex-shrink:0;filter:drop-shadow(0 0 26px rgba(0,229,255,.4))}
+  .gwrap svg{transform:rotate(-90deg)}
+  .gnum{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+  .gnum .v{font-family:'Orbitron';font-size:44px;font-weight:700;color:var(--t1)}
+  .gnum .l{font-size:12px;color:var(--t3);letter-spacing:2px}
+  .btn{display:inline-flex;align-items:center;gap:7px;padding:9px 20px;border-radius:4px;font-family:'Rajdhani';font-weight:700;font-size:14.5px;cursor:pointer;border:1px solid transparent;letter-spacing:.4px}
+  .btn-p{background:var(--cyan);color:#05070B;box-shadow:0 0 18px rgba(0,229,255,.4)}
+  .btn-s{background:var(--succ-sub);border-color:var(--success);color:var(--success)}
+  .btn-g{background:transparent;border-color:var(--stroke);color:var(--t2)}
+  /* chips */
+  .chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+  .chip{display:inline-flex;align-items:center;gap:6px;padding:4px 11px;border-radius:999px;font-size:12.5px;font-weight:600;cursor:pointer}
+  .ch-ok{background:var(--succ-sub);border:1px solid rgba(0,255,163,.4);color:var(--success)}
+  .ch-warn{background:var(--warn-sub);border:1px solid rgba(255,211,0,.4);color:var(--warning)}
+  .ch-bad{background:var(--dang-sub);border:1px solid rgba(255,42,109,.4);color:#FF8AA8}
+  .ch-info{background:var(--cyan-sub);border:1px solid rgba(0,229,255,.4);color:var(--cyan)}
+  .ch-neut{background:rgba(255,255,255,.06);border:1px solid var(--stroke);color:var(--t2)}
+  /* stat cards */
+  .stat .hd{display:flex;gap:8px;align-items:center;font-weight:600;font-size:14px;color:var(--t1)}
+  .stat .val{font-size:31px;font-weight:600;margin:8px 0 2px;font-variant-numeric:tabular-nums}
+  .spark{height:40px;margin:4px 0 8px}
+  .bar{height:5px;border-radius:3px;background:rgba(255,255,255,.08);overflow:hidden}
+  .bar i{display:block;height:100%;border-radius:3px}
+  /* tool cards (hub) */
+  .tool{display:flex;gap:12px;align-items:flex-start;cursor:pointer;transition:transform .15s}
+  .tool:hover{transform:translateY(-2px);border-color:var(--cyan);box-shadow:0 0 16px rgba(0,229,255,.18)}
+  .tool .tile{width:36px;height:36px;border-radius:4px;background:var(--cyan-sub);border:1px solid rgba(0,229,255,.3);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+  .tool h4{font-size:14px;font-weight:600;color:var(--t1)}
+  .tool p{font-size:12px;color:var(--t3);margin-top:2px;line-height:1.4}
+  .tool .chip{margin-top:8px}
+  /* rows (tool page) */
+  .row{display:flex;align-items:center;gap:12px;background:var(--s2);border:1px solid var(--hairline);border-radius:4px;padding:9px 14px;margin-bottom:6px}
+  .row .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .row .sz{font-variant-numeric:tabular-nums;text-align:right}
+  .footer-sticky{background:var(--s3);border:1px solid var(--stroke);border-radius:4px;padding:12px 16px;display:flex;align-items:center;gap:14px;margin-top:14px;box-shadow:0 -8px 30px rgba(0,0,0,.4)}
+  .lbl{font-size:11px;color:var(--t3);letter-spacing:1px;text-transform:uppercase;margin-bottom:3px}
+  .cbx{width:15px;height:15px;border:1px solid var(--stroke);border-radius:3px;flex-shrink:0}
+  .cbx.on{background:var(--cyan);border-color:var(--cyan);box-shadow:0 0 8px rgba(0,229,255,.5)}
+  .badnote{position:absolute;right:10px;top:8px;font-size:10.5px;color:#FF8AA8;background:var(--dang-sub);border:1px solid rgba(255,42,109,.4);border-radius:3px;padding:2px 7px;letter-spacing:.4px;z-index:5}
+  .goodnote{position:absolute;right:10px;top:8px;font-size:10.5px;color:var(--success);background:var(--succ-sub);border:1px solid rgba(0,255,163,.4);border-radius:3px;padding:2px 7px;letter-spacing:.4px;z-index:5}
+  @media(max-width:900px){.g5,.g4{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:1fr 1fr}.hero{flex-direction:column;align-items:flex-start}}
+</style>
+</head>
+<body>
+<h1>SYSTEMCARE — v5 REDESIGN MOCKUPS</h1>
+<p class="sub">Interactive before/after. Companion to <b>docs/UI-REDESIGN-V5.md</b>. Dashed magenta outlines mark verified problems in the current build.</p>
+
+<div class="tabs">
+  <button class="tab on" data-t="nav">1 · Navigation shell</button>
+  <button class="tab" data-t="dash">2 · Dashboard</button>
+  <button class="tab" data-t="tool">3 · Tool page (Large Files)</button>
+</div>
+<div class="ba">
+  <button id="bBefore" class="on-before">BEFORE (v4 · current)</button>
+  <button id="bAfter">AFTER (v5)</button>
+</div>
+
+<!-- ============ 1. NAV BEFORE ============ -->
+<div class="panel show" id="nav-before">
+<div class="frame">
+  <div class="badnote">47 flat items · hidden Ctrl+K · icon clashes (dashed)</div>
+  <div class="titlebar"><div class="logo"></div><div class="name">SYSTEMCARE</div><div class="dots">— ▢ ✕</div></div>
+  <div class="body">
+    <div class="pane scrolly" id="oldpane"></div>
+    <div class="content">
+      <div class="ptitle">Dashboard</div>
+      <p style="color:var(--t3);font-size:13px;margin-top:8px">← One scrolling pane. Finding "Boot Time" means reading up to 30 rows.
+      Three tools share the 🌐 icon, five share shields, two share brooms — glyph scanning is broken.
+      The Ctrl+K command palette exists in the code but nothing on screen reveals it.</p>
+    </div>
+  </div>
+</div>
+<p class="note"><b>Verified:</b> MainWindow.xaml lines 46–290 (43 items); Globe24 ×3, Shield family ×5, Broom24 ×2; CommandPalette reachable only via hotkey (MainWindow.xaml.cs:52–61).</p>
+</div>
+
+<!-- ============ 1. NAV AFTER ============ -->
+<div class="panel" id="nav-after">
+<div class="frame">
+  <div class="goodnote">9 pane items · visible search · category hubs with live status</div>
+  <div class="titlebar"><div class="logo"></div><div class="name">SYSTEMCARE</div>
+    <div class="searchpill">⌕ Search tools <kbd>Ctrl</kbd><kbd>K</kbd></div>
+    <div class="dots">— ▢ ✕</div></div>
+  <div class="body">
+    <div class="pane">
+      <div class="nitem sel"><span class="ic">⌂</span>Dashboard</div>
+      <div class="nitem"><span class="ic">✦</span>Auto Care</div>
+      <div class="nhead">PINNED</div>
+      <div class="nitem"><span class="ic">🧹</span>Cleanup<span class="star">★</span></div>
+      <div class="nitem"><span class="ic">⚡</span>Boost<span class="star">★</span></div>
+      <div class="nitem"><span class="ic">🚀</span>Startup<span class="star">★</span></div>
+      <div class="nhead">CATEGORIES</div>
+      <div class="nitem"><span class="ic">🧹</span>Clean<span class="count">8</span></div>
+      <div class="nitem"><span class="ic">⚡</span>Optimize<span class="count">12</span></div>
+      <div class="nitem"><span class="ic">📊</span>Analyze<span class="count">13</span></div>
+      <div class="nitem"><span class="ic">🛡</span>Protect<span class="count">12</span></div>
+      <div style="height:120px"></div>
+      <div class="nitem"><span class="ic">⚙</span>Settings</div>
+    </div>
+    <div class="content">
+      <div class="crumb">Categories / <b>Clean</b></div>
+      <div class="ptitle">Clean</div>
+      <div style="display:flex;align-items:center;gap:12px;margin-top:6px">
+        <span style="color:var(--t2);font-size:14px">Reclaim disk space and clear usage traces.</span>
+        <span class="chip ch-warn">◔ 4.3 GB reclaimable</span>
+      </div>
+      <div class="grid g3" style="margin-top:18px">
+        <div class="card tool"><div class="tile">🧹</div><div><h4>Junk Cleanup</h4><p>Temp files, caches, dumps, Recycle Bin</p><span class="chip ch-warn">2.1 GB found</span></div></div>
+        <div class="card tool"><div class="tile">👁</div><div><h4>Privacy Cleaner</h4><p>History, cookies, recent files, clipboard</p><span class="chip ch-neut">Last run 3 d ago</span></div></div>
+        <div class="card tool"><div class="tile">⧉</div><div><h4>Duplicate Finder</h4><p>Hash-verified duplicate detection</p><span class="chip ch-neut">Not scanned</span></div></div>
+        <div class="card tool"><div class="tile">🗑</div><div><h4>File Shredder</h4><p>Secure multi-pass deletion</p><span class="chip ch-bad">Irreversible</span></div></div>
+        <div class="card tool"><div class="tile">⌗</div><div><h4>Registry Cleaner</h4><p>Orphaned entries, with .reg backup</p><span class="chip ch-ok">✓ Clean</span></div></div>
+        <div class="card tool"><div class="tile">▭</div><div><h4>Empty Folders</h4><p>Recursively-empty folder removal</p><span class="chip ch-neut">Not scanned</span></div></div>
+        <div class="card tool"><div class="tile">🗎</div><div><h4>Large Files</h4><p>Find large &amp; old files fast</p><span class="chip ch-warn">1.8 GB in top 20</span></div></div>
+        <div class="card tool"><div class="tile">◍</div><div><h4>Browser Cleanup</h4><p>Chrome / Edge / Firefox data</p><span class="chip ch-warn">412 MB found</span></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+<p class="note"><b>Why:</b> pins + recents serve the returning-user 90% case; category hubs add <b>status chips</b> so navigation becomes triage (go where the numbers say); the title-bar pill finally surfaces the palette that already ships in the code. Unique glyph per tool restores icon scanning. Breadcrumb restores "where am I".</p>
+</div>
+
+<!-- ============ 2. DASH BEFORE ============ -->
+<div class="panel" id="dash-before">
+<div class="frame">
+  <div class="badnote">unexplained score · 11px captions @ 0.7 opacity = 4.3:1 (fails AA)</div>
+  <div class="titlebar"><div class="logo"></div><div class="name">SYSTEMCARE</div><div class="dots">— ▢ ✕</div></div>
+  <div class="body">
+    <div class="pane"><div class="nitem sel"><span class="ic">⌂</span>Dashboard</div><div class="nitem"><span class="ic">✦</span>Auto Care</div><div class="nhead">CLEAN</div><div class="nitem"><span class="ic">🧹</span>Cleanup</div><div class="nitem"><span class="ic">🛡</span>Privacy</div><div class="nitem" style="color:var(--t3)">… 39 more rows …</div></div>
+    <div class="content">
+      <div class="hero">
+        <div class="gwrap"><svg width="200" height="200" viewBox="0 0 200 200">
+          <circle cx="100" cy="100" r="86" fill="none" stroke="rgba(255,255,255,.07)" stroke-width="10"/>
+          <circle cx="100" cy="100" r="86" fill="none" stroke="url(#g1)" stroke-width="10" stroke-linecap="round" stroke-dasharray="389 540"/>
+          <defs><linearGradient id="g1"><stop offset="0%" stop-color="#00E5FF"/><stop offset="100%" stop-color="#00FFA3"/></linearGradient></defs></svg>
+          <div class="gnum"><div class="v">72</div><div class="l">PC HEALTH</div></div></div>
+        <div>
+          <div class="disp" style="font-size:26px;letter-spacing:2px">PC HEALTH</div>
+          <p style="color:var(--t1);opacity:.75;font-size:13px;margin:8px 0 16px;max-width:380px">Last scan found issues. Run a scan to refresh your score.</p>
+          <div style="display:flex;gap:10px"><span class="btn btn-p">⌕ Scan now</span><span class="btn btn-s">🔧 Fix all</span><span class="btn btn-g">⚡ Free up RAM</span></div>
+          <p style="font-size:11px;color:var(--t2);opacity:.6;margin-top:12px">Why is my score 72? The UI never says. What will “Fix all” do? Also unsaid.</p>
+        </div>
+      </div>
+      <div class="sect">LIVE SYSTEM STATS</div>
+      <div class="grid g2">
+        <div class="card stat"><div class="hd">▦ Processor</div><div class="val">34%</div>
+          <svg class="spark" width="100%" viewBox="0 0 300 40" preserveAspectRatio="none"><polyline points="0,30 30,26 60,32 90,20 120,24 150,14 180,22 210,18 240,26 270,20 300,24" fill="none" stroke="#00E5FF" stroke-width="2"/></svg>
+          <div class="bar"><i style="width:34%;background:#00E5FF"></i></div></div>
+        <div class="card stat"><div class="hd">▤ Memory</div><div class="val">12.4 <span style="font-size:15px;color:var(--t2);opacity:.7">/ 16 GB</span></div>
+          <svg class="spark" width="100%" viewBox="0 0 300 40" preserveAspectRatio="none"><polyline points="0,20 40,22 80,18 120,24 160,20 200,26 240,22 280,24 300,22" fill="none" stroke="#00FFA3" stroke-width="2"/></svg>
+          <div class="bar"><i style="width:78%;background:#00FFA3"></i></div></div>
+      </div>
+      <div class="sect">TOOLS</div>
+      <div class="grid g5">
+        <div class="card" style="padding:12px"><div style="font-size:15px">🧹</div><b style="font-size:13px">Cleanup</b><p style="font-size:11px;color:var(--t1);opacity:.7;margin-top:2px">Remove junk files</p></div>
+        <div class="card" style="padding:12px"><div style="font-size:15px">🚀</div><b style="font-size:13px">Startup</b><p style="font-size:11px;color:var(--t1);opacity:.7;margin-top:2px">Boot faster</p></div>
+        <div class="card" style="padding:12px"><div style="font-size:15px">🛡</div><b style="font-size:13px">Privacy</b><p style="font-size:11px;color:var(--t1);opacity:.7;margin-top:2px">Clear traces</p></div>
+        <div class="card" style="padding:12px"><div style="font-size:15px">◔</div><b style="font-size:13px">Disk</b><p style="font-size:11px;color:var(--t1);opacity:.7;margin-top:2px">See space usage</p></div>
+        <div class="card" style="padding:12px"><div style="font-size:15px">⧉</div><b style="font-size:13px">Duplicates</b><p style="font-size:11px;color:var(--t1);opacity:.7;margin-top:2px">Find extra copies</p></div>
+      </div>
+    </div>
+  </div>
+</div>
+<p class="note"><b>Verified:</b> DashboardPage.xaml:152 uses <code>FontSize="11" Opacity="0.7"</code> on tile captions; the hero copy uses <code>Opacity="0.75"</code>; tiles are hardcoded <code>UniformGrid Columns="5"</code>; the score has no breakdown.</p>
+</div>
+
+<!-- ============ 2. DASH AFTER ============ -->
+<div class="panel" id="dash-after">
+<div class="frame">
+  <div class="goodnote">explainable score · token captions (12px, ≥5.2:1) · pinned tiles</div>
+  <div class="titlebar"><div class="logo"></div><div class="name">SYSTEMCARE</div>
+    <div class="searchpill">⌕ Search tools <kbd>Ctrl</kbd><kbd>K</kbd></div><div class="dots">— ▢ ✕</div></div>
+  <div class="body">
+    <div class="pane"><div class="nitem sel"><span class="ic">⌂</span>Dashboard</div><div class="nitem"><span class="ic">✦</span>Auto Care</div><div class="nhead">PINNED</div><div class="nitem"><span class="ic">🧹</span>Cleanup</div><div class="nitem"><span class="ic">⚡</span>Boost</div><div class="nitem"><span class="ic">🚀</span>Startup</div><div class="nhead">CATEGORIES</div><div class="nitem"><span class="ic">🧹</span>Clean</div><div class="nitem"><span class="ic">⚡</span>Optimize</div><div class="nitem"><span class="ic">📊</span>Analyze</div><div class="nitem"><span class="ic">🛡</span>Protect</div></div>
+    <div class="content">
+      <div class="hero">
+        <div class="gwrap"><svg width="200" height="200" viewBox="0 0 200 200">
+          <circle cx="100" cy="100" r="86" fill="none" stroke="rgba(255,255,255,.07)" stroke-width="10"/>
+          <circle cx="100" cy="100" r="86" fill="none" stroke="url(#g2)" stroke-width="10" stroke-linecap="round" stroke-dasharray="389 540"/>
+          <defs><linearGradient id="g2"><stop offset="0%" stop-color="#00E5FF"/><stop offset="100%" stop-color="#00FFA3"/></linearGradient></defs></svg>
+          <div class="gnum"><div class="v">72</div><div class="l">PC HEALTH</div></div></div>
+        <div style="flex:1">
+          <div class="disp" style="font-size:26px;letter-spacing:2px">PC HEALTH</div>
+          <p style="color:var(--t2);font-size:14px;margin:8px 0 4px;max-width:440px">4 issues are holding your score back — fix them all or jump to one:</p>
+          <div class="chips">
+            <span class="chip ch-warn">🧹 Junk 2.1 GB →</span>
+            <span class="chip ch-warn">🚀 Startup 9 items →</span>
+            <span class="chip ch-bad">▤ RAM 78% →</span>
+            <span class="chip ch-ok">🛡 Security 4/5 →</span>
+          </div>
+          <div style="display:flex;gap:10px;margin-top:16px;align-items:center">
+            <span class="btn btn-p">⌕ Scan now</span>
+            <span class="btn btn-s" title="Cleans 2.1 GB junk + trims RAM, then re-scores">🔧 Fix all</span>
+            <span style="font-size:12px;color:var(--t3)">Fix all = clean junk + trim RAM, then re-score</span>
+          </div>
+        </div>
+      </div>
+      <div class="sect">LIVE SYSTEM STATS</div>
+      <div class="grid g2">
+        <div class="card stat"><div class="hd">▦ Processor</div><div class="val">34%</div>
+          <svg class="spark" width="100%" viewBox="0 0 300 40" preserveAspectRatio="none"><polyline points="0,30 30,26 60,32 90,20 120,24 150,14 180,22 210,18 240,26 270,20 300,24" fill="none" stroke="#00E5FF" stroke-width="2"/></svg>
+          <div class="bar"><i style="width:34%;background:#00E5FF"></i></div></div>
+        <div class="card stat"><div class="hd">▤ Memory</div><div class="val">12.4 <span style="font-size:15px;color:var(--t2)">/ 16 GB</span></div>
+          <svg class="spark" width="100%" viewBox="0 0 300 40" preserveAspectRatio="none"><polyline points="0,20 40,22 80,18 120,24 160,20 200,26 240,22 280,24 300,22" fill="none" stroke="#00FFA3" stroke-width="2"/></svg>
+          <div class="bar"><i style="width:78%;background:#00FFA3"></i></div></div>
+      </div>
+      <div class="sect">PINNED TOOLS <span style="color:var(--t3);font-size:10px;letter-spacing:1px">· SAME PINS AS THE NAV</span></div>
+      <div class="grid g3">
+        <div class="card tool"><div class="tile">🧹</div><div><h4>Cleanup</h4><p>Remove junk files</p><span class="chip ch-warn">2.1 GB found</span></div></div>
+        <div class="card tool"><div class="tile">⚡</div><div><h4>Boost</h4><p>One-click performance mode</p><span class="chip ch-neut">Ready</span></div></div>
+        <div class="card tool"><div class="tile">🚀</div><div><h4>Startup</h4><p>9 apps slow your boot</p><span class="chip ch-warn">9 items</span></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+<p class="note"><b>Why:</b> the score-input chips make 72 explainable and clickable (navigation = triage); “Fix all” states its plan before running (consequence preview); captions move to the 12px tertiary token (5.18:1, passes AA); tiles become the user's pins — one personalization model across nav and Dashboard.</p>
+</div>
+
+<!-- ============ 3. TOOL BEFORE ============ -->
+<div class="panel" id="tool-before">
+<div class="frame">
+  <div class="badnote">11–12px text at 0.55–0.7 opacity · fixed 110px columns clip · improvised badges</div>
+  <div class="titlebar"><div class="logo"></div><div class="name">SYSTEMCARE</div><div class="dots">— ▢ ✕</div></div>
+  <div class="body">
+    <div class="pane"><div class="nitem"><span class="ic">⌂</span>Dashboard</div><div class="nhead">CLEAN</div><div class="nitem"><span class="ic">🧹</span>Cleanup</div><div class="nitem sel"><span class="ic">🗎</span>Large Files</div><div class="nitem" style="color:var(--t3)">… 39 more rows …</div></div>
+    <div class="content">
+      <div class="ptitle">Large &amp; Old Files</div>
+      <p style="font-size:12px;color:var(--t1);opacity:.55;margin:6px 0 14px">Find files eating your disk. Scans are read-only until you choose to delete. ← 12px @ 0.55 = 3.1:1</p>
+      <div style="display:flex;gap:10px;margin-bottom:14px"><span class="btn btn-p">⌕ Scan C:\</span><span class="btn btn-g">Min size: 100 MB ▾</span></div>
+      <div class="row"><div class="cbx on"></div><div class="nm">C:\Users\kon\Videos\project-render-final-v3-FINAL.mp4</div><div class="sz" style="width:110px;font-size:12px;opacity:.7">1.2 GB</div><div style="width:110px;font-size:12px;opacity:.55">4 months</div></div>
+      <div class="row"><div class="cbx on"></div><div class="nm">C:\Games\backup\old-install.7z</div><div class="sz" style="width:110px;font-size:12px;opacity:.7">890 MB</div><div style="width:110px;font-size:12px;opacity:.55">1.2 years</div></div>
+      <div class="row"><div class="cbx"></div><div class="nm">C:\Users\kon\Downloads\ubuntu-24.04-desktop-amd64.iso</div><div class="sz" style="width:110px;font-size:12px;opacity:.7">5.8 GB</div><div style="width:110px;font-size:12px;opacity:.55">8 months</div></div>
+      <div class="row"><div class="cbx"></div><div class="nm">C:\Users\kon\AppData\Local\Docker\wsl\data\ext4.vhdx</div><div class="sz" style="width:110px;font-size:12px;opacity:.7">12.1 GB</div><div style="width:110px;font-size:12px;opacity:.55">in use</div></div>
+      <p style="font-size:11px;color:var(--t1);opacity:.5;margin-top:10px">2 of 4 selected — 2.1 GB ← 11px @ 0.5 = 2.7:1, and the delete button is off-screen at the top… somewhere</p>
+    </div>
+  </div>
+</div>
+<p class="note"><b>Verified:</b> LargeFilesPage.xaml:88–89 fixes both data columns at 110px (long sizes/dates clip at 125% DPI); the drifted cohort (Dns, SpeedTest, LargeFiles, ScheduledTasks, ContextMenu, BootAnalyzer) stacks <code>Opacity 0.5–0.78</code> on 11–12px text — computed 2.7–4.3:1, below AA.</p>
+</div>
+
+<!-- ============ 3. TOOL AFTER ============ -->
+<div class="panel" id="tool-after">
+<div class="frame">
+  <div class="goodnote">token type (≥4.5:1) · auto columns, tabular figures · sticky consequence footer</div>
+  <div class="titlebar"><div class="logo"></div><div class="name">SYSTEMCARE</div>
+    <div class="searchpill">⌕ Search tools <kbd>Ctrl</kbd><kbd>K</kbd></div><div class="dots">— ▢ ✕</div></div>
+  <div class="body">
+    <div class="pane"><div class="nitem"><span class="ic">⌂</span>Dashboard</div><div class="nhead">PINNED</div><div class="nitem"><span class="ic">🧹</span>Cleanup</div><div class="nhead">CATEGORIES</div><div class="nitem sel"><span class="ic">🧹</span>Clean</div><div class="nitem"><span class="ic">⚡</span>Optimize</div><div class="nitem"><span class="ic">📊</span>Analyze</div><div class="nitem"><span class="ic">🛡</span>Protect</div></div>
+    <div class="content">
+      <div class="crumb">Clean / <b>Large Files</b></div>
+      <div class="ptitle">Large &amp; Old Files</div>
+      <p style="font-size:14px;color:var(--t2);margin:6px 0 14px">Find files eating your disk. Scans are read-only until you choose to delete.</p>
+      <div style="display:flex;gap:10px;margin-bottom:14px;align-items:center"><span class="btn btn-p">⌕ Scan C:\</span><span class="btn btn-g">Min size: 100 MB ▾</span><span style="font-size:12px;color:var(--t3);margin-left:auto">Last scan · today 14:02</span></div>
+      <div class="row"><div class="cbx on"></div><div class="nm">C:\Users\kon\Videos\project-render-final-v3-FINAL.mp4</div><span class="chip ch-neut">4 mo old</span><div class="sz" style="min-width:88px;color:var(--t1);font-weight:600">1.2 GB</div></div>
+      <div class="row"><div class="cbx on"></div><div class="nm">C:\Games\backup\old-install.7z</div><span class="chip ch-neut">1.2 y old</span><div class="sz" style="min-width:88px;color:var(--t1);font-weight:600">890 MB</div></div>
+      <div class="row"><div class="cbx"></div><div class="nm">C:\Users\kon\Downloads\ubuntu-24.04-desktop-amd64.iso</div><span class="chip ch-neut">8 mo old</span><div class="sz" style="min-width:88px;color:var(--t1);font-weight:600">5.8 GB</div></div>
+      <div class="row"><div class="cbx" style="opacity:.45"></div><div class="nm" style="color:var(--t3)">C:\Users\kon\AppData\Local\Docker\wsl\data\ext4.vhdx</div><span class="chip ch-info">in use — protected</span><div class="sz" style="min-width:88px;color:var(--t2)">12.1 GB</div></div>
+      <div class="footer-sticky">
+        <div><div class="lbl">Selected</div><b style="font-size:16px;font-variant-numeric:tabular-nums">2 files · 2.09 GB</b></div>
+        <div style="margin-left:auto;display:flex;gap:10px;align-items:center">
+          <span style="font-size:12.5px;color:var(--t2)">Deletes to Recycle Bin — reversible</span>
+          <span class="btn btn-p">Delete selected</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<p class="note"><b>Why:</b> the sticky Surface3 footer keeps count + size + reversibility visible at the moment of commitment; size column is right-aligned tabular (scanning sizes is the page's job); "in use" becomes a protective info chip instead of dim text; every string sits on a token at AA or better.</p>
+</div>
+
+<script>
+// old flat nav (before)
+const oldNav=[["","Dashboard","⌂",1],["","Auto Care","✦",0],
+["CLEAN"],["Cleanup","🧹",0,1],["Privacy","🛡",0,1],["Duplicates","⧉"],["File Shredder","🗑"],["Registry Cleaner","⌗"],["Empty Folders","▭"],["Large Files","🗎"],["Browser Cleanup","🌐",0,1],
+["OPTIMIZE"],["Boost","⚡"],["Game Booster","🎮"],["Startup","🚀"],["Windows Tweaks","⚙"],["Disk Health","♥"],["Deep Cleanup","▦"],["Driver Updater","▦",0,1],["Software Updater","⟳"],["Software Hub","▣"],["Windows Update","⭳"],["Scheduled Tasks","⏰"],["Context Menu","☰"],
+["ANALYZE"],["Disk","◔"],["Processes","▢"],["Network","🌐",0,1],["Net Monitor","↗"],["Security Audit","🛡",0,1],["System Info","ⓘ"],["Battery Health","▮"],["Boot Time","⏱"],["Speed Test","⏲"],["History","↺"],["Care Report","📈"],["Benchmark","◎"],["Sensors","🌡"],
+["PROTECT"],["Bloatware","▣"],["Debloat","🧹",0,1],["Security","🛡",0,1],["Defender","🛡",0,1],["Ransomware Shield","🔒",0,1],["Secure DNS","🌐",0,1],["Ad Blocker","⃠"],["Breach Checker","🔒",0,1],["Repair Toolkit","🔧"],["Reliability","♥",0,1],["Rescue Center","↶"],["Uninstaller","☰",0,1]];
+const pane=document.getElementById('oldpane');
+oldNav.forEach(e=>{
+  if(e.length===1){pane.insertAdjacentHTML('beforeend',`<div class="nhead">${e[0]}</div>`);return}
+  if(e[0]===""){pane.insertAdjacentHTML('beforeend',`<div class="nitem ${e[3]?'sel':''}"><span class="ic">${e[2]}</span>${e[1]}</div>`);return}
+  pane.insertAdjacentHTML('beforeend',`<div class="nitem ${e[3]?'dup':''}"><span class="ic">${e[1]}</span>${e[0]}</div>`);
+});
+// tab + before/after state
+let tab='nav',mode='before';
+const bB=document.getElementById('bBefore'),bA=document.getElementById('bAfter');
+function render(){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('show'));
+  document.getElementById(`${tab}-${mode}`).classList.add('show');
+  bB.className=mode==='before'?'on-before':'';bA.className=mode==='after'?'on-after':'';
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('on',t.dataset.t===tab));
+}
+document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{tab=t.dataset.t;render()});
+bB.onclick=()=>{mode='before';render()};bA.onclick=()=>{mode='after';render()};
+render();
+</script>
+</body>
+</html>

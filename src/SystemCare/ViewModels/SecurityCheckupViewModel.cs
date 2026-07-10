@@ -22,7 +22,14 @@ public partial class SecurityCheckupViewModel : ObservableObject
 
     public async void OnNavigatedTo()
     {
-        if (Checks.Count == 0) await ScanAsync();
+        try
+        {
+            if (Checks.Count == 0) await ScanAsync();
+        }
+        catch (Exception)
+        {
+            // async void: an unhandled exception here would surface as a raw error dialog, so contain it.
+        }
     }
 
     [RelayCommand]

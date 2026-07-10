@@ -25,10 +25,12 @@ public partial class EmptyFolderViewModel : ObservableObject
     public ObservableCollection<EmptyFolderItemViewModel> Folders { get; } = [];
 
     [ObservableProperty] private string _selectedPath = "";
-    [ObservableProperty] private bool _isBusy;
+    [ObservableProperty] [NotifyCanExecuteChangedFor(nameof(RemoveCommand))] private bool _isBusy;
     [ObservableProperty] private string _progressText = "";
     [ObservableProperty] private string _statusText = "Pick a folder and scan to find empty subfolders.";
     [ObservableProperty] [NotifyCanExecuteChangedFor(nameof(RemoveCommand))] private bool _hasResults;
+
+    private bool CanRemove() => HasResults && !IsBusy;
 
     public EmptyFolderViewModel(IEmptyFolderService service, IFileOperationService fileOps,
         ISnackbarService snackbar, IContentDialogService dialogs)
@@ -80,7 +82,7 @@ public partial class EmptyFolderViewModel : ObservableObject
         }
     }
 
-    [RelayCommand(CanExecute = nameof(HasResults))]
+    [RelayCommand(CanExecute = nameof(CanRemove))]
     private async Task RemoveAsync()
     {
         var selected = Folders.Where(f => f.IsSelected).ToList();

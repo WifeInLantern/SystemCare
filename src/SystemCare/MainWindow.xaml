@@ -44,6 +44,17 @@
                            TransitionDuration="260"
                            OpenPaneLength="180">
             <ui:NavigationView.MenuItems>
+                <!-- v6: visible entry point for the (previously hotkey-only) Ctrl+K command palette.
+                     No TargetPageType — activation is handled in code-behind and opens the palette. -->
+                <ui:NavigationViewItem x:Name="SearchNavItem" Content="Search"
+                                       ToolTipService.ToolTip="Search all tools (Ctrl+K)"
+                                       AutomationProperties.Name="Search all tools, Control K"
+                                       PreviewMouseLeftButtonUp="OnSearchNavClick"
+                                       PreviewKeyDown="OnSearchNavKeyDown">
+                    <ui:NavigationViewItem.Icon>
+                        <ui:SymbolIcon Symbol="Search24" />
+                    </ui:NavigationViewItem.Icon>
+                </ui:NavigationViewItem>
                 <ui:NavigationViewItem Content="Dashboard" TargetPageType="{x:Type views:DashboardPage}" ToolTipService.ToolTip="Dashboard">
                     <ui:NavigationViewItem.Icon>
                         <ui:SymbolIcon Symbol="Home24" />
@@ -93,7 +104,7 @@
                 </ui:NavigationViewItem>
                 <ui:NavigationViewItem Content="Browser Cleanup" TargetPageType="{x:Type views:BrowserCleanupPage}" ToolTipService.ToolTip="Clear browser caches, cookies &amp; history">
                     <ui:NavigationViewItem.Icon>
-                        <ui:SymbolIcon Symbol="Globe24" />
+                        <ui:SymbolIcon Symbol="GlobeClock24" />
                     </ui:NavigationViewItem.Icon>
                 </ui:NavigationViewItem>
 
@@ -172,7 +183,7 @@
                 </ui:NavigationViewItem>
                 <ui:NavigationViewItem Content="Network" TargetPageType="{x:Type views:NetworkToolsPage}" ToolTipService.ToolTip="Network Tools">
                     <ui:NavigationViewItem.Icon>
-                        <ui:SymbolIcon Symbol="Globe24" />
+                        <ui:SymbolIcon Symbol="Router24" />
                     </ui:NavigationViewItem.Icon>
                 </ui:NavigationViewItem>
                 <ui:NavigationViewItem Content="Net Monitor" TargetPageType="{x:Type views:NetworkMonitorPage}" ToolTipService.ToolTip="Per-app bandwidth monitor">
@@ -182,7 +193,7 @@
                 </ui:NavigationViewItem>
                 <ui:NavigationViewItem Content="Security Audit" TargetPageType="{x:Type views:NetworkSecurityAuditPage}" ToolTipService.ToolTip="Network Security Audit (listening ports &amp; firewall)">
                     <ui:NavigationViewItem.Icon>
-                        <ui:SymbolIcon Symbol="Shield24" />
+                        <ui:SymbolIcon Symbol="ShieldGlobe24" />
                     </ui:NavigationViewItem.Icon>
                 </ui:NavigationViewItem>
                 <ui:NavigationViewItem Content="System Info" TargetPageType="{x:Type views:SystemInfoPage}" ToolTipService.ToolTip="System Info &amp; Monitor">
@@ -234,7 +245,7 @@
                 </ui:NavigationViewItem>
                 <ui:NavigationViewItem Content="Debloat" TargetPageType="{x:Type views:DebloatPage}" ToolTipService.ToolTip="Debloat Windows (telemetry, services, bloat apps)">
                     <ui:NavigationViewItem.Icon>
-                        <ui:SymbolIcon Symbol="Broom24" />
+                        <ui:SymbolIcon Symbol="BoxDismiss24" />
                     </ui:NavigationViewItem.Icon>
                 </ui:NavigationViewItem>
                 <ui:NavigationViewItem Content="Security" TargetPageType="{x:Type views:SecurityCheckupPage}" ToolTipService.ToolTip="Security Checkup">
@@ -254,7 +265,7 @@
                 </ui:NavigationViewItem>
                 <ui:NavigationViewItem Content="Secure DNS" TargetPageType="{x:Type views:DnsPage}" ToolTipService.ToolTip="Switch to a private/fast DNS resolver">
                     <ui:NavigationViewItem.Icon>
-                        <ui:SymbolIcon Symbol="Globe24" />
+                        <ui:SymbolIcon Symbol="LockShield24" />
                     </ui:NavigationViewItem.Icon>
                 </ui:NavigationViewItem>
                 <ui:NavigationViewItem Content="Ad Blocker" TargetPageType="{x:Type views:HostsBlockerPage}" ToolTipService.ToolTip="Block ad/tracker domains via the hosts file">
@@ -264,7 +275,7 @@
                 </ui:NavigationViewItem>
                 <ui:NavigationViewItem Content="Breach Checker" TargetPageType="{x:Type views:BreachCheckPage}" ToolTipService.ToolTip="Check a password against known breaches">
                     <ui:NavigationViewItem.Icon>
-                        <ui:SymbolIcon Symbol="ShieldKeyhole24" />
+                        <ui:SymbolIcon Symbol="Password24" />
                     </ui:NavigationViewItem.Icon>
                 </ui:NavigationViewItem>
                 <ui:NavigationViewItem Content="Repair Toolkit" TargetPageType="{x:Type views:RepairToolkitPage}" ToolTipService.ToolTip="System Repair Toolkit (SFC / DISM / CHKDSK)">

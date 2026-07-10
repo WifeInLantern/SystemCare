@@ -26,7 +26,14 @@ public partial class BootAnalyzerViewModel : ObservableObject
 
     public async void OnNavigatedTo()
     {
-        if (!Loaded) await RefreshAsync();
+        try
+        {
+            if (!Loaded) await RefreshAsync();
+        }
+        catch (Exception)
+        {
+            // async void: an unhandled exception here would surface as a raw error dialog, so contain it.
+        }
     }
 
     [RelayCommand(CanExecute = nameof(NotBusy))]

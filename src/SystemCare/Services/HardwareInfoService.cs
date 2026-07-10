@@ -308,21 +308,21 @@ public class HardwareInfoService : IHardwareInfoService
 
     private static IEnumerable<ManagementObject> Query(string className)
     {
-        ManagementObjectCollection results;
         try
         {
             using var searcher = new ManagementObjectSearcher($"SELECT * FROM {className}")
             {
                 Options = { Timeout = TimeSpan.FromSeconds(8) },
             };
-            results = searcher.Get();
+            using var results = searcher.Get();
+            // Materialize while the searcher/collection are still alive - returning the
+            // collection itself after disposal is undefined behavior (see BatteryHealthService.ForEach).
+            return results.Cast<ManagementBaseObject>().Cast<ManagementObject>().ToList();
         }
         catch (Exception)
         {
-            yield break;
+            return [];
         }
-        foreach (ManagementBaseObject mo in results)
-            yield return (ManagementObject)mo;
     }
 
     private static string? QuerySingle(string className, string property) =>

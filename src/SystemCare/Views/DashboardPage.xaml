@@ -21,7 +21,7 @@
     </Page.Resources>
 
     <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="24,12,24,24">
-        <StackPanel MaxWidth="1100">
+        <StackPanel MaxWidth="{StaticResource ContentMaxWidth}">
 
             <!-- Health gauge + actions -->
             <Grid>
@@ -38,7 +38,7 @@
                 <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="36,0,0,0">
                     <TextBlock Text="PC HEALTH" FontSize="30" Style="{StaticResource CyberDisplayText}" />
                     <TextBlock Text="{Binding LastScanSummary}" Margin="0,8,0,16"
-                               TextWrapping="Wrap" Opacity="0.75" FontSize="14" />
+                               Style="{StaticResource TextBody}" />
                     <StackPanel Orientation="Horizontal">
                         <ui:Button Content="Scan now" Appearance="Primary" FontSize="15"
                                    helpers:Animations.NeonPulse="True"
@@ -68,7 +68,7 @@
             </Grid>
 
             <!-- Live stats -->
-            <TextBlock Text="LIVE SYSTEM STATS" FontSize="16" Margin="0,28,0,12" Style="{StaticResource CyberSectionHeader}"
+            <TextBlock Text="LIVE SYSTEM STATS" Margin="0,28,0,12" Style="{StaticResource CyberSectionHeader}"
                        helpers:Animations.FadeInOnLoad="True" helpers:Animations.RevealDelay="40" />
             <UniformGrid Columns="2">
                 <ui:Card Margin="0,0,8,0" Padding="20,16" helpers:Animations.HoverLift="True"
@@ -76,9 +76,9 @@
                     <StackPanel>
                         <StackPanel Orientation="Horizontal">
                             <ui:SymbolIcon Symbol="DeveloperBoard24" FontSize="20" />
-                            <TextBlock Text="Processor" Margin="8,0,0,0" FontWeight="SemiBold" />
+                            <TextBlock Text="Processor" Margin="8,0,0,0" Style="{StaticResource TextBodyStrong}" />
                         </StackPanel>
-                        <TextBlock FontSize="32" FontWeight="Bold" Margin="0,8,0,4"
+                        <TextBlock Style="{StaticResource TextMetricHero}" Margin="0,8,0,4"
                                    helpers:Animations.CountUpText="{Binding CpuPercent}"
                                    helpers:Animations.CountUpFormat="0'%'" />
                         <controls:SparklineChart Height="48" Margin="0,2,0,6"
@@ -92,9 +92,9 @@
                     <StackPanel>
                         <StackPanel Orientation="Horizontal">
                             <ui:SymbolIcon Symbol="Ram20" FontSize="20" />
-                            <TextBlock Text="Memory" Margin="8,0,0,0" FontWeight="SemiBold" />
+                            <TextBlock Text="Memory" Margin="8,0,0,0" Style="{StaticResource TextBodyStrong}" />
                         </StackPanel>
-                        <TextBlock FontSize="26" FontWeight="Bold" Margin="0,8,0,4"
+                        <TextBlock Style="{StaticResource TextMetricHero}" Margin="0,8,0,4"
                                    helpers:Animations.CountUpBytes="True"
                                    helpers:Animations.CountUpText="{Binding RamUsedBytes}"
                                    helpers:Animations.CountUpSuffix="{Binding RamTotalText}" />
@@ -119,12 +119,12 @@
                             <StackPanel>
                                 <StackPanel Orientation="Horizontal">
                                     <ui:SymbolIcon Symbol="HardDrive20" FontSize="18" />
-                                    <TextBlock Margin="8,0,0,0" FontWeight="SemiBold">
+                                    <TextBlock Margin="8,0,0,0" Style="{StaticResource TextBodyStrong}">
                                         <Run Text="{Binding Name, Mode=OneWay}" />
                                         <Run Text="{Binding Label, Mode=OneWay}" />
                                     </TextBlock>
                                 </StackPanel>
-                                <TextBlock Margin="0,8,0,4" Opacity="0.75" FontSize="12">
+                                <TextBlock Margin="0,8,0,4" Style="{StaticResource TextCaption}">
                                     <Run Text="{Binding FreeBytes, Mode=OneWay, Converter={StaticResource Bytes}}" />
                                     <Run Text="free of" />
                                     <Run Text="{Binding TotalBytes, Mode=OneWay, Converter={StaticResource Bytes}}" />
@@ -139,7 +139,7 @@
             </ItemsControl>
 
             <!-- Quick links -->
-            <TextBlock Text="TOOLS" FontSize="16" Margin="0,20,0,12" Style="{StaticResource CyberSectionHeader}"
+            <TextBlock Text="TOOLS" Margin="0,20,0,12" Style="{StaticResource CyberSectionHeader}"
                        helpers:Animations.FadeInOnLoad="True" helpers:Animations.RevealDelay="180" />
             <UniformGrid Columns="5">
                 <ui:CardAction Margin="0,0,8,0" Command="{Binding NavigateToCommand}" CommandParameter="Cleanup"
@@ -148,8 +148,8 @@
                         <ui:SymbolIcon Symbol="Broom24" />
                     </ui:CardAction.Icon>
                     <StackPanel>
-                        <TextBlock Text="Cleanup" FontWeight="SemiBold" />
-                        <TextBlock Text="Remove junk files" FontSize="11" Opacity="0.7" TextWrapping="Wrap" />
+                        <TextBlock Text="Cleanup" Style="{StaticResource TextBodyStrong}" />
+                        <TextBlock Text="Remove junk files" Style="{StaticResource TextCaption}" TextWrapping="Wrap" />
                     </StackPanel>
                 </ui:CardAction>
                 <ui:CardAction Margin="0,0,8,0" Command="{Binding NavigateToCommand}" CommandParameter="Startup"
@@ -158,8 +158,8 @@
                         <ui:SymbolIcon Symbol="Rocket24" />
                     </ui:CardAction.Icon>
                     <StackPanel>
-                        <TextBlock Text="Startup" FontWeight="SemiBold" />
-                        <TextBlock Text="Boot faster" FontSize="11" Opacity="0.7" TextWrapping="Wrap" />
+                        <TextBlock Text="Startup" Style="{StaticResource TextBodyStrong}" />
+                        <TextBlock Text="Boot faster" Style="{StaticResource TextCaption}" TextWrapping="Wrap" />
                     </StackPanel>
                 </ui:CardAction>
                 <ui:CardAction Margin="0,0,8,0" Command="{Binding NavigateToCommand}" CommandParameter="Privacy"
@@ -168,8 +168,8 @@
                         <ui:SymbolIcon Symbol="Shield24" />
                     </ui:CardAction.Icon>
                     <StackPanel>
-                        <TextBlock Text="Privacy" FontWeight="SemiBold" />
-                        <TextBlock Text="Clear traces" FontSize="11" Opacity="0.7" TextWrapping="Wrap" />
+                        <TextBlock Text="Privacy" Style="{StaticResource TextBodyStrong}" />
+                        <TextBlock Text="Clear traces" Style="{StaticResource TextCaption}" TextWrapping="Wrap" />
                     </StackPanel>
                 </ui:CardAction>
                 <ui:CardAction Margin="0,0,8,0" Command="{Binding NavigateToCommand}" CommandParameter="Disk"
@@ -178,8 +178,8 @@
                         <ui:SymbolIcon Symbol="DataPie24" />
                     </ui:CardAction.Icon>
                     <StackPanel>
-                        <TextBlock Text="Disk" FontWeight="SemiBold" />
-                        <TextBlock Text="See space usage" FontSize="11" Opacity="0.7" TextWrapping="Wrap" />
+                        <TextBlock Text="Disk" Style="{StaticResource TextBodyStrong}" />
+                        <TextBlock Text="See space usage" Style="{StaticResource TextCaption}" TextWrapping="Wrap" />
                     </StackPanel>
                 </ui:CardAction>
                 <ui:CardAction Command="{Binding NavigateToCommand}" CommandParameter="Duplicates"
@@ -188,8 +188,8 @@
                         <ui:SymbolIcon Symbol="Copy24" />
                     </ui:CardAction.Icon>
                     <StackPanel>
-                        <TextBlock Text="Duplicates" FontWeight="SemiBold" />
-                        <TextBlock Text="Find extra copies" FontSize="11" Opacity="0.7" TextWrapping="Wrap" />
+                        <TextBlock Text="Duplicates" Style="{StaticResource TextBodyStrong}" />
+                        <TextBlock Text="Find extra copies" Style="{StaticResource TextCaption}" TextWrapping="Wrap" />
                     </StackPanel>
                 </ui:CardAction>
             </UniformGrid>

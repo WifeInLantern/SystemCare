@@ -26,7 +26,14 @@ public partial class RescueCenterViewModel : ObservableObject
 
     public async void OnNavigatedTo()
     {
-        if (Points.Count == 0) await RefreshAsync();
+        try
+        {
+            if (Points.Count == 0) await RefreshAsync();
+        }
+        catch (Exception)
+        {
+            // async void: an unhandled exception here would surface as a raw error dialog, so contain it.
+        }
     }
 
     [RelayCommand]

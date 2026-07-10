@@ -57,7 +57,14 @@ public partial class DriverUpdateViewModel : ObservableObject
 
     public async void OnNavigatedTo()
     {
-        if (Devices.Count == 0) await RefreshDevicesAsync();
+        try
+        {
+            if (Devices.Count == 0) await RefreshDevicesAsync();
+        }
+        catch (Exception)
+        {
+            // async void: an unhandled exception here would surface as a raw error dialog, so contain it.
+        }
     }
 
     [RelayCommand]

@@ -170,4 +170,19 @@
          NOT a per-page tier like GlowLg (which allows 1-2 heroes per page). Use at most once. -->
     <DropShadowEffect x:Key="GlowXl" Color="{StaticResource AccentColor}" ShadowDepth="0" BlurRadius="44" Opacity="0.75" />
 
+    <!-- ===========================  Design System v6 tokens ("Night City, Refined")  ===========================
+         See docs/UI-REDESIGN-V5.md. v6 law: Opacity is never applied to text — hierarchy comes from
+         the four text brushes below (primary/secondary/tertiary/quaternary) and the type ramp. -->
+
+    <!-- Legitimate 4th de-emphasis tier (~3.2:1) for watermarks/ghost hints at >=18px only —
+         exists so pages stop reaching for Opacity="0.5" on text. -->
+    <Color x:Key="TextQuaternaryColor">#586C88</Color>
+    <SolidColorBrush x:Key="TextQuaternaryBrush" Color="{StaticResource TextQuaternaryColor}" />
+
+    <!-- Hero-to-content separation on hub/landing compositions. -->
+    <sys:Double x:Key="Space3Xl">48</sys:Double>
+
+    <!-- Max content width for scrolling pages (long-line reading + centered composition on wide monitors). -->
+    <sys:Double x:Key="ContentMaxWidth">1100</sys:Double>
+
 </ResourceDictionary>

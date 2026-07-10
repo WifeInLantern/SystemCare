@@ -73,9 +73,16 @@ public partial class ProcessServicesViewModel : ObservableObject
 
     public async void OnNavigatedTo()
     {
-        RefreshProcesses();
-        _timer.Start();
-        if (_allServices.Count == 0) await RefreshServicesAsync();
+        try
+        {
+            RefreshProcesses();
+            _timer.Start();
+            if (_allServices.Count == 0) await RefreshServicesAsync();
+        }
+        catch (Exception)
+        {
+            // async void: an unhandled exception here would surface as a raw error dialog, so contain it.
+        }
     }
 
     public void OnNavigatedFrom() => _timer.Stop();

@@ -28,7 +28,7 @@
         <StackPanel Grid.Row="0">
             <TextBlock Text="Large &amp; Old Files" Style="{StaticResource CyberPageTitle}" />
             <TextBlock Text="Find the biggest files hogging space, see when each was last opened, and send the ones you don't need to the Recycle Bin."
-                       FontSize="13" Opacity="0.78" Margin="0,4,0,0" TextWrapping="Wrap" />
+                       Style="{StaticResource TextBody}" Margin="0,4,0,0" />
         </StackPanel>
 
         <ui:Card Grid.Row="1" Margin="0,14,0,0" Padding="14,12">
@@ -67,7 +67,7 @@
             </Grid.ColumnDefinitions>
             <StackPanel Grid.Column="0" Orientation="Horizontal">
                 <controls:TaskProgress IsActive="{Binding IsBusy}" VerticalAlignment="Center" />
-                <TextBlock Text="{Binding StatusText}" VerticalAlignment="Center" Margin="8,0,0,0" Opacity="0.85" FontSize="12" />
+                <TextBlock Text="{Binding StatusText}" VerticalAlignment="Center" Margin="8,0,0,0" Style="{StaticResource TextCaption}" />
             </StackPanel>
             <ui:Button Grid.Column="1" Content="Delete selected" Appearance="Danger" Padding="16,7"
                        Command="{Binding DeleteSelectedCommand}">
@@ -78,19 +78,21 @@
         <Border Grid.Row="3" Margin="0,12,0,0" Background="{StaticResource CardBackgroundFillColorDefaultBrush}"
                 CornerRadius="8" BorderBrush="{StaticResource CyberStrokeBrush}" BorderThickness="1">
             <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="4">
-                <ItemsControl ItemsSource="{Binding Files}">
+                <ItemsControl ItemsSource="{Binding Files}" Grid.IsSharedSizeScope="True">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <Grid Margin="8,6">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto" />
                                     <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="110" />
-                                    <ColumnDefinition Width="110" />
+                                    <!-- v6: Auto + MinWidth instead of fixed 110px so long byte-strings
+                                         and dates never clip at higher DPI / narrow windows. -->
+                                    <ColumnDefinition Width="Auto" MinWidth="96" SharedSizeGroup="LfSize" />
+                                    <ColumnDefinition Width="Auto" MinWidth="96" SharedSizeGroup="LfAge" />
                                 </Grid.ColumnDefinitions>
                                 <CheckBox Grid.Column="0" IsChecked="{Binding IsSelected, Mode=TwoWay}" VerticalAlignment="Center" />
                                 <StackPanel Grid.Column="1" Margin="8,0,8,0" VerticalAlignment="Center">
-                                    <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+                                    <TextBlock Text="{Binding Name}" Style="{StaticResource TextBodyStrong}" TextTrimming="CharacterEllipsis" />
                                     <TextBlock Text="{Binding Directory}" Style="{StaticResource TextCaption}" TextTrimming="CharacterEllipsis" />
                                 </StackPanel>
                                 <TextBlock Grid.Column="2" Text="{Binding SizeText}" Style="{StaticResource TextMetricValue}" VerticalAlignment="Center" />

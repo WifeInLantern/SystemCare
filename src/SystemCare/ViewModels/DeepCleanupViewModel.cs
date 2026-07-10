@@ -45,8 +45,15 @@ public partial class DeepCleanupViewModel : ObservableObject
 
     public async void OnNavigatedTo()
     {
-        if (Items.Count > 0) return;
-        await RefreshAsync();
+        try
+        {
+            if (Items.Count > 0) return;
+            await RefreshAsync();
+        }
+        catch (Exception)
+        {
+            // async void: an unhandled exception here would surface as a raw error dialog, so contain it.
+        }
     }
 
     [RelayCommand]

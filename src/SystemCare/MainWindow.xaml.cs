@@ -63,6 +63,23 @@ public partial class MainWindow
         }
     }
 
+    /// <summary>v6: the "Search" nav item is a visible entry point for the Ctrl+K palette.
+    /// It has no TargetPageType, so activation is handled here instead of by navigation.</summary>
+    private void OnSearchNavClick(object sender, MouseButtonEventArgs e)
+    {
+        Palette.Open();
+        e.Handled = true;
+    }
+
+    private void OnSearchNavKeyDown(object sender, KeyEventArgs e)
+    {
+        if (e.Key is Key.Enter or Key.Space)
+        {
+            Palette.Open();
+            e.Handled = true;
+        }
+    }
+
     /// <summary>Builds the palette's tool list from the live navigation items (no duplicate registry).</summary>
     private List<NavEntry> BuildNavCatalog()
     {

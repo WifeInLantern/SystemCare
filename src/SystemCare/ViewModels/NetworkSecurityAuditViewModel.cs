@@ -38,7 +38,14 @@ public partial class NetworkSecurityAuditViewModel : ObservableObject
 
     public async void OnNavigatedTo()
     {
-        if (ListeningPorts.Count == 0 && BlockedApps.Count == 0) await RefreshAsync();
+        try
+        {
+            if (ListeningPorts.Count == 0 && BlockedApps.Count == 0) await RefreshAsync();
+        }
+        catch (Exception)
+        {
+            // async void: an unhandled exception here would surface as a raw error dialog, so contain it.
+        }
     }
 
     [RelayCommand]

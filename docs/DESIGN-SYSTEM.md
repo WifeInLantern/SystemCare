@@ -193,3 +193,33 @@ feel faster than a card's own reveal. `MainWindow.xaml.cs`'s `ApplyNavigationTra
 5. Long operations: `TaskProgress` + `FadeVisible` skeleton swap.
 6. Add any new tokens/styles to `tools/SmokeTest/Program.cs`.
 7. Verify with the Reduce motion toggle both ways.
+
+## 10. Design System v6 — "Night City, Refined" (2.13.0)
+
+Additive pass implementing the foundation phase of `docs/UI-REDESIGN-V5.md`. No keys renamed or
+removed; identity anchors untouched.
+
+**New tokens** (Theme.xaml + SmokeTest): `TextQuaternaryBrush #586C88` (~3.2:1 — legitimate 4th
+de-emphasis tier for ≥18px ghost text; exists so pages stop reaching for `Opacity="0.5"`),
+`Space3Xl 48`, `ContentMaxWidth 1100` (max width for scrolling page content).
+
+**New style**: `TextMetricHero` — Rajdhani SemiBold 32, primary; the big live numbers (CPU %, RAM),
+replacing inline `FontSize="32" FontWeight="Bold"`.
+
+**Ramp widened** (the old 15/13/13/11 spread was so compressed pages kept inventing inline sizes):
+`TextH2` 15→17, `TextH3` 13→14, `TextBody` 13→14 (+ LineHeight 20), `TextBodyStrong` 13→14,
+`TextMetricValue` 13→14, `TextCaption` 11→12 (+ LineHeight 17).
+
+**Value change**: `TextFillColorDisabledBrush` `#3A4A60` (2.1:1) → `#5A6E8C` (~3.6:1).
+
+**New laws**:
+- **Text-opacity ban.** `Opacity` is never applied to `TextBlock`/`Run` in Views. Hierarchy comes
+  from the four text brushes and the ramp. (Computed: `TextSecondary × 0.7` on Surface0 = 4.28:1 —
+  below AA; stacking opacity on tokens silently breaks contrast.)
+- **Inline-size ban.** `FontSize` in Views is a defect; sizes live in the ramp styles only.
+- **One glyph = one tool** in the nav (2.13.0 reassigned: Browser Cleanup `GlobeClock24`,
+  Network `Router24`, Secure DNS `LockShield24`, Debloat `BoxDismiss24`,
+  Breach Checker `Password24`, Security Audit `ShieldGlobe24`).
+
+**Navigation**: a "Search" entry at the top of the pane opens the Ctrl+K command palette (the
+palette itself is unchanged); tooltip advertises the hotkey.

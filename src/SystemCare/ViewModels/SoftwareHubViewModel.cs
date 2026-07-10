@@ -80,7 +80,14 @@ public partial class SoftwareHubViewModel : ObservableObject
 
     public async void OnNavigatedTo()
     {
-        if (!HasChecked && !IsChecking) await RefreshAsync(CancellationToken.None);
+        try
+        {
+            if (!HasChecked && !IsChecking) await RefreshAsync(CancellationToken.None);
+        }
+        catch (Exception ex)
+        {
+            _log.Warn("SoftwareHub", "Initial load failed: " + ex.Message);
+        }
     }
 
     partial void OnHasCheckedChanged(bool value) => OnPropertyChanged(nameof(ShowCatalog));

@@ -31,7 +31,14 @@ public partial class NetworkToolsViewModel : ObservableObject
 
     public async void OnNavigatedTo()
     {
-        if (Connections.Count == 0) await RefreshConnectionsAsync();
+        try
+        {
+            if (Connections.Count == 0) await RefreshConnectionsAsync();
+        }
+        catch (Exception)
+        {
+            // async void: an unhandled exception here would surface as a raw error dialog, so contain it.
+        }
     }
 
     [RelayCommand]

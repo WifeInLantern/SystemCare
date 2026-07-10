@@ -43,7 +43,17 @@ public partial class DefenderViewModel : ObservableObject
         _history = history;
     }
 
-    public async void OnNavigatedTo() => await RefreshAsync();
+    public async void OnNavigatedTo()
+    {
+        try
+        {
+            await RefreshAsync();
+        }
+        catch (Exception)
+        {
+            // async void: an unhandled exception here would surface as a raw error dialog, so contain it.
+        }
+    }
 
     [RelayCommand(CanExecute = nameof(CanRun))]
     private async Task RefreshAsync()

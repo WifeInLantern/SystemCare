@@ -61,7 +61,8 @@
     <SolidColorBrush x:Key="TextFillColorPrimaryBrush" Color="{StaticResource TextPrimaryColor}" />
     <SolidColorBrush x:Key="TextFillColorSecondaryBrush" Color="{StaticResource TextSecondaryColor}" />
     <SolidColorBrush x:Key="TextFillColorTertiaryBrush" Color="{StaticResource TextTertiaryColor}" />
-    <SolidColorBrush x:Key="TextFillColorDisabledBrush" Color="#3A4A60" />
+    <!-- v6: raised from #3A4A60 (2.1:1 — unreadably disabled) to ~3.6:1; still clearly inactive. -->
+    <SolidColorBrush x:Key="TextFillColorDisabledBrush" Color="#5A6E8C" />
 
     <!-- Dark text shows on the bright cyan/green accent (buttons etc.) for contrast -->
     <SolidColorBrush x:Key="TextOnAccentFillColorPrimaryBrush" Color="#05070B" />

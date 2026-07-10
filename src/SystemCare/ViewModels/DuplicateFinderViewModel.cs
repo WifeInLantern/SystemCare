@@ -83,10 +83,12 @@ public partial class DuplicateFinderViewModel : ObservableObject
 
     [ObservableProperty] private string? _selectedRoot;
     [ObservableProperty] private int _minSizeMB;
-    [ObservableProperty] private bool _isBusy;
+    [ObservableProperty] [NotifyCanExecuteChangedFor(nameof(DeleteSelectedCommand))] private bool _isBusy;
     [ObservableProperty] private string _statusText = "Add folders to search, then scan.";
     [ObservableProperty] private string _selectionText = "";
     [ObservableProperty] [NotifyCanExecuteChangedFor(nameof(DeleteSelectedCommand))] private bool _hasSelection;
+
+    private bool CanDeleteSelected() => HasSelection && !IsBusy;
 
     public DuplicateFinderViewModel(
         IDuplicateFinderService finder,
@@ -225,7 +227,7 @@ public partial class DuplicateFinderViewModel : ObservableObject
             : $"{selected.Count:N0} files selected · {ByteFormatter.Format(selected.Sum(f => f.File.Size))} will be reclaimed";
     }
 
-    [RelayCommand(CanExecute = nameof(HasSelection))]
+    [RelayCommand(CanExecute = nameof(CanDeleteSelected))]
     private async Task DeleteSelectedAsync()
     {
         var selected = Groups.SelectMany(g => g.Files).Where(f => f.IsSelected).ToList();

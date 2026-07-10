@@ -65,7 +65,11 @@ public class TaskProgress : FrameworkElement
         _label.Freeze();
 
         // Live Reduce-motion toggles freeze or restart the busy pulse in place, like HealthGauge.
-        Loaded += (_, _) => Helpers.Animations.ReduceMotionChanged += OnReduceMotionChanged;
+        Loaded += (_, _) =>
+        {
+            Helpers.Animations.ReduceMotionChanged -= OnReduceMotionChanged; // avoid a double subscription on reload
+            Helpers.Animations.ReduceMotionChanged += OnReduceMotionChanged;
+        };
         Unloaded += (_, _) => Helpers.Animations.ReduceMotionChanged -= OnReduceMotionChanged;
     }
 

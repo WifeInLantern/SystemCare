@@ -2,6 +2,52 @@
 
 All notable changes to SystemCare are documented here. Versions follow [SemVer](https://semver.org/).
 
+## [2.13.0] - 2026-07-11
+
+### Added
+- **Visible tool search.** A "Search" entry now sits at the top of the navigation pane and opens the
+  Ctrl+K command palette — previously the palette was reachable only by knowing the hotkey. The entry
+  is keyboard-activatable (Enter/Space) and carries a screen-reader name.
+- **Design System v6 foundation** ("Night City, Refined" — see `docs/UI-REDESIGN-V5.md`): new
+  `TextQuaternaryBrush`, `Space3Xl`, and `ContentMaxWidth` tokens, and a `TextMetricHero` style for
+  hero numbers. All are covered by the SmokeTest CI gate.
+
+### Changed
+- **Wider, more legible type ramp.** `TextH2` 15→17, `TextH3` 13→14, `TextBody` 13→14 (+ line
+  height), `TextBodyStrong`/`TextMetricValue` 13→14, `TextCaption` 11→12 (+ line height). The old
+  4px spread was so compressed that pages kept inventing inline sizes.
+- **Every tool now has a unique nav icon.** Browser Cleanup, Network, and Secure DNS no longer share
+  one globe (now `GlobeClock24` / `Router24` / `LockShield24`); Debloat no longer duplicates
+  Cleanup's broom (`BoxDismiss24`); Breach Checker and Security Audit got distinct shields
+  (`Password24` / `ShieldGlobe24`).
+- **Dashboard, Large Files, and Secure DNS retrofitted to the type tokens.** Inline
+  `FontSize`/`Opacity` overrides replaced with ramp styles — text on these pages now meets
+  WCAG AA contrast (stacked opacity had been dropping captions as low as 3.1:1).
+
+### Fixed
+- **Disabled text was unreadable** at 2.1:1 contrast; raised to ~3.6:1 (`#5A6E8C`) while still
+  clearly reading as inactive.
+- **Large Files columns no longer clip.** The fixed 110px size/age columns are now auto-sized with
+  a shared size scope, so long byte-strings and dates survive narrow windows and high DPI.
+
+## [2.12.1] - 2026-07-10
+
+### Fixed
+- **Hardware Info could silently go blank.** The WMI query backing CPU/GPU/disk model lookups returned its
+  result collection after disposing the searcher that owned it — undefined behavior per WMI's own contract.
+  Results are now fully read out before the searcher is released.
+- **File Shredder, Empty Folder Finder, and Duplicate Finder could be double-triggered.** Their destructive
+  action buttons stayed clickable while already running, so a second click mid-operation could corrupt shared
+  cancellation state — in the shredder's case, silently breaking Cancel and risking an exception mid-pass on
+  an irreversible delete. These buttons now disable for the duration of the operation, matching every other
+  long-running action in the app.
+- **A stray `TaskProgress` control could leak.** It was missing the unsubscribe-before-subscribe guard its
+  sibling controls already use for the shared Reduce-motion event, so a `Loaded`/`Unloaded` re-fire could
+  double-subscribe it and keep a finished control alive (and reacting to settings changes) indefinitely.
+- **A failed page load could pop a raw technical error dialog.** 19 pages had no `catch` around their initial
+  load, so a transient failure (e.g., a WMI or registry read throwing) surfaced as an unstyled exception
+  message box instead of the page just failing quietly, as the rest of the app already does.
+
 ## [2.12.0] - 2026-07-08
 
 ### Changed

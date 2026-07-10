@@ -42,7 +42,14 @@ public partial class BloatwareViewModel : ObservableObject
 
     public async void OnNavigatedTo()
     {
-        if (_all.Count == 0) await RefreshAsync();
+        try
+        {
+            if (_all.Count == 0) await RefreshAsync();
+        }
+        catch (Exception)
+        {
+            // async void: an unhandled exception here would surface as a raw error dialog, so contain it.
+        }
     }
 
     partial void OnSearchTextChanged(string value) => ApplyFilter();

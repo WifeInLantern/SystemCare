@@ -34,9 +34,16 @@ public partial class BatteryHealthViewModel : ObservableObject
 
     public async void OnNavigatedTo()
     {
-        if (_hasLoaded || IsBusy) return;
-        _hasLoaded = true;
-        await RefreshAsync();
+        try
+        {
+            if (_hasLoaded || IsBusy) return;
+            _hasLoaded = true;
+            await RefreshAsync();
+        }
+        catch (Exception)
+        {
+            // async void: an unhandled exception here would surface as a raw error dialog, so contain it.
+        }
     }
 
     [RelayCommand(CanExecute = nameof(NotBusy))]

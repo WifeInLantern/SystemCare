@@ -42,6 +42,8 @@ internal static class Program
             "VioletSubtleStroke","DangerSoftBrush","SuccessGradientBrush","GlowMagentaMd","GlowSuccessSm",
             // Design System v4 (glow/contrast intensification)
             "GlowVioletMd","GlowXl",
+            // Design System v6 ("Night City, Refined" — docs/UI-REDESIGN-V5.md)
+            "TextQuaternaryBrush","Space3Xl","ContentMaxWidth",
         })
             Try($"token '{key}' resolves", () => { if (app.Resources[key] is null) throw new Exception("not found"); });
 
@@ -56,6 +58,8 @@ internal static class Program
             "SkeletonBlock","SkeletonCard","EmptyStateTitle","EmptyStateHint",
             // Design System v5 (accessibility + compliance pass)
             "TextBodyStrong","TextMetricValue","CyberChipNeutral","ChipTextNeutral","CyberFocusVisual",
+            // Design System v6 ("Night City, Refined" — docs/UI-REDESIGN-V5.md)
+            "TextMetricHero",
         })
             Try($"style '{key}' resolves", () => { if (app.Resources[key] is not Style) throw new Exception("missing or not a Style"); });
 
