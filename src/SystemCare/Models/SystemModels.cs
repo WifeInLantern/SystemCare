@@ -22,6 +22,9 @@ public class DriveStat
     public long FreeBytes { get; init; }
     public long UsedBytes => TotalBytes - FreeBytes;
     public double UsedPercent => TotalBytes > 0 ? UsedBytes * 100.0 / TotalBytes : 0;
+    /// <summary>2.14 Storage Forecast: "~5 weeks until full at the current rate", or null when
+    /// there is no meaningful downward trend. Set by the dashboard, not by SystemInfoService.</summary>
+    public string? Forecast { get; set; }
 }
 
 public class HealthInputs

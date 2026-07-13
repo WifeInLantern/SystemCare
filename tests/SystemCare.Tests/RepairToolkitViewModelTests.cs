@@ -22,8 +22,11 @@ public class RepairToolkitViewModelTests
         var restore = Substitute.For<IRestorePointService>();
         restore.CreateRestorePointAsync(Arg.Any<string>()).Returns(Task.FromResult((true, "Restore point created.")));
         var history = Substitute.For<IHistoryService>();
+        // 2.16: search-index card dependency; substitute returns a default (empty) status.
+        var searchIndex = Substitute.For<ISearchIndexService>();
+        searchIndex.GetStatusAsync().Returns(Task.FromResult(new SearchIndexStatus()));
 
-        var vm = new RepairToolkitViewModel(repair, backup, restore, history);
+        var vm = new RepairToolkitViewModel(repair, backup, restore, history, searchIndex);
         return (vm, repair, backup, restore, history);
     }
 

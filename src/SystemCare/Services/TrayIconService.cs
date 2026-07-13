@@ -72,6 +72,21 @@ public class TrayIconService(
             ShowBalloon("Maintenance complete", result.Summary);
         });
 
+        // Quick actions (2.16): the common one-shots without opening the window. Each runs an
+        // explicit ad-hoc profile through the same maintenance pipeline (logging + balloon included).
+        var quick = new Forms.ToolStripMenuItem("Quick actions");
+        void AddQuick(string label, MaintenanceProfile profile) =>
+            quick.DropDownItems.Add(label, null, async (_, _) =>
+            {
+                var result = await maintenance.RunMaintenanceNowAsync(profile);
+                ShowBalloon(label + " — done", result.Summary);
+            });
+        AddQuick("Clean junk", new MaintenanceProfile(true, false, false, false));
+        AddQuick("Free up RAM", new MaintenanceProfile(false, true, false, false));
+        AddQuick("Flush DNS cache", new MaintenanceProfile(false, false, true, false));
+        AddQuick("Empty Recycle Bin", new MaintenanceProfile(false, false, false, true));
+        menu.Items.Add(quick);
+
         var auto = new Forms.ToolStripMenuItem("Automatic maintenance")
         {
             CheckOnClick = true,

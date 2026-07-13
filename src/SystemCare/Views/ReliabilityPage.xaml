@@ -128,6 +128,37 @@
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
 
+                <!-- Crash correlation (2.14): what SystemCare changed before the latest serious event -->
+                <StackPanel Visibility="{Binding HasCorrelation, Converter={StaticResource VisibleWhenTrue}}"
+                            Margin="0,14,0,0">
+                    <TextBlock Text="What changed beforehand" Style="{StaticResource CyberSectionHeader}" />
+                    <TextBlock Text="{Binding CorrelationTitle}" Style="{StaticResource TextCaption}"
+                               TextWrapping="Wrap" Margin="0,6,0,8" />
+                    <ItemsControl ItemsSource="{Binding WhatChanged}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Style="{StaticResource CyberListRow}">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <Border Grid.Column="0" Style="{StaticResource CyberChipNeutral}" VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding Category}" Style="{StaticResource ChipTextNeutral}" />
+                                        </Border>
+                                        <TextBlock Grid.Column="1" Text="{Binding Summary}" Margin="10,0,10,0"
+                                                   VerticalAlignment="Center" Style="{StaticResource TextBody}"
+                                                   TextTrimming="CharacterEllipsis" TextWrapping="NoWrap" />
+                                        <TextBlock Grid.Column="2" Text="{Binding TimeText}" Style="{StaticResource TextCaption}"
+                                                   VerticalAlignment="Center" />
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+
                 <!-- All clear -->
                 <ui:Card Padding="20,28"
                          Visibility="{Binding ReadOk, Converter={StaticResource VisibleWhenTrue}}">

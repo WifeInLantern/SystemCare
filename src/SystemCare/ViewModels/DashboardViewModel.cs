@@ -25,6 +25,11 @@ public partial class DashboardViewModel : ObservableObject
     private readonly ISecurityCheckService _security;
     private readonly IRecycleBinService _recycleBin;
     private readonly IHealthTrendService _healthTrend;
+    private readonly IDriveTrendService _driveTrend;
+
+    // Storage Forecast (2.14): recorded/computed once per session, not on every 5s drive refresh.
+    private bool _driveTrendRecorded;
+    private readonly Dictionary<string, string?> _driveForecasts = new(StringComparer.OrdinalIgnoreCase);
 
     private const int HistorySize = 60;
     private readonly DispatcherTimer _timer;
@@ -70,7 +75,8 @@ public partial class DashboardViewModel : ObservableObject
         IHistoryService history,
         ISecurityCheckService security,
         IRecycleBinService recycleBin,
-        IHealthTrendService healthTrend)
+        IHealthTrendService healthTrend,
+        IDriveTrendService driveTrend)
     {
         _systemInfo = systemInfo;
         _junkScan = junkScan;
@@ -86,6 +92,7 @@ public partial class DashboardViewModel : ObservableObject
         _security = security;
         _recycleBin = recycleBin;
         _healthTrend = healthTrend;
+        _driveTrend = driveTrend;
 
         if (_settings.Current.LastHealthScore is int saved)
         {
@@ -141,8 +148,23 @@ public partial class DashboardViewModel : ObservableObject
 
         if (includeDrives)
         {
+            // Storage Forecast: one sample + one fit per drive per session (history is daily-grained).
+            if (!_driveTrendRecorded)
+            {
+                _driveTrendRecorded = true;
+                foreach (var drive in snapshot.Drives)
+                {
+                    _driveTrend.Record(drive.Name, drive.FreeBytes, drive.TotalBytes);
+                    _driveForecasts[drive.Name] = _driveTrend.GetForecastText(drive.Name);
+                }
+            }
+
             Drives.Clear();
-            foreach (var drive in snapshot.Drives) Drives.Add(drive);
+            foreach (var drive in snapshot.Drives)
+            {
+                drive.Forecast = _driveForecasts.GetValueOrDefault(drive.Name);
+                Drives.Add(drive);
+            }
         }
     }
 

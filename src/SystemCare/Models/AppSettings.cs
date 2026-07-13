@@ -25,6 +25,10 @@ public class AppSettings
     public bool MaintenanceTrimRam { get; set; } = true;
     public bool MaintenanceFlushDns { get; set; }
     public bool MaintenanceEmptyRecycleBin { get; set; }
+    /// <summary>2.14: run the scheduled pass only while the PC is idle and on AC power.</summary>
+    public bool MaintenanceOnlyWhenIdle { get; set; }
+    /// <summary>2.14: Autorun Guard — notify when a program adds itself to startup.</summary>
+    public bool AutorunGuardEnabled { get; set; } = true;
     public bool MinimizeToTray { get; set; } = true;
     /// <summary>Launch SystemCare minimized to the tray when Windows starts (via an elevated logon task).</summary>
     public bool StartWithWindows { get; set; }
@@ -48,6 +52,17 @@ public class AppSettings
     public int DiskAlertThresholdPercent { get; set; } = 95;
     /// <summary>How long a metric must stay at or above its threshold before an alert fires.</summary>
     public int AlertSustainedMinutes { get; set; } = 5;
+
+    // 2.16: temperature alerts (share the master ResourceAlertsEnabled switch + sustained window).
+    public bool TempAlertsEnabled { get; set; }
+    public int TempAlertCelsius { get; set; } = 90;
+
+    // 2.16: monthly Care Report auto-export.
+    public bool MonthlyReportEnabled { get; set; }
+    public DateTime? LastMonthlyReportUtc { get; set; }
+
+    // 2.16: accent theme — "Cyan" (default) | "Magenta" | "Violet".
+    public string AccentTheme { get; set; } = "Cyan";
 
     // Safety
     public bool CreateRestorePointBeforeMaintenance { get; set; } = true;

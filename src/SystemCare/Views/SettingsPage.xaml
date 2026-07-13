@@ -28,6 +28,20 @@
                     </StackPanel>
                 </StackPanel>
             </ui:Card>
+            <ui:Card Padding="16,12" Margin="0,8,0,0">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0" Margin="0,0,16,0">
+                        <TextBlock Text="Accent color" FontWeight="SemiBold" />
+                        <TextBlock Text="Recolors buttons, toggles and selection. The neon identity (glows, charts, headers) keeps its design-system colors." Style="{StaticResource TextCaption}" TextWrapping="Wrap" />
+                    </StackPanel>
+                    <ComboBox Grid.Column="1" MinWidth="130" VerticalAlignment="Center"
+                              ItemsSource="{Binding AccentOptions}" SelectedItem="{Binding AccentTheme}" />
+                </Grid>
+            </ui:Card>
 
             <TextBlock Text="Automatic maintenance" Style="{StaticResource CyberSectionHeader}" Margin="0,20,0,8" />
             <ui:Card Padding="16,12" Margin="0,0,0,8">
@@ -96,6 +110,17 @@
                         <TextBlock Grid.Column="0" Text="Empty Recycle Bin" VerticalAlignment="Center" />
                         <ui:ToggleSwitch Grid.Column="1" IsChecked="{Binding MaintenanceEmptyRecycleBin}" />
                     </Grid>
+                    <Grid Margin="0,4,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0" Margin="0,0,16,0">
+                            <TextBlock Text="Only when idle and on AC power" VerticalAlignment="Center" />
+                            <TextBlock Text="Waits for a quiet moment instead of running at the scheduled time exactly" Style="{StaticResource TextCaption}" TextWrapping="Wrap" />
+                        </StackPanel>
+                        <ui:ToggleSwitch Grid.Column="1" IsChecked="{Binding MaintenanceOnlyWhenIdle}" />
+                    </Grid>
                 </StackPanel>
             </ui:Card>
             <ui:Card Padding="16,12">
@@ -122,6 +147,19 @@
                         <TextBlock Text="Launch SystemCare minimized to the tray when you sign in (via an elevated logon task, so there's no UAC prompt)" Style="{StaticResource TextCaption}" TextWrapping="Wrap" />
                     </StackPanel>
                     <ui:ToggleSwitch Grid.Column="1" IsChecked="{Binding StartWithWindows}" />
+                </Grid>
+            </ui:Card>
+            <ui:Card Padding="16,12" Margin="0,8,0,0">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0" Margin="0,0,16,0">
+                        <TextBlock Text="Autorun Guard" FontWeight="SemiBold" />
+                        <TextBlock Text="Notify when a program adds itself to Windows startup, so you can keep or disable it (reversible) in the Startup Manager" Style="{StaticResource TextCaption}" TextWrapping="Wrap" />
+                    </StackPanel>
+                    <ui:ToggleSwitch Grid.Column="1" IsChecked="{Binding AutorunGuardEnabled}" />
                 </Grid>
             </ui:Card>
             <ui:Card Padding="16,12" Margin="0,8,0,0">
@@ -263,6 +301,46 @@
                                   SpinButtonPlacementMode="Compact" />
                 </Grid>
             </ui:Card>
+            <ui:Card Padding="16,12" Margin="0,8,0,0" IsEnabled="{Binding ResourceAlertsEnabled}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0" Margin="0,0,16,0">
+                        <TextBlock Text="Temperature alerts" FontWeight="SemiBold" />
+                        <TextBlock Text="Also alert when CPU or GPU temperature stays high (checked every ~30 s; needs the master alert switch on)" Style="{StaticResource TextCaption}" TextWrapping="Wrap" />
+                    </StackPanel>
+                    <ui:ToggleSwitch Grid.Column="1" IsChecked="{Binding TempAlertsEnabled}" />
+                </Grid>
+            </ui:Card>
+            <ui:Card Padding="16,12" Margin="0,8,0,0" IsEnabled="{Binding TempAlertsEnabled}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0" Margin="0,0,16,0">
+                        <TextBlock Text="Temperature threshold (°C)" FontWeight="SemiBold" />
+                        <TextBlock Text="Alert when CPU or GPU stays at or above this" Style="{StaticResource TextCaption}" />
+                    </StackPanel>
+                    <ui:NumberBox Grid.Column="1" Value="{Binding TempAlertCelsius}" Minimum="60" Maximum="110" Width="130"
+                                  SpinButtonPlacementMode="Compact" />
+                </Grid>
+            </ui:Card>
+            <ui:Card Padding="16,12" Margin="0,8,0,0">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0" Margin="0,0,16,0">
+                        <TextBlock Text="Monthly care report" FontWeight="SemiBold" />
+                        <TextBlock Text="Once a month, save an HTML report of what SystemCare did (space freed, updates, score trend) to Documents\SystemCare" Style="{StaticResource TextCaption}" TextWrapping="Wrap" />
+                    </StackPanel>
+                    <ui:ToggleSwitch Grid.Column="1" IsChecked="{Binding MonthlyReportEnabled}" />
+                </Grid>
+            </ui:Card>
 
             <TextBlock Text="Cleaning" Style="{StaticResource CyberSectionHeader}" Margin="0,20,0,8" />
             <ui:Card Padding="16,12" Margin="0,0,0,8">
@@ -331,6 +409,30 @@
                     <ui:Button Content="Add folder…" Margin="0,8,0,0" Padding="12,6" Command="{Binding AddCustomFolderCommand}">
                         <ui:Button.Icon><ui:SymbolIcon Symbol="FolderAdd24" /></ui:Button.Icon>
                     </ui:Button>
+                </StackPanel>
+            </ui:Card>
+            <ui:Card Padding="16,12" Margin="0,8,0,0">
+                <StackPanel>
+                    <TextBlock Text="Ignored app updates" FontWeight="SemiBold" />
+                    <TextBlock Text="Apps the Software Updater always skips. Add apps from the Software Updater page; remove them here to see their updates again." Style="{StaticResource TextCaption}" Margin="0,0,0,8" TextWrapping="Wrap" />
+                    <ItemsControl ItemsSource="{Binding UpdaterIgnores}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Margin="0,2">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="{Binding}" VerticalAlignment="Center" Style="{StaticResource TextCaption}" TextTrimming="CharacterEllipsis" />
+                                    <ui:Button Grid.Column="1" Padding="6,4" Appearance="Danger" ToolTip="Stop ignoring"
+                                               Command="{Binding DataContext.RemoveUpdaterIgnoreCommand, RelativeSource={RelativeSource AncestorType=Page}}"
+                                               CommandParameter="{Binding}">
+                                        <ui:Button.Icon><ui:SymbolIcon Symbol="Delete24" /></ui:Button.Icon>
+                                    </ui:Button>
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
                 </StackPanel>
             </ui:Card>
 

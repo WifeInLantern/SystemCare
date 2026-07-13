@@ -107,6 +107,11 @@
                         <ui:SymbolIcon Symbol="GlobeClock24" />
                     </ui:NavigationViewItem.Icon>
                 </ui:NavigationViewItem>
+                <ui:NavigationViewItem Content="App Caches" TargetPageType="{x:Type views:AppCachesPage}" ToolTipService.ToolTip="Purge regenerable app &amp; developer caches (Discord, Spotify, npm, pip…)">
+                    <ui:NavigationViewItem.Icon>
+                        <ui:SymbolIcon Symbol="Layer24" />
+                    </ui:NavigationViewItem.Icon>
+                </ui:NavigationViewItem>
 
                 <ui:NavigationViewItemHeader Text="Optimize" />
                 <ui:NavigationViewItem Content="Boost" TargetPageType="{x:Type views:BoostPage}" ToolTipService.ToolTip="One-click Boost">
@@ -127,6 +132,11 @@
                 <ui:NavigationViewItem Content="Windows Tweaks" TargetPageType="{x:Type views:WindowsTweaksPage}" ToolTipService.ToolTip="Windows Tweaks">
                     <ui:NavigationViewItem.Icon>
                         <ui:SymbolIcon Symbol="Options24" />
+                    </ui:NavigationViewItem.Icon>
+                </ui:NavigationViewItem>
+                <ui:NavigationViewItem Content="Hibernation" TargetPageType="{x:Type views:PowerStoragePage}" ToolTipService.ToolTip="Hibernation &amp; Pagefile — reclaim hidden gigabytes (reversible)">
+                    <ui:NavigationViewItem.Icon>
+                        <ui:SymbolIcon Symbol="Sleep24" />
                     </ui:NavigationViewItem.Icon>
                 </ui:NavigationViewItem>
                 <ui:NavigationViewItem Content="Disk Health" TargetPageType="{x:Type views:DiskHealthPage}" ToolTipService.ToolTip="Disk Health &amp; Maintenance">

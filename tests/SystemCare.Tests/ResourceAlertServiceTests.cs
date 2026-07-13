@@ -21,7 +21,10 @@ public class ResourceAlertServiceTests
         settingsService.Current.Returns(settings ?? new AppSettings());
         var snackbar = Substitute.For<ISnackbarService>();
         var tray = Substitute.For<ITrayIconService>();
-        var service = new ResourceAlertService(metrics, settingsService, snackbar, tray);
+        // 2.16: temperature source. The substitute returns an empty list, so temperature
+        // checks are exercised as "sensors unavailable" — no thermal alerts in these tests.
+        var temperature = Substitute.For<ITemperatureService>();
+        var service = new ResourceAlertService(metrics, settingsService, snackbar, tray, temperature);
         return (service, metrics, settingsService, tray);
     }
 

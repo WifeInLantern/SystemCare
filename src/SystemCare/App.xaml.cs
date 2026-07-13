@@ -112,6 +112,17 @@ public partial class App : Application
         services.AddSingleton<ISoftwareHubService, SoftwareHubService>();
         services.AddSingleton<IWindowsUpdateService, WindowsUpdateService>();
 
+        // 2.14 feature services
+        services.AddSingleton<IAutorunGuardService, AutorunGuardService>();
+        services.AddSingleton<IDriveTrendService, DriveTrendService>();
+        services.AddSingleton<IAppCacheService, AppCacheService>();
+
+        // 2.16 feature services
+        services.AddSingleton<IBootHistoryService, BootHistoryService>();
+        services.AddSingleton<IMonthlyReportService, MonthlyReportService>();
+        services.AddSingleton<IPowerStorageAdvisorService, PowerStorageAdvisorService>();
+        services.AddSingleton<ISearchIndexService, SearchIndexService>();
+
         // Window
         services.AddSingleton<MainWindow>();
 
@@ -119,6 +130,8 @@ public partial class App : Application
         services.AddSingleton<DashboardViewModel>();
         services.AddSingleton<AutoCareViewModel>();
         services.AddSingleton<CleanupViewModel>();
+        services.AddSingleton<AppCachesViewModel>();
+        services.AddSingleton<PowerStorageViewModel>();
         services.AddSingleton<StartupViewModel>();
         services.AddSingleton<PrivacyViewModel>();
         services.AddSingleton<DiskAnalyzerViewModel>();
@@ -168,6 +181,8 @@ public partial class App : Application
         // Pages
         services.AddTransient<DashboardPage>();
         services.AddTransient<AutoCarePage>();
+        services.AddTransient<AppCachesPage>();
+        services.AddTransient<PowerStoragePage>();
         services.AddTransient<CleanupPage>();
         services.AddTransient<StartupPage>();
         services.AddTransient<PrivacyPage>();
@@ -228,17 +243,28 @@ public partial class App : Application
         AppDomain.CurrentDomain.UnhandledException += OnAppDomainUnhandledException;
         TaskScheduler.UnobservedTaskException += OnUnobservedTaskException;
 
-        // Headless scheduled-maintenance run: no window, balloon, then exit.
-        if (e.Args.Contains("--run-maintenance"))
+        // Headless runs: no window, balloon, then exit.
+        //   --run-maintenance             : the scheduled pass, using the profile from Settings.
+        //   --clean/--trim-ram/--flush-dns/--empty-recycle-bin (2.14) : an explicit ad-hoc profile
+        //     for scripts and power users, e.g.  SystemCare.exe --clean --trim-ram
+        bool cliClean = e.Args.Contains("--clean");
+        bool cliTrim = e.Args.Contains("--trim-ram");
+        bool cliDns = e.Args.Contains("--flush-dns");
+        bool cliBin = e.Args.Contains("--empty-recycle-bin");
+        bool cliProfile = cliClean || cliTrim || cliDns || cliBin;
+        if (e.Args.Contains("--run-maintenance") || cliProfile)
         {
             ShutdownMode = ShutdownMode.OnExplicitShutdown;
             var log = _services.GetRequiredService<ILogService>();
-            log.Info("Maintenance", "Headless scheduled maintenance started (--run-maintenance).");
+            log.Info("Maintenance", cliProfile
+                ? $"Headless CLI run started ({string.Join(' ', e.Args)})."
+                : "Headless scheduled maintenance started (--run-maintenance).");
             var tray = _services.GetRequiredService<ITrayIconService>();
             tray.Initialize();
             try
             {
-                var result = await _services.GetRequiredService<IScheduledMaintenanceService>().RunMaintenanceNowAsync();
+                var profile = cliProfile ? new MaintenanceProfile(cliClean, cliTrim, cliDns, cliBin) : null;
+                var result = await _services.GetRequiredService<IScheduledMaintenanceService>().RunMaintenanceNowAsync(profile);
                 tray.ShowBalloon("SystemCare maintenance complete", result.Summary);
                 await Task.Delay(TimeSpan.FromSeconds(6));
             }
@@ -276,8 +302,8 @@ public partial class App : Application
         var settings = _services.GetRequiredService<ISettingsService>();
         SystemCare.Helpers.Animations.ReduceMotion = settings.Current.ReduceMotion;
         ApplicationThemeManager.Apply(ApplicationTheme.Dark);
-        ApplicationAccentColorManager.Apply(
-            SystemCare.Helpers.CyberPalette.Accent, ApplicationTheme.Dark);
+        // 2.16: user-selectable accent (Cyan default / Magenta / Violet) for accent-driven controls.
+        SystemCare.Helpers.AccentThemes.Apply(settings.Current.AccentTheme);
         if (settings.Current.Theme != "Dark")
         {
             settings.Current.Theme = "Dark";
@@ -313,6 +339,14 @@ public partial class App : Application
         if (settings.Current.ShowTrayStats) trayIcon.EnableLiveStats(true);
         if (settings.Current.ShowMiniMonitor) _services.GetRequiredService<IMiniMonitorService>().Show();
         if (settings.Current.ResourceAlertsEnabled) _services.GetRequiredService<IResourceAlertService>().Start();
+
+        // Autorun Guard (2.14): diff startup entries against the last run and notify about
+        // anything that added itself. Fire-and-forget; the service never throws.
+        _ = _services.GetRequiredService<IAutorunGuardService>().CheckAsync();
+
+        // Boot report + monthly Care Report (2.16). Both fire-and-forget and never throw.
+        _ = _services.GetRequiredService<IBootHistoryService>().CheckAndReportAsync();
+        _ = _services.GetRequiredService<IMonthlyReportService>().CheckAsync();
 
         if (minimized)
         {

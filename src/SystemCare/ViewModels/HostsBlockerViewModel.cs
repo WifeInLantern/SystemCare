@@ -19,6 +19,7 @@ public partial class HostsBlockerViewModel : ObservableObject
     [NotifyCanExecuteChangedFor(nameof(RemoveCommand))]
     private bool _isApplied;
     [ObservableProperty] private string _statusText = "";
+    [ObservableProperty] private string _sourceText = "";
 
     public HostsBlockerViewModel(IHostsBlockerService hosts, IHistoryService history)
     {
@@ -33,9 +34,41 @@ public partial class HostsBlockerViewModel : ObservableObject
         var s = _hosts.GetStatus();
         IsApplied = s.IsApplied;
         StatusText = s.IsApplied
-            ? $"Active — blocking {s.BlockedCount} ad/tracker domains."
+            ? $"Active — blocking {s.BlockedCount:N0} ad/tracker domains."
             : "Not active. Applying will block a curated list of ad/tracker domains system-wide.";
+        SourceText = _hosts.UsingFetchedList
+            ? "Source: StevenBlack community list (downloaded)."
+            : "Source: built-in curated list. You can switch to the larger StevenBlack community list below.";
     }
+
+    [RelayCommand(CanExecute = nameof(CanRefreshSource))]
+    private async Task RefreshSourceAsync()
+    {
+        IsBusy = true;
+        try
+        {
+            var (ok, message) = await _hosts.RefreshFromSourceAsync();
+            StatusText = message;
+            if (ok) _history.Record("Hosts blocker", "Updated community blocklist (StevenBlack)", icon: "ArrowSync24");
+            Refresh();
+        }
+        finally { IsBusy = false; }
+    }
+
+    [RelayCommand(CanExecute = nameof(CanRefreshSource))]
+    private async Task UseBuiltInAsync()
+    {
+        IsBusy = true;
+        try
+        {
+            var (_, message) = await _hosts.UseBuiltInListAsync();
+            StatusText = message;
+            Refresh();
+        }
+        finally { IsBusy = false; }
+    }
+
+    private bool CanRefreshSource() => !IsBusy;
 
     [RelayCommand(CanExecute = nameof(CanApply))]
     private async Task ApplyAsync()

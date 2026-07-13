@@ -102,7 +102,18 @@ public class ScheduledMaintenanceService(
 
             td.Actions.Add(new ExecAction(exe, "--run-maintenance", AppContext.BaseDirectory));
             td.Settings.StartWhenAvailable = true;
-            td.Settings.DisallowStartIfOnBatteries = false;
+
+            // 2.14: optionally defer to a quiet moment — only while idle and on AC power.
+            if (settings.Current.MaintenanceOnlyWhenIdle)
+            {
+                td.Settings.RunOnlyIfIdle = true;
+                td.Settings.IdleSettings.StopOnIdleEnd = false;
+                td.Settings.DisallowStartIfOnBatteries = true;
+            }
+            else
+            {
+                td.Settings.DisallowStartIfOnBatteries = false;
+            }
 
             ts.RootFolder.RegisterTaskDefinition(TaskName, td);
             log.Info("Maintenance", $"Scheduled task registered ({settings.Current.MaintenanceFrequency}).");

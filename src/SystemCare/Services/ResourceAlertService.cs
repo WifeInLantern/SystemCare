@@ -21,12 +21,20 @@ public interface IResourceAlertService
 /// for performance and never populates <c>SystemSnapshot.Drives</c>.
 /// </summary>
 public sealed class ResourceAlertService(
-    ILiveMetricsService metrics, ISettingsService settings, ISnackbarService snackbar, ITrayIconService tray)
+    ILiveMetricsService metrics, ISettingsService settings, ISnackbarService snackbar, ITrayIconService tray,
+    ITemperatureService temperature)
     : IResourceAlertService
 {
+    // Temperatures (2.16) are sampled every 30th metrics tick (~30s): LibreHardwareMonitor reads
+    // are far heavier than the snapshot fields, and thermal trends don't need 1s resolution.
+    private const int TempSampleEveryTicks = 30;
+
     private ResourceAlertEvaluator.BreachState _cpu;
     private ResourceAlertEvaluator.BreachState _ram;
     private ResourceAlertEvaluator.BreachState _disk;
+    private ResourceAlertEvaluator.BreachState _cpuTemp;
+    private ResourceAlertEvaluator.BreachState _gpuTemp;
+    private int _tempTick;
     private bool _started;
 
     public void Start()
@@ -46,6 +54,9 @@ public sealed class ResourceAlertService(
         _cpu = default;
         _ram = default;
         _disk = default;
+        _cpuTemp = default;
+        _gpuTemp = default;
+        _tempTick = 0;
     }
 
     private void OnMetricsUpdated(object? sender, EventArgs e)
@@ -58,6 +69,52 @@ public sealed class ResourceAlertService(
         Check("CPU", snap.CpuPercent ?? 0, s.CpuAlertThresholdPercent, s.AlertSustainedMinutes, nowUtc, ref _cpu);
         Check("Memory", snap.RamLoadPercent, s.RamAlertThresholdPercent, s.AlertSustainedMinutes, nowUtc, ref _ram);
         Check("Disk space", WorstFixedDriveUsagePercent(), s.DiskAlertThresholdPercent, s.AlertSustainedMinutes, nowUtc, ref _disk);
+
+        // Temperature alerts (2.16): same sustained-breach logic, sampled sparsely.
+        if (s.TempAlertsEnabled && ++_tempTick >= TempSampleEveryTicks)
+        {
+            _tempTick = 0;
+            var (cpuC, gpuC) = ReadTemps();
+            if (cpuC is double c)
+                CheckTemp("CPU temperature", c, s.TempAlertCelsius, s.AlertSustainedMinutes, nowUtc, ref _cpuTemp);
+            if (gpuC is double g)
+                CheckTemp("GPU temperature", g, s.TempAlertCelsius, s.AlertSustainedMinutes, nowUtc, ref _gpuTemp);
+        }
+    }
+
+    private (double? Cpu, double? Gpu) ReadTemps()
+    {
+        try
+        {
+            double? cpu = null, gpu = null;
+            foreach (var t in temperature.Read()) // never throws; [] when sensors unavailable
+            {
+                if (t.Category.Contains("CPU", StringComparison.OrdinalIgnoreCase))
+                    cpu = cpu is double c ? Math.Max(c, t.Celsius) : t.Celsius;
+                else if (t.Category.Contains("GPU", StringComparison.OrdinalIgnoreCase))
+                    gpu = gpu is double g ? Math.Max(g, t.Celsius) : t.Celsius;
+            }
+            return (cpu, gpu);
+        }
+        catch (Exception)
+        {
+            return (null, null);
+        }
+    }
+
+    private void CheckTemp(string label, double celsius, int thresholdCelsius, int sustainedMinutes,
+        DateTime nowUtc, ref ResourceAlertEvaluator.BreachState state)
+    {
+        var (newState, shouldAlert) = ResourceAlertEvaluator.Evaluate(celsius, thresholdCelsius, sustainedMinutes, nowUtc, state);
+        state = newState;
+        if (shouldAlert)
+        {
+            string title = $"{label} at {celsius:0}°C";
+            string message = $"{label} has stayed at or above {thresholdCelsius}°C for {sustainedMinutes} minute(s). " +
+                             "Check airflow/dust, or close heavy apps.";
+            snackbar.Show(title, message, ControlAppearance.Caution, null, TimeSpan.FromSeconds(8));
+            tray.ShowBalloon(title, message);
+        }
     }
 
     private void Check(string label, double currentValue, int thresholdPercent, int sustainedMinutes,

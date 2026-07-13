@@ -37,6 +37,15 @@ public partial class SettingsViewModel : ObservableObject
     [ObservableProperty] private bool _minimizeToTray;
     [ObservableProperty] private bool _startWithWindows;
     [ObservableProperty] private bool _createRestorePointBeforeMaintenance;
+    [ObservableProperty] private bool _maintenanceOnlyWhenIdle;
+    [ObservableProperty] private bool _autorunGuardEnabled;
+
+    // 2.16
+    [ObservableProperty] private bool _tempAlertsEnabled;
+    [ObservableProperty] private int _tempAlertCelsius;
+    [ObservableProperty] private bool _monthlyReportEnabled;
+    [ObservableProperty] private string _accentTheme = "Cyan";
+    public string[] AccentOptions => Helpers.AccentThemes.Options;
     [ObservableProperty] private bool _askBeforeBackup;
     [ObservableProperty] private bool _reduceMotion;
     [ObservableProperty] private bool _showTrayStats;
@@ -65,6 +74,8 @@ public partial class SettingsViewModel : ObservableObject
 
     public ObservableCollection<string> Exclusions { get; }
     public ObservableCollection<string> CustomFolders { get; }
+    /// <summary>Exclusions Center (2.14): the Software Updater ignore list, reviewable in one place.</summary>
+    public ObservableCollection<string> UpdaterIgnores { get; }
 
     public string VersionText { get; }
     public string ElevationText { get; }
@@ -97,6 +108,12 @@ public partial class SettingsViewModel : ObservableObject
         _minimizeToTray = settings.Current.MinimizeToTray;
         _startWithWindows = settings.Current.StartWithWindows;
         _createRestorePointBeforeMaintenance = settings.Current.CreateRestorePointBeforeMaintenance;
+        _maintenanceOnlyWhenIdle = settings.Current.MaintenanceOnlyWhenIdle;
+        _autorunGuardEnabled = settings.Current.AutorunGuardEnabled;
+        _tempAlertsEnabled = settings.Current.TempAlertsEnabled;
+        _tempAlertCelsius = settings.Current.TempAlertCelsius;
+        _monthlyReportEnabled = settings.Current.MonthlyReportEnabled;
+        _accentTheme = settings.Current.AccentTheme;
         _askBeforeBackup = settings.Current.AskBeforeBackup;
         _reduceMotion = settings.Current.ReduceMotion;
         _showTrayStats = settings.Current.ShowTrayStats;
@@ -110,6 +127,7 @@ public partial class SettingsViewModel : ObservableObject
         _updateGitHubToken = settings.Current.UpdateGitHubToken;
         Exclusions = new ObservableCollection<string>(settings.Current.CleanupExclusions);
         CustomFolders = new ObservableCollection<string>(settings.Current.CustomJunkFolders);
+        UpdaterIgnores = new ObservableCollection<string>(settings.Current.SoftwareUpdateExclusions);
 
         _loadingQuickActions = true;
         var qa = settings.Current.DashboardQuickActions;
@@ -346,6 +364,17 @@ public partial class SettingsViewModel : ObservableObject
         }
     }
 
+    /// <summary>Exclusions Center (2.14): stop ignoring an app in the Software Updater.</summary>
+    [RelayCommand]
+    private void RemoveUpdaterIgnore(string id)
+    {
+        if (UpdaterIgnores.Remove(id))
+        {
+            _settings.Current.SoftwareUpdateExclusions = [.. UpdaterIgnores];
+            _settings.Save();
+        }
+    }
+
     partial void OnSkipTempNewerThanHoursChanged(int value)
     {
         _settings.Current.SkipTempNewerThanHours = Math.Max(0, value);
@@ -400,6 +429,45 @@ public partial class SettingsViewModel : ObservableObject
     {
         _settings.Current.MaintenanceEmptyRecycleBin = value;
         _settings.Save();
+    }
+
+    partial void OnMaintenanceOnlyWhenIdleChanged(bool value)
+    {
+        _settings.Current.MaintenanceOnlyWhenIdle = value;
+        _settings.Save();
+        if (_settings.Current.AutoMaintenanceEnabled) _maintenance.Sync();
+    }
+
+    partial void OnAutorunGuardEnabledChanged(bool value)
+    {
+        _settings.Current.AutorunGuardEnabled = value;
+        _settings.Save();
+    }
+
+    partial void OnTempAlertsEnabledChanged(bool value)
+    {
+        _settings.Current.TempAlertsEnabled = value;
+        _settings.Save();
+    }
+
+    partial void OnTempAlertCelsiusChanged(int value)
+    {
+        _settings.Current.TempAlertCelsius = Math.Clamp(value, 60, 110);
+        _settings.Save();
+    }
+
+    partial void OnMonthlyReportEnabledChanged(bool value)
+    {
+        _settings.Current.MonthlyReportEnabled = value;
+        if (!value) _settings.Current.LastMonthlyReportUtc = null; // re-enabling starts a fresh 30-day clock
+        _settings.Save();
+    }
+
+    partial void OnAccentThemeChanged(string value)
+    {
+        _settings.Current.AccentTheme = value;
+        _settings.Save();
+        Helpers.AccentThemes.Apply(value); // applies live, no restart needed
     }
 
     partial void OnMinimizeToTrayChanged(bool value)

@@ -81,17 +81,32 @@ public class ReliabilityCountViewModel(string label, int count, SymbolRegular ic
     public SymbolRegular Icon { get; } = icon;
 }
 
+/// <summary>One SystemCare action shown in the "What changed beforehand" correlation panel (2.14).</summary>
+public class CorrelationItemViewModel(HistoryEntry entry)
+{
+    public string Category { get; } = entry.Category;
+    public string Summary { get; } = entry.Summary;
+    public string TimeText { get; } = ReliabilityVisuals.RelativeTime(entry.TimestampUtc);
+}
+
 public partial class ReliabilityViewModel : ObservableObject
 {
     private const int Days = 14;
+    private const int CorrelationWindowHours = 72;
 
     private readonly IReliabilityService _reliability;
     private readonly IRestorePointService _restore;
     private readonly ISnackbarService _snackbar;
+    private readonly IHistoryService _historyLog;
     private bool _loaded;
 
     public ObservableCollection<ReliabilityCountViewModel> Counts { get; } = [];
     public ObservableCollection<ReliabilityEventViewModel> Events { get; } = [];
+    /// <summary>Crash correlation (2.14): SystemCare actions in the 72h before the most recent serious event.</summary>
+    public ObservableCollection<CorrelationItemViewModel> WhatChanged { get; } = [];
+
+    [ObservableProperty] private bool _hasCorrelation;
+    [ObservableProperty] private string _correlationTitle = "";
 
     [ObservableProperty] private bool _isLoading;
     [ObservableProperty] private double _score = -1; // -1 => gauge shows "not scored yet"
@@ -100,11 +115,13 @@ public partial class ReliabilityViewModel : ObservableObject
     [ObservableProperty] private bool _readOk = true;
     [ObservableProperty] private string _summaryText = "Scanning the event log for recent problems…";
 
-    public ReliabilityViewModel(IReliabilityService reliability, IRestorePointService restore, ISnackbarService snackbar)
+    public ReliabilityViewModel(IReliabilityService reliability, IRestorePointService restore,
+        ISnackbarService snackbar, IHistoryService historyLog)
     {
         _reliability = reliability;
         _restore = restore;
         _snackbar = snackbar;
+        _historyLog = historyLog;
     }
 
     public async void OnNavigatedTo()
@@ -138,6 +155,7 @@ public partial class ReliabilityViewModel : ObservableObject
             foreach (var e in report.Events) Events.Add(new ReliabilityEventViewModel(e));
             HasIssues = report.Events.Count > 0;
             BuildCounts(report.Events);
+            BuildCorrelation(report.Events);
 
             SummaryText = !report.Read
                 ? "Couldn't read the Windows Event Log on this system."
@@ -153,6 +171,37 @@ public partial class ReliabilityViewModel : ObservableObject
         {
             IsLoading = false;
         }
+    }
+
+    /// <summary>
+    /// Crash correlation (2.14): for the most recent Error/Critical event, list what SystemCare
+    /// itself changed in the preceding 72h (driver installs, updates, tweaks, debloat…) — often
+    /// the fastest lead when instability starts, and every listed action has a revert path.
+    /// Correlation, not causation; the panel's wording reflects that.
+    /// </summary>
+    private void BuildCorrelation(IReadOnlyList<ReliabilityEvent> events)
+    {
+        WhatChanged.Clear();
+        HasCorrelation = false;
+
+        var incident = events
+            .Where(e => e.Severity is ReliabilitySeverity.Error or ReliabilitySeverity.Critical)
+            .OrderByDescending(e => e.TimeUtc)
+            .FirstOrDefault();
+        if (incident is null) return;
+
+        var windowStart = incident.TimeUtc.AddHours(-CorrelationWindowHours);
+        var actions = _historyLog.GetAll()
+            .Where(h => h.TimestampUtc >= windowStart && h.TimestampUtc <= incident.TimeUtc)
+            .OrderByDescending(h => h.TimestampUtc)
+            .Take(6)
+            .ToList();
+        if (actions.Count == 0) return;
+
+        foreach (var action in actions) WhatChanged.Add(new CorrelationItemViewModel(action));
+        CorrelationTitle = $"In the 72h before \"{incident.Title}\", SystemCare made these changes — " +
+                           "if the trouble started then, consider reverting one (Rescue Center has restore points):";
+        HasCorrelation = true;
     }
 
     private void BuildCounts(IReadOnlyList<ReliabilityEvent> events)

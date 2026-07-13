@@ -24,7 +24,7 @@
         <StackPanel Grid.Row="0">
             <TextBlock Text="Ad / Tracker Blocker" Style="{StaticResource CyberPageTitle}" />
             <TextBlock Text="Blocks a curated list of ad and tracking domains system-wide by editing the Windows hosts file. Your original hosts file is backed up first, and removal restores it exactly."
-                       FontSize="13" Opacity="0.78" Margin="0,4,0,0" TextWrapping="Wrap" />
+                       Style="{StaticResource TextBody}" Margin="0,4,0,0" />
         </StackPanel>
 
         <ui:Card Grid.Row="1" Margin="0,16,0,0" Padding="18,16">
@@ -38,6 +38,16 @@
                         <ui:Button.Icon><ui:SymbolIcon Symbol="ArrowUndo24" /></ui:Button.Icon>
                     </ui:Button>
                     <controls:TaskProgress IsActive="{Binding IsBusy}" Margin="14,0,0,0" VerticalAlignment="Center" />
+                </WrapPanel>
+                <TextBlock Text="{Binding SourceText}" Style="{StaticResource TextCaption}" Margin="0,12,0,0" TextWrapping="Wrap" />
+                <WrapPanel Margin="0,8,0,0">
+                    <ui:Button Content="Update from StevenBlack list" Padding="14,7" Margin="0,4,0,4"
+                               ToolTipService.ToolTip="Downloads the community-maintained StevenBlack hosts list (tens of thousands of ad/tracker domains) and uses it instead of the small built-in list."
+                               Command="{Binding RefreshSourceCommand}">
+                        <ui:Button.Icon><ui:SymbolIcon Symbol="ArrowSync24" /></ui:Button.Icon>
+                    </ui:Button>
+                    <ui:Button Content="Use built-in list" Padding="14,7" Margin="10,4,0,4"
+                               Command="{Binding UseBuiltInCommand}" />
                 </WrapPanel>
             </StackPanel>
         </ui:Card>

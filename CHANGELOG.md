@@ -2,6 +2,71 @@
 
 All notable changes to SystemCare are documented here. Versions follow [SemVer](https://semver.org/).
 
+## [2.16.0] - 2026-07-11
+
+### Added
+- **Temperature alerts.** The resource-alert engine now optionally watches CPU and GPU temperature
+  (sampled every ~30 s via the existing hardware-sensor backend) and raises the same sustained-breach
+  toast + tray notification when either stays at or above a configurable threshold (default 90 °C).
+- **Boot report.** SystemCare keeps a per-boot duration history and, when a start-up is ≥25% slower
+  than your recent median (with at least 5 boots of history), tells you once via a tray notification —
+  with Boot Analyzer and Startup Manager as the follow-up. No noise on one-off slow boots.
+- **Hibernation & Pagefile advisor** (new tool under Optimize). Shows what `hiberfil.sys` and
+  `pagefile.sys` actually reserve, explains the trade-offs in plain language, and offers the
+  reversible `powercfg` actions: disable, re-enable, or **reduced** mode (keeps Fast Startup at
+  ~40% of RAM). The page file itself is deliberately read-only — informing without foot-guns.
+- **Accent color picker.** Settings → Appearance now offers Cyan (default), Magenta, or Violet for
+  accent-driven controls (buttons, toggles, selection), applied live. The neon identity — glows,
+  charts, headers — keeps its design-system colors.
+- **Tray quick actions.** The tray menu gains a Quick actions submenu: Clean junk, Free up RAM,
+  Flush DNS cache, Empty Recycle Bin — each runs through the maintenance pipeline with a result
+  balloon, no window needed.
+- **Monthly care report.** Optional: once a month, the Care Report is exported as HTML to
+  `Documents\SystemCare` and announced with a tray notification.
+- **Windows Search index health** (in Repair Toolkit). Shows the size of the search database
+  (`Windows.edb`/`Windows.db` — a classic hidden disk hog), opens Indexing Options, and can trigger
+  the documented rebuild (the same flag Indexing Options' own Rebuild button sets, then a WSearch
+  restart).
+
+### Notes
+- Temperature alerts sit behind the existing "Resource alerts" master switch and share its
+  sustained-minutes window.
+- The boot report needs a few boots of history before it can say anything.
+
+## [2.14.0] - 2026-07-11
+
+### Added
+- **Autorun Guard.** SystemCare now snapshots your startup entries and, on the next launch, notifies
+  you when a program has silently added itself to startup — with a pointer to the Startup Manager,
+  where the existing reversible toggle can disable it. Detection only; nothing is changed
+  automatically. On by default; toggle in Settings.
+- **App Cache Cleaner** (new tool under Clean). A curated, whitelisted catalog of regenerable caches:
+  Discord, Slack, classic Teams, Spotify, NVIDIA/Steam shader caches, plus a developer group
+  (npm, Yarn, pip, NuGet HTTP cache, Gradle). Dry-run scan first; files written in the last 24 hours
+  and in-use files are always left alone; the NuGet global packages folder is never touched.
+- **Storage Forecast.** Dashboard drive cards now warn "~5 weeks until full at the current rate"
+  when a drive shows a sustained downward free-space trend (least-squares fit over daily samples;
+  it stays silent without a meaningful trend). Unit-tested math.
+- **Crash correlation in Reliability.** Below the recent-issues list, a "What changed beforehand"
+  panel lists what SystemCare itself changed (driver installs, updates, tweaks…) in the 72 hours
+  before the most recent serious event — the fastest first lead when instability starts, with a
+  pointer to Rescue Center for rollback. Correlation, not causation, and labelled as such.
+- **Community blocklist for the Ad Blocker.** One click downloads the StevenBlack hosts list
+  (tens of thousands of domains, capped at 60k) and uses it instead of the small built-in list,
+  with a validity check before anything is applied and a one-click return to the built-in list.
+- **Idle-aware automatic maintenance.** New Settings toggle: run the scheduled pass only while the
+  PC is idle and on AC power (Task Scheduler idle trigger).
+- **CLI verbs for scripts.** `SystemCare.exe --clean --trim-ram --flush-dns --empty-recycle-bin`
+  runs a headless ad-hoc maintenance pass with exactly the steps you pass (the scheduled
+  `--run-maintenance` keeps using your Settings profile).
+- **Exclusions Center groundwork.** The Software Updater's ignore list is now reviewable and
+  editable in Settings alongside the cleaner's excluded/custom folders — every exclusion in one place.
+
+### Notes
+- Autorun Guard's first run only establishes a baseline; alerts begin from the second launch.
+- The community blocklist is fetched from the StevenBlack GitHub repository; if the download looks
+  wrong (too few entries) the current list is kept.
+
 ## [2.13.0] - 2026-07-11
 
 ### Added

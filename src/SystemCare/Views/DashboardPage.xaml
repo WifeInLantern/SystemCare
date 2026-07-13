@@ -132,6 +132,19 @@
                                 <ProgressBar Maximum="100" Height="5"
                                              helpers:Animations.SmoothValue="{Binding UsedPercent}"
                                              Foreground="{Binding UsedPercent, Converter={StaticResource UsageBrush}}" />
+                                <!-- Storage Forecast (2.14): only shown when a meaningful downward trend exists. -->
+                                <TextBlock Text="{Binding Forecast}" Margin="0,6,0,0" TextWrapping="Wrap"
+                                           Foreground="{StaticResource WarningBrush}">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock" BasedOn="{StaticResource TextCaption}">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding Forecast}" Value="{x:Null}">
+                                                    <Setter Property="Visibility" Value="Collapsed" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
                             </StackPanel>
                         </ui:Card>
                     </DataTemplate>

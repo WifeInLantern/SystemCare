@@ -102,6 +102,29 @@
                         </ui:Button>
                     </Grid>
                 </ui:Card>
+
+                <!-- Windows Search index health (2.16) -->
+                <ui:Card Margin="0,0,0,8" Padding="14,12">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0" Margin="0,0,16,0">
+                            <TextBlock Text="Windows Search index" FontWeight="SemiBold" />
+                            <TextBlock Text="The search database can silently grow to many GB or corrupt (broken Start-menu search). Rebuilding uses the same mechanism as Indexing Options — Windows recreates it in the background."
+                                       Style="{StaticResource TextCaption}" TextWrapping="Wrap" />
+                            <TextBlock Text="{Binding IndexStatusText}" Style="{StaticResource TextCaption}" Margin="0,4,0,0" TextWrapping="Wrap" />
+                        </StackPanel>
+                        <ui:Button Grid.Column="1" Content="Indexing Options" Padding="12,7" VerticalAlignment="Center" Margin="0,0,10,0"
+                                   Command="{Binding OpenIndexingOptionsCommand}" />
+                        <ui:Button Grid.Column="2" Content="Rebuild index" Padding="14,7" VerticalAlignment="Center"
+                                   Command="{Binding RebuildIndexCommand}">
+                            <ui:Button.Icon><ui:SymbolIcon Symbol="DocumentSearch24" /></ui:Button.Icon>
+                        </ui:Button>
+                    </Grid>
+                </ui:Card>
             </StackPanel>
         </ScrollViewer>
 

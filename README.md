@@ -78,6 +78,9 @@ RAM, Flush DNS, Empty Recycle Bin, Create restore point) sits below.
   shared DLLs, MUI cache) pointing to missing files. Always exports a `.reg` backup first (with **Restore
   last backup**) and can make a restore point - fully reversible.
 - **Empty Folder Finder** - find and remove recursively-empty folders (to the Recycle Bin).
+- **App Cache Cleaner** *(2.14)* - purge regenerable, often multi-GB caches from apps (Discord, Slack,
+  Teams, Spotify, NVIDIA/Steam shaders) and developer tools (npm, Yarn, pip, NuGet HTTP cache, Gradle).
+  Dry-run scan first; files from the last 24h and in-use files are always left alone.
 
 ### ⚡ Optimize
 - **One-click Boost** - switches to the High Performance power plan, frees RAM, and can pause selected

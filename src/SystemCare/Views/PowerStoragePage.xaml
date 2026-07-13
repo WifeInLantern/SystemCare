@@ -1,0 +1,88 @@
+<Page x:Class="SystemCare.Views.PowerStoragePage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+      xmlns:helpers="clr-namespace:SystemCare.Helpers"
+      xmlns:controls="clr-namespace:SystemCare.Controls"
+      xmlns:vm="clr-namespace:SystemCare.ViewModels"
+      mc:Ignorable="d"
+      TextElement.Foreground="{StaticResource TextFillColorPrimaryBrush}"
+      d:DataContext="{d:DesignInstance Type=vm:PowerStorageViewModel}"
+      Title="Hibernation &amp; Pagefile"
+      Loaded="OnPageLoaded">
+
+    <Grid Margin="24,12,24,24" helpers:Animations.StaggerChildren="True">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0">
+            <TextBlock Text="Hibernation &amp; Pagefile" Style="{StaticResource CyberPageTitle}" />
+            <TextBlock Text="Two system files quietly reserve gigabytes on your system drive. See what they cost and reclaim space with reversible actions — nothing here deletes user data."
+                       Style="{StaticResource TextBody}" Margin="0,4,0,0" />
+        </StackPanel>
+
+        <!-- Hibernation -->
+        <ui:Card Grid.Row="1" Margin="0,16,0,0" Padding="18,16">
+            <StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <ui:SymbolIcon Symbol="Sleep24" FontSize="20" Foreground="{StaticResource NeonCyanBrush}" VerticalAlignment="Center" />
+                    <TextBlock Text="Hibernation (hiberfil.sys)" Style="{StaticResource TextH2}" Margin="10,0,0,0" VerticalAlignment="Center" />
+                </StackPanel>
+                <TextBlock Text="{Binding HibernationText}" Style="{StaticResource TextBody}" Margin="0,8,0,0" />
+                <WrapPanel Margin="0,12,0,0">
+                    <ui:Button Content="Disable (reclaim all)" Appearance="Primary" Padding="16,8" Margin="0,4,0,4"
+                               Command="{Binding DisableHibernationCommand}" />
+                    <ui:Button Content="Reduced (keep Fast Startup)" Padding="16,8" Margin="10,4,0,4"
+                               Command="{Binding SetReducedCommand}" />
+                    <ui:Button Content="Enable hibernation" Padding="16,8" Margin="10,4,0,4"
+                               Command="{Binding EnableHibernationCommand}" />
+                    <controls:TaskProgress IsActive="{Binding IsBusy}" Margin="14,0,0,0" VerticalAlignment="Center" />
+                </WrapPanel>
+                <TextBlock Text="{Binding StatusText}" Style="{StaticResource TextCaption}" Margin="0,10,0,0" TextWrapping="Wrap" />
+            </StackPanel>
+        </ui:Card>
+
+        <!-- Pagefile (read-only advisor) -->
+        <ui:Card Grid.Row="2" Margin="0,12,0,0" Padding="18,16">
+            <StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <ui:SymbolIcon Symbol="Ram20" FontSize="20" Foreground="{StaticResource NeonCyanBrush}" VerticalAlignment="Center" />
+                    <TextBlock Text="Page file (pagefile.sys)" Style="{StaticResource TextH2}" Margin="10,0,0,0" VerticalAlignment="Center" />
+                </StackPanel>
+                <TextBlock Text="{Binding PageFileSummary}" Style="{StaticResource TextBody}" Margin="0,8,0,0" />
+                <ItemsControl ItemsSource="{Binding PageFiles}" Margin="0,10,0,0">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Style="{StaticResource CyberListRow}">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="{Binding Path}" Style="{StaticResource TextBodyStrong}"
+                                               VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+                                    <TextBlock Grid.Column="1" VerticalAlignment="Center" Margin="10,0" Style="{StaticResource TextCaption}">
+                                        <Run Text="in use " /><Run Text="{Binding InUseText, Mode=OneWay}" />
+                                    </TextBlock>
+                                    <TextBlock Grid.Column="2" Text="{Binding AllocatedText}" Style="{StaticResource TextMetricValue}"
+                                               VerticalAlignment="Center" MinWidth="80" />
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
+        </ui:Card>
+
+        <ui:InfoBar Grid.Row="3" Margin="0,14,0,0" IsOpen="True" Severity="Informational" VerticalAlignment="Top"
+                    Title="Good to know"
+                    Message="Disabling hibernation also disables Fast Startup and the hibernate power option. 'Reduced' is the balanced choice on most PCs: Fast Startup stays, at roughly 40% of RAM instead of full RAM size. Every action here is reversible." />
+    </Grid>
+</Page>

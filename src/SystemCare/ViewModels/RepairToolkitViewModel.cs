@@ -32,17 +32,64 @@ public partial class RepairToolkitViewModel : ObservableObject
     [ObservableProperty] private string _dismStatus = "Not run yet.";
     [ObservableProperty] private string _chkdskStatus = "Not run yet.";
 
+    // Windows Search index health (2.16)
+    private readonly ISearchIndexService _searchIndex;
+    [ObservableProperty] private string _indexStatusText = "Reading the search-index size…";
+    [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(RebuildIndexCommand))]
+    private bool _indexBusy;
+
     public RepairToolkitViewModel(ISystemRepairService repair, IBackupConfirmationService backup,
-        IRestorePointService restore, IHistoryService history)
+        IRestorePointService restore, IHistoryService history, ISearchIndexService searchIndex)
     {
         _repair = repair;
         _backup = backup;
         _restore = restore;
         _history = history;
+        _searchIndex = searchIndex;
     }
+
+    private async void RefreshIndexStatusAsync()
+    {
+        try
+        {
+            var status = await _searchIndex.GetStatusAsync();
+            IndexStatusText = status.IndexBytes > 0
+                ? $"Index database: {Helpers.ByteFormatter.Format(status.IndexBytes)}" +
+                  (status.ServiceRunning ? "" : " — Windows Search service is NOT running") +
+                  ". Rebuild if search feels broken or the index has ballooned."
+                : "Search index not found — Windows Search may be disabled on this system.";
+        }
+        catch (Exception)
+        {
+            // async void: contain; the card just keeps its placeholder text.
+            IndexStatusText = "Couldn't read the search-index status.";
+        }
+    }
+
+    private bool CanRebuildIndex() => !IndexBusy;
+
+    [RelayCommand(CanExecute = nameof(CanRebuildIndex))]
+    private async Task RebuildIndexAsync()
+    {
+        IndexBusy = true;
+        try
+        {
+            var (_, message) = await _searchIndex.RebuildAsync();
+            IndexStatusText = message;
+        }
+        finally
+        {
+            IndexBusy = false;
+        }
+    }
+
+    [RelayCommand]
+    private void OpenIndexingOptions() => _searchIndex.OpenIndexingOptions();
 
     public void OnNavigatedTo()
     {
+        RefreshIndexStatusAsync();
         if (AvailableDrives.Count > 0) return;
         foreach (var drive in DriveInfo.GetDrives())
         {
