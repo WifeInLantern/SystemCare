@@ -2,6 +2,33 @@
 
 All notable changes to SystemCare are documented here. Versions follow [SemVer](https://semver.org/).
 
+## [2.17.0] - 2026-07-14
+
+### Added
+- **Browser Extension Audit** (new tool under Protect). Lists every extension across Chrome, Edge,
+  Brave (all profiles) and Firefox by reading the on-disk manifests, and classifies each by
+  permission reach — extensions that can "read data on all websites" combined with sensitive APIs
+  (webRequest, cookies, history, clipboard…) are flagged **High reach**. Strictly read-only.
+- **Wi-Fi Analyzer** (new tool under Analyze). Current connection's signal, channel, band and link
+  rates, every network in range, and a channel-congestion hint ("7 networks share channel 6").
+  Parses `netsh wlan`; degrades gracefully on systems without wireless.
+- **CLI: `--report [path]`** exports the Care Report headlessly (defaults to
+  `Documents\SystemCare\SystemCare-report-<date>.html`) — pairs with the 2.14 maintenance verbs
+  for scripted fleets.
+
+### Fixed
+- **Temperature alerts could freeze the UI.** The 2.16 sensor read ran on the metrics event, which
+  is raised by a UI-thread DispatcherTimer — LibreHardwareMonitor reads (100 ms+) now run on the
+  thread pool with a reentrancy guard, resuming on the UI context only to raise the alert.
+- **Search-index rebuild could hang forever** if the Windows Search service was slow to stop; the
+  service restart now has a 90-second timeout with an honest message (the rebuild flag persists, so
+  a reboot completes it).
+- **A failing tray action could crash the app.** The tray menu's maintenance handlers are
+  async-void on the tray thread; exceptions there tore the process down. All of them (including
+  the pre-existing "Run maintenance now") now contain failures and report them as a balloon.
+- **Ad Blocker buttons could double-fire.** The 2.14 "Update from StevenBlack" / "Use built-in
+  list" buttons didn't disable while busy, so a second click could start a concurrent download.
+
 ## [2.16.0] - 2026-07-11
 
 ### Added

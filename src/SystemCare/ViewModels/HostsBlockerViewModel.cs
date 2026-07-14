@@ -12,6 +12,8 @@ public partial class HostsBlockerViewModel : ObservableObject
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(ApplyCommand))]
     [NotifyCanExecuteChangedFor(nameof(RemoveCommand))]
+    [NotifyCanExecuteChangedFor(nameof(RefreshSourceCommand))]
+    [NotifyCanExecuteChangedFor(nameof(UseBuiltInCommand))]
     private bool _isBusy;
 
     [ObservableProperty]

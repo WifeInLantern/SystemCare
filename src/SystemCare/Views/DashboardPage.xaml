@@ -64,13 +64,15 @@
                         </ui:Button>
                     </StackPanel>
                     <controls:TaskProgress IsActive="{Binding IsWorking}" Margin="0,16,40,0" />
+                    <!-- Live temperature strip (2.16.x) — empty string collapses to nothing visible. -->
+                    <TextBlock Text="{Binding TempSummary}" Style="{StaticResource TextCaption}" Margin="0,10,0,0" />
                 </StackPanel>
             </Grid>
 
             <!-- Live stats -->
             <TextBlock Text="LIVE SYSTEM STATS" Margin="0,28,0,12" Style="{StaticResource CyberSectionHeader}"
                        helpers:Animations.FadeInOnLoad="True" helpers:Animations.RevealDelay="40" />
-            <UniformGrid Columns="2">
+            <UniformGrid Columns="3">
                 <ui:Card Margin="0,0,8,0" Padding="20,16" helpers:Animations.HoverLift="True"
                          helpers:Animations.RevealOnLoad="True" helpers:Animations.RevealDelay="80">
                     <StackPanel>
@@ -87,7 +89,7 @@
                         <ProgressBar helpers:Animations.SmoothValue="{Binding CpuPercent}" Maximum="100" Height="6" />
                     </StackPanel>
                 </ui:Card>
-                <ui:Card Margin="8,0,0,0" Padding="20,16" helpers:Animations.HoverLift="True"
+                <ui:Card Margin="0,0,8,0" Padding="20,16" helpers:Animations.HoverLift="True"
                          helpers:Animations.RevealOnLoad="True" helpers:Animations.RevealDelay="150">
                     <StackPanel>
                         <StackPanel Orientation="Horizontal">

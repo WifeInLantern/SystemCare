@@ -111,6 +111,15 @@ public partial class SensorsViewModel : ObservableObject
         int components = readings.Select(r => r.Component).Distinct().Count();
         StatusText = $"{readings.Count} sensors across {components} component{(components == 1 ? "" : "s")}";
 
+        // 2.16.x: explain a missing CPU temperature instead of showing a silent blank tile.
+        // (When the ACPI fallback kicks in, a Processor temperature exists and this stays quiet.)
+        if (!readings.Any(r => r.Category == "Processor" && r.Kind == SensorKind.Temperature))
+        {
+            StatusText += Services.TemperatureService.IsMemoryIntegrityOn()
+                ? " · CPU temperature unavailable: Windows Memory Integrity (Core Isolation) blocks the sensor driver on this PC."
+                : " · CPU temperature unavailable: the sensor driver couldn't read this CPU.";
+        }
+
         if (!_built || readings.Any(r => !_rowIndex.ContainsKey(SensorMonitorService.Key(r))))
             BuildTree(readings);
 

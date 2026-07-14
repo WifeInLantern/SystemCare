@@ -50,8 +50,10 @@ public sealed class SearchIndexService(IHistoryService history, ILogService log)
                 key.SetValue("SetupCompletedSuccessfully", 0, RegistryValueKind.DWord);
 
             // "service is not started" from the stop is fine — we only need it down before the start.
-            _ = await ProcessRunner.RunAsync("net.exe", $"stop {ServiceName}");
-            var start = await ProcessRunner.RunAsync("net.exe", $"start {ServiceName}");
+            // A slow-to-stop WSearch must not hang the button forever, hence the hard timeout.
+            using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(90));
+            _ = await ProcessRunner.RunAsync("net.exe", $"stop {ServiceName}", timeout.Token);
+            var start = await ProcessRunner.RunAsync("net.exe", $"start {ServiceName}", timeout.Token);
             if (start.ExitCode != 0)
                 return (false, $"Couldn't restart Windows Search: {start.Output.Trim()}");
 
@@ -62,6 +64,10 @@ public sealed class SearchIndexService(IHistoryService history, ILogService log)
         catch (UnauthorizedAccessException)
         {
             return (false, "Administrator rights are required to rebuild the search index.");
+        }
+        catch (OperationCanceledException)
+        {
+            return (false, "Windows Search took too long to restart — the rebuild flag is set, so a reboot will complete it.");
         }
         catch (Exception ex)
         {

@@ -1,0 +1,93 @@
+<Page x:Class="SystemCare.Views.ExtensionAuditPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+      xmlns:helpers="clr-namespace:SystemCare.Helpers"
+      xmlns:controls="clr-namespace:SystemCare.Controls"
+      xmlns:converters="clr-namespace:SystemCare.Converters"
+      xmlns:vm="clr-namespace:SystemCare.ViewModels"
+      mc:Ignorable="d"
+      TextElement.Foreground="{StaticResource TextFillColorPrimaryBrush}"
+      d:DataContext="{d:DesignInstance Type=vm:ExtensionAuditViewModel}"
+      Title="Extension Audit"
+      Loaded="OnPageLoaded">
+    <Page.Resources>
+        <converters:BoolToVisibilityConverter x:Key="VisibleWhenTrue" />
+    </Page.Resources>
+
+    <Grid Margin="24,12,24,20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0">
+            <TextBlock Text="Browser Extension Audit" Style="{StaticResource CyberPageTitle}" />
+            <TextBlock Text="Every installed extension and how far its permissions reach. Extensions that can 'read data on all websites' see everything you browse — remove unused ones in the browser's own extension manager."
+                       Style="{StaticResource TextBody}" Margin="0,4,0,0" />
+        </StackPanel>
+
+        <Grid Grid.Row="1" Margin="2,14,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <ui:Button Grid.Column="0" Content="Rescan" Appearance="Primary" Padding="16,7" Command="{Binding ScanCommand}">
+                <ui:Button.Icon><ui:SymbolIcon Symbol="Search24" /></ui:Button.Icon>
+            </ui:Button>
+            <ui:Button Grid.Column="1" Content="Cancel" Appearance="Danger" Padding="12,7" Margin="8,0,0,0"
+                       Command="{Binding ScanCancelCommand}"
+                       Visibility="{Binding IsBusy, Converter={StaticResource VisibleWhenTrue}}" />
+            <StackPanel Grid.Column="2" Orientation="Horizontal" Margin="12,0,0,0">
+                <controls:TaskProgress IsActive="{Binding IsBusy}" VerticalAlignment="Center" />
+                <TextBlock Text="{Binding StatusText}" VerticalAlignment="Center" Margin="8,0,0,0"
+                           Style="{StaticResource TextCaption}" TextWrapping="Wrap" />
+            </StackPanel>
+        </Grid>
+
+        <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" Margin="0,12,0,0">
+            <ItemsControl ItemsSource="{Binding Items}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <ui:Card Margin="0,0,0,6" Padding="14,10">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <Border Grid.Column="0" Style="{StaticResource CyberChipNeutral}" VerticalAlignment="Center" Margin="0,0,10,0">
+                                    <TextBlock Text="{Binding Browser}" Style="{StaticResource ChipTextNeutral}" />
+                                </Border>
+                                <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="0,0,10,0">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="{Binding Name}" Style="{StaticResource TextBodyStrong}" TextTrimming="CharacterEllipsis" />
+                                        <TextBlock Text="{Binding VersionText}" Style="{StaticResource TextCaption}" Margin="8,0,0,0" VerticalAlignment="Bottom" />
+                                        <TextBlock Text="{Binding ProfileText}" Style="{StaticResource TextCaption}" Margin="8,0,0,0" VerticalAlignment="Bottom" />
+                                    </StackPanel>
+                                    <TextBlock Text="{Binding RiskReason}" Style="{StaticResource TextCaption}" TextWrapping="Wrap" />
+                                    <TextBlock Text="{Binding PermissionsText}" Style="{StaticResource TextCaption}" TextTrimming="CharacterEllipsis" />
+                                </StackPanel>
+                                <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                                    <Border Style="{StaticResource CyberChipDanger}" Visibility="{Binding IsHigh, Converter={StaticResource VisibleWhenTrue}}">
+                                        <TextBlock Text="{Binding RiskLabel}" Style="{StaticResource ChipTextDanger}" />
+                                    </Border>
+                                    <Border Style="{StaticResource CyberChipWarning}" Visibility="{Binding IsMedium, Converter={StaticResource VisibleWhenTrue}}">
+                                        <TextBlock Text="{Binding RiskLabel}" Style="{StaticResource ChipTextWarning}" />
+                                    </Border>
+                                    <Border Style="{StaticResource CyberChipSuccess}" Visibility="{Binding IsLow, Converter={StaticResource VisibleWhenTrue}}">
+                                        <TextBlock Text="{Binding RiskLabel}" Style="{StaticResource ChipTextSuccess}" />
+                                    </Border>
+                                </StackPanel>
+                            </Grid>
+                        </ui:Card>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+    </Grid>
+</Page>

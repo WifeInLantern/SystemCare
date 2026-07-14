@@ -226,6 +226,11 @@
                         <ui:SymbolIcon Symbol="TopSpeed24" />
                     </ui:NavigationViewItem.Icon>
                 </ui:NavigationViewItem>
+                <ui:NavigationViewItem Content="Wi-Fi" TargetPageType="{x:Type views:WifiAnalyzerPage}" ToolTipService.ToolTip="Wi-Fi Analyzer — signal, channel congestion, nearby networks">
+                    <ui:NavigationViewItem.Icon>
+                        <ui:SymbolIcon Symbol="Wifi124" />
+                    </ui:NavigationViewItem.Icon>
+                </ui:NavigationViewItem>
                 <ui:NavigationViewItem Content="History" TargetPageType="{x:Type views:HistoryPage}" ToolTipService.ToolTip="Activity History">
                     <ui:NavigationViewItem.Icon>
                         <ui:SymbolIcon Symbol="History24" />
@@ -286,6 +291,11 @@
                 <ui:NavigationViewItem Content="Breach Checker" TargetPageType="{x:Type views:BreachCheckPage}" ToolTipService.ToolTip="Check a password against known breaches">
                     <ui:NavigationViewItem.Icon>
                         <ui:SymbolIcon Symbol="Password24" />
+                    </ui:NavigationViewItem.Icon>
+                </ui:NavigationViewItem>
+                <ui:NavigationViewItem Content="Extension Audit" TargetPageType="{x:Type views:ExtensionAuditPage}" ToolTipService.ToolTip="Browser extensions and how far their permissions reach">
+                    <ui:NavigationViewItem.Icon>
+                        <ui:SymbolIcon Symbol="PuzzlePiece24" />
                     </ui:NavigationViewItem.Icon>
                 </ui:NavigationViewItem>
                 <ui:NavigationViewItem Content="Repair Toolkit" TargetPageType="{x:Type views:RepairToolkitPage}" ToolTipService.ToolTip="System Repair Toolkit (SFC / DISM / CHKDSK)">

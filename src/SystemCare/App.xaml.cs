@@ -123,6 +123,10 @@ public partial class App : Application
         services.AddSingleton<IPowerStorageAdvisorService, PowerStorageAdvisorService>();
         services.AddSingleton<ISearchIndexService, SearchIndexService>();
 
+        // 2.17 feature services
+        services.AddSingleton<IBrowserExtensionService, BrowserExtensionService>();
+        services.AddSingleton<IWifiInfoService, WifiInfoService>();
+
         // Window
         services.AddSingleton<MainWindow>();
 
@@ -132,6 +136,8 @@ public partial class App : Application
         services.AddSingleton<CleanupViewModel>();
         services.AddSingleton<AppCachesViewModel>();
         services.AddSingleton<PowerStorageViewModel>();
+        services.AddSingleton<ExtensionAuditViewModel>();
+        services.AddSingleton<WifiAnalyzerViewModel>();
         services.AddSingleton<StartupViewModel>();
         services.AddSingleton<PrivacyViewModel>();
         services.AddSingleton<DiskAnalyzerViewModel>();
@@ -183,6 +189,8 @@ public partial class App : Application
         services.AddTransient<AutoCarePage>();
         services.AddTransient<AppCachesPage>();
         services.AddTransient<PowerStoragePage>();
+        services.AddTransient<ExtensionAuditPage>();
+        services.AddTransient<WifiAnalyzerPage>();
         services.AddTransient<CleanupPage>();
         services.AddTransient<StartupPage>();
         services.AddTransient<PrivacyPage>();
@@ -242,6 +250,33 @@ public partial class App : Application
         // nothing logged. Subscribed before the headless/interactive split so both run modes are covered.
         AppDomain.CurrentDomain.UnhandledException += OnAppDomainUnhandledException;
         TaskScheduler.UnobservedTaskException += OnUnobservedTaskException;
+
+        // --report [path] (2.17): headless Care Report export for scripts and schedulers.
+        int reportIdx = Array.IndexOf(e.Args, "--report");
+        if (reportIdx >= 0)
+        {
+            ShutdownMode = ShutdownMode.OnExplicitShutdown;
+            var reportLog = _services.GetRequiredService<ILogService>();
+            try
+            {
+                string path = reportIdx + 1 < e.Args.Length && !e.Args[reportIdx + 1].StartsWith("--", StringComparison.Ordinal)
+                    ? e.Args[reportIdx + 1]
+                    : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
+                        "SystemCare", $"SystemCare-report-{DateTime.Now:yyyy-MM-dd}.html");
+                Directory.CreateDirectory(Path.GetDirectoryName(path)!);
+                await _services.GetRequiredService<ICareReportExporter>().ExportAsync(path);
+                reportLog.Info("Report", $"Headless report exported: {path}");
+            }
+            catch (Exception ex)
+            {
+                reportLog.Error("Report", "Headless report export failed", ex);
+            }
+            finally
+            {
+                Shutdown();
+            }
+            return;
+        }
 
         // Headless runs: no window, balloon, then exit.
         //   --run-maintenance             : the scheduled pass, using the profile from Settings.

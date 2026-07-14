@@ -26,6 +26,7 @@ public partial class DashboardViewModel : ObservableObject
     private readonly IRecycleBinService _recycleBin;
     private readonly IHealthTrendService _healthTrend;
     private readonly IDriveTrendService _driveTrend;
+    private readonly ITemperatureService _temperature;
 
     // Storage Forecast (2.14): recorded/computed once per session, not on every 5s drive refresh.
     private bool _driveTrendRecorded;
@@ -37,6 +38,8 @@ public partial class DashboardViewModel : ObservableObject
     private JunkScanResult? _lastScan;
     private readonly Queue<double> _cpuSamples = new();
     private readonly Queue<double> _ramSamples = new();
+    private readonly Queue<double> _netSamples = new();
+    private bool _tempReadInFlight;
 
     [ObservableProperty] private string _cpuText = "—";
     [ObservableProperty] private double _cpuPercent;
@@ -46,6 +49,12 @@ public partial class DashboardViewModel : ObservableObject
     [ObservableProperty] private string _ramTotalText = "";
     [ObservableProperty] private IReadOnlyList<double> _cpuHistory = [];
     [ObservableProperty] private IReadOnlyList<double> _ramHistory = [];
+
+    // Live dashboard (2.16.x): network activity card + hero temperature strip.
+    [ObservableProperty] private string _netDownText = "—";
+    [ObservableProperty] private string _netUpText = "—";
+    [ObservableProperty] private IReadOnlyList<double> _netHistory = [];
+    [ObservableProperty] private string _tempSummary = "";
     [ObservableProperty] private System.Collections.ObjectModel.ObservableCollection<DriveStat> _drives = [];
 
     [ObservableProperty] private double _healthScoreValue = -1;
@@ -76,7 +85,8 @@ public partial class DashboardViewModel : ObservableObject
         ISecurityCheckService security,
         IRecycleBinService recycleBin,
         IHealthTrendService healthTrend,
-        IDriveTrendService driveTrend)
+        IDriveTrendService driveTrend,
+        ITemperatureService temperature)
     {
         _systemInfo = systemInfo;
         _junkScan = junkScan;
@@ -93,6 +103,7 @@ public partial class DashboardViewModel : ObservableObject
         _recycleBin = recycleBin;
         _healthTrend = healthTrend;
         _driveTrend = driveTrend;
+        _temperature = temperature;
 
         if (_settings.Current.LastHealthScore is int saved)
         {
@@ -145,6 +156,43 @@ public partial class DashboardViewModel : ObservableObject
         PushSample(_ramSamples, snapshot.RamLoadPercent);
         CpuHistory = _cpuSamples.ToArray();
         RamHistory = _ramSamples.ToArray();
+
+        // Live network card (2.16.x): rates come free with the snapshot.
+        NetDownText = ByteFormatter.Format((long)snapshot.NetRecvBytesPerSec) + "/s";
+        NetUpText = ByteFormatter.Format((long)snapshot.NetSentBytesPerSec) + "/s";
+        PushSample(_netSamples, snapshot.NetRecvBytesPerSec + snapshot.NetSentBytesPerSec);
+        NetHistory = _netSamples.ToArray();
+
+        // Hero temperature strip (2.16.x): every 10th tick, off the UI thread — LHM reads are
+        // heavy and must never stall the 1s sampler. INPC setters are thread-safe for scalars.
+        if (_tick % 10 == 1 && !_tempReadInFlight)
+        {
+            _tempReadInFlight = true;
+            _ = Task.Run(() =>
+            {
+                try
+                {
+                    var temps = _temperature.Read();
+                    double? cpu = temps.FirstOrDefault(t => t.Category == "Processor")?.Celsius;
+                    double? gpu = temps.FirstOrDefault(t => t.Category == "Graphics")?.Celsius;
+                    TempSummary = (cpu, gpu) switch
+                    {
+                        (double c, double g) => $"CPU {c:0} °C   ·   GPU {g:0} °C",
+                        (double c, null) => $"CPU {c:0} °C",
+                        (null, double g) => $"GPU {g:0} °C",
+                        _ => "",
+                    };
+                }
+                catch (Exception)
+                {
+                    // sensors are decorative here — never disturb the dashboard
+                }
+                finally
+                {
+                    _tempReadInFlight = false;
+                }
+            });
+        }
 
         if (includeDrives)
         {

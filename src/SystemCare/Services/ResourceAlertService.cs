@@ -35,6 +35,7 @@ public sealed class ResourceAlertService(
     private ResourceAlertEvaluator.BreachState _cpuTemp;
     private ResourceAlertEvaluator.BreachState _gpuTemp;
     private int _tempTick;
+    private bool _tempReadInFlight;
     private bool _started;
 
     public void Start()
@@ -74,11 +75,38 @@ public sealed class ResourceAlertService(
         if (s.TempAlertsEnabled && ++_tempTick >= TempSampleEveryTicks)
         {
             _tempTick = 0;
-            var (cpuC, gpuC) = ReadTemps();
+            _ = SampleTemperaturesAsync();
+        }
+    }
+
+    /// <summary>
+    /// LibreHardwareMonitor reads can take hundreds of ms and the metrics event is raised by a
+    /// DispatcherTimer (UI thread) — so the sensor read runs on the thread pool, and evaluation
+    /// resumes on the captured UI context afterwards (snackbar/tray stay UI-safe). Reentrancy-guarded
+    /// in case a read outlasts the sampling interval.
+    /// </summary>
+    private async Task SampleTemperaturesAsync()
+    {
+        if (_tempReadInFlight) return;
+        _tempReadInFlight = true;
+        try
+        {
+            var (cpuC, gpuC) = await Task.Run(ReadTemps);
+            var s = settings.Current;
+            if (!s.TempAlertsEnabled) return;
+            DateTime nowUtc = DateTime.UtcNow;
             if (cpuC is double c)
-                CheckTemp("CPU temperature", c, s.TempAlertCelsius, s.AlertSustainedMinutes, nowUtc, ref _cpuTemp);
+                _cpuTemp = CheckTempAndAlert("CPU temperature", c, s.TempAlertCelsius, s.AlertSustainedMinutes, nowUtc, _cpuTemp);
             if (gpuC is double g)
-                CheckTemp("GPU temperature", g, s.TempAlertCelsius, s.AlertSustainedMinutes, nowUtc, ref _gpuTemp);
+                _gpuTemp = CheckTempAndAlert("GPU temperature", g, s.TempAlertCelsius, s.AlertSustainedMinutes, nowUtc, _gpuTemp);
+        }
+        catch (Exception)
+        {
+            // sensor hiccups must never surface; next sample retries
+        }
+        finally
+        {
+            _tempReadInFlight = false;
         }
     }
 
@@ -89,9 +117,10 @@ public sealed class ResourceAlertService(
             double? cpu = null, gpu = null;
             foreach (var t in temperature.Read()) // never throws; [] when sensors unavailable
             {
-                if (t.Category.Contains("CPU", StringComparison.OrdinalIgnoreCase))
+                // TemperatureService categories are "Processor" / "Graphics" (see CategoryFor).
+                if (t.Category.Equals("Processor", StringComparison.OrdinalIgnoreCase))
                     cpu = cpu is double c ? Math.Max(c, t.Celsius) : t.Celsius;
-                else if (t.Category.Contains("GPU", StringComparison.OrdinalIgnoreCase))
+                else if (t.Category.Equals("Graphics", StringComparison.OrdinalIgnoreCase))
                     gpu = gpu is double g ? Math.Max(g, t.Celsius) : t.Celsius;
             }
             return (cpu, gpu);
@@ -102,11 +131,10 @@ public sealed class ResourceAlertService(
         }
     }
 
-    private void CheckTemp(string label, double celsius, int thresholdCelsius, int sustainedMinutes,
-        DateTime nowUtc, ref ResourceAlertEvaluator.BreachState state)
+    private ResourceAlertEvaluator.BreachState CheckTempAndAlert(string label, double celsius, int thresholdCelsius,
+        int sustainedMinutes, DateTime nowUtc, ResourceAlertEvaluator.BreachState state)
     {
         var (newState, shouldAlert) = ResourceAlertEvaluator.Evaluate(celsius, thresholdCelsius, sustainedMinutes, nowUtc, state);
-        state = newState;
         if (shouldAlert)
         {
             string title = $"{label} at {celsius:0}°C";
@@ -115,6 +143,7 @@ public sealed class ResourceAlertService(
             snackbar.Show(title, message, ControlAppearance.Caution, null, TimeSpan.FromSeconds(8));
             tray.ShowBalloon(title, message);
         }
+        return newState;
     }
 
     private void Check(string label, double currentValue, int thresholdPercent, int sustainedMinutes,

@@ -66,10 +66,19 @@ public class TrayIconService(
 
         menu.Items.Add("Open SystemCare", null, (_, _) => ShowMainWindow());
 
+        // async-void menu handlers: an unhandled exception here would tear the process down from
+        // the tray thread, so every maintenance click is contained and reports failure as a balloon.
         menu.Items.Add("Run maintenance now", null, async (_, _) =>
         {
-            var result = await maintenance.RunMaintenanceNowAsync();
-            ShowBalloon("Maintenance complete", result.Summary);
+            try
+            {
+                var result = await maintenance.RunMaintenanceNowAsync();
+                ShowBalloon("Maintenance complete", result.Summary);
+            }
+            catch (Exception ex)
+            {
+                ShowBalloon("Maintenance failed", ex.Message);
+            }
         });
 
         // Quick actions (2.16): the common one-shots without opening the window. Each runs an
@@ -78,8 +87,15 @@ public class TrayIconService(
         void AddQuick(string label, MaintenanceProfile profile) =>
             quick.DropDownItems.Add(label, null, async (_, _) =>
             {
-                var result = await maintenance.RunMaintenanceNowAsync(profile);
-                ShowBalloon(label + " — done", result.Summary);
+                try
+                {
+                    var result = await maintenance.RunMaintenanceNowAsync(profile);
+                    ShowBalloon(label + " — done", result.Summary);
+                }
+                catch (Exception ex)
+                {
+                    ShowBalloon(label + " — failed", ex.Message);
+                }
             });
         AddQuick("Clean junk", new MaintenanceProfile(true, false, false, false));
         AddQuick("Free up RAM", new MaintenanceProfile(false, true, false, false));
