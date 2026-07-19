@@ -2,6 +2,22 @@
 
 All notable changes to SystemCare are documented here. Versions follow [SemVer](https://semver.org/).
 
+## [2.18.0] - 2026-07-20
+
+### Changed
+- **UI refinement: ten more pages moved onto the design-system type tokens.** Speed Test, Scheduled
+  Tasks, Context Menu, Boot Analyzer, Privacy, Cleanup, Startup, Boost, Game Booster, and Sensors
+  no longer stack inline `Opacity` on small text (~34 instances) — every affected string now sits
+  on `TextBody`/`TextCaption` or an AA-compliant color token. Rows with `TextTrimming` kept their
+  exact size/layout and only had their contrast fixed, so nothing reflows.
+
+### Fixed
+- **Ransomware Shield page could pop a raw error dialog** if the Defender/WMI status read failed
+  during page load — the only remaining unguarded page load; it now degrades to a clear headline
+  like every other page.
+- **Extension Audit could read a stale manifest.** Chromium version folders were picked
+  alphabetically, so "9.0" beat "10.0"; the newest folder (by write time) now wins.
+
 ## [2.17.0] - 2026-07-14
 
 ### Added

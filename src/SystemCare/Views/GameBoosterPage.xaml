@@ -29,7 +29,7 @@
 
         <StackPanel Grid.Row="0">
             <TextBlock Text="Game Booster" Style="{StaticResource CyberPageTitle}" />
-            <TextBlock Text="{Binding StatusText}" FontSize="13" Opacity="0.75" Margin="0,4,0,0" TextWrapping="Wrap" />
+            <TextBlock Text="{Binding StatusText}" Style="{StaticResource TextBody}" Margin="0,4,0,0" TextWrapping="Wrap" />
         </StackPanel>
 
         <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,16,0,0">
@@ -70,7 +70,7 @@
                                 </Grid.ColumnDefinitions>
                                 <CheckBox Grid.Column="0" IsChecked="{Binding IsSelected}" VerticalAlignment="Center" />
                                 <TextBlock Grid.Column="1" Text="{Binding Name}" Margin="10,0,0,0" VerticalAlignment="Center" FontWeight="SemiBold" />
-                                <TextBlock Grid.Column="2" Text="{Binding RamText}" VerticalAlignment="Center" FontSize="12" Opacity="0.7" />
+                                <TextBlock Grid.Column="2" Text="{Binding RamText}" VerticalAlignment="Center" Style="{StaticResource TextCaption}" />
                             </Grid>
                         </ui:Card>
                     </DataTemplate>

@@ -75,8 +75,11 @@ public sealed class BrowserExtensionService(ILogService log) : IBrowserExtension
 
                 foreach (var extDir in Directory.EnumerateDirectories(extRoot))
                 {
-                    // newest version folder wins
-                    var versionDir = Directory.EnumerateDirectories(extDir).OrderByDescending(Path.GetFileName).FirstOrDefault();
+                    // Newest version folder wins. Ordered by write time, not name: version folders
+                    // like "10.0.1_0" sort below "9.0_0" alphabetically, which picked stale manifests.
+                    var versionDir = Directory.EnumerateDirectories(extDir)
+                        .OrderByDescending(d => { try { return Directory.GetLastWriteTimeUtc(d); } catch { return DateTime.MinValue; } })
+                        .FirstOrDefault();
                     if (versionDir is null) continue;
                     string manifestPath = Path.Combine(versionDir, "manifest.json");
                     if (!File.Exists(manifestPath)) continue;

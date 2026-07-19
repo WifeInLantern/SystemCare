@@ -24,7 +24,20 @@ public partial class RansomwareShieldViewModel : ObservableObject
 
     public RansomwareShieldViewModel(IRansomwareShieldService shield) => _shield = shield;
 
-    public async void OnNavigatedTo() => await RefreshAsync();
+    public async void OnNavigatedTo()
+    {
+        try
+        {
+            await RefreshAsync();
+        }
+        catch (Exception)
+        {
+            // async void: a WMI/Defender read failure must degrade to the placeholder headline,
+            // not a raw error dialog (same containment as every other page load).
+            Headline = "Couldn't read ransomware protection status.";
+            IsAvailable = false;
+        }
+    }
 
     [RelayCommand(CanExecute = nameof(NotBusy))]
     private async Task RefreshAsync()

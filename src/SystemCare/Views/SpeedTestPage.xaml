@@ -27,7 +27,7 @@
         <StackPanel Grid.Row="0">
             <TextBlock Text="Network Speed Test" Style="{StaticResource CyberPageTitle}" />
             <TextBlock Text="Measure your download and upload speeds and ping against Cloudflare's global network."
-                       FontSize="13" Opacity="0.78" Margin="0,4,0,0" TextWrapping="Wrap" />
+                       Style="{StaticResource TextBody}" Margin="0,4,0,0" />
         </StackPanel>
 
         <Grid Grid.Row="1" Margin="0,18,0,0">
@@ -39,21 +39,21 @@
             <ui:Card Grid.Column="0" Margin="0,0,6,0" Padding="16,20">
                 <StackPanel HorizontalAlignment="Center">
                     <ui:SymbolIcon Symbol="ArrowDownload24" FontSize="22" HorizontalAlignment="Center" Opacity="0.8" />
-                    <TextBlock Text="Download" Opacity="0.7" FontSize="12" HorizontalAlignment="Center" Margin="0,6,0,2" />
+                    <TextBlock Text="Download" Style="{StaticResource TextCaption}" HorizontalAlignment="Center" Margin="0,6,0,2" />
                     <TextBlock Text="{Binding DownloadText}" FontSize="24" Style="{StaticResource CyberDisplayText}" HorizontalAlignment="Center" />
                 </StackPanel>
             </ui:Card>
             <ui:Card Grid.Column="1" Margin="6,0,6,0" Padding="16,20">
                 <StackPanel HorizontalAlignment="Center">
                     <ui:SymbolIcon Symbol="ArrowUpload24" FontSize="22" HorizontalAlignment="Center" Opacity="0.8" />
-                    <TextBlock Text="Upload" Opacity="0.7" FontSize="12" HorizontalAlignment="Center" Margin="0,6,0,2" />
+                    <TextBlock Text="Upload" Style="{StaticResource TextCaption}" HorizontalAlignment="Center" Margin="0,6,0,2" />
                     <TextBlock Text="{Binding UploadText}" FontSize="24" Style="{StaticResource CyberDisplayText}" HorizontalAlignment="Center" />
                 </StackPanel>
             </ui:Card>
             <ui:Card Grid.Column="2" Margin="6,0,0,0" Padding="16,20">
                 <StackPanel HorizontalAlignment="Center">
                     <ui:SymbolIcon Symbol="Pulse24" FontSize="22" HorizontalAlignment="Center" Opacity="0.8" />
-                    <TextBlock Text="Ping" Opacity="0.7" FontSize="12" HorizontalAlignment="Center" Margin="0,6,0,2" />
+                    <TextBlock Text="Ping" Style="{StaticResource TextCaption}" HorizontalAlignment="Center" Margin="0,6,0,2" />
                     <TextBlock Text="{Binding LatencyText}" FontSize="24" Style="{StaticResource CyberDisplayText}" HorizontalAlignment="Center" />
                 </StackPanel>
             </ui:Card>
@@ -70,6 +70,6 @@
             <controls:TaskProgress IsActive="{Binding IsRunning}" Margin="14,0,0,0" VerticalAlignment="Center" />
         </StackPanel>
 
-        <TextBlock Grid.Row="3" Text="{Binding StatusText}" Margin="2,16,0,0" Opacity="0.85" FontSize="13" TextWrapping="Wrap" />
+        <TextBlock Grid.Row="3" Text="{Binding StatusText}" Margin="2,16,0,0" Style="{StaticResource TextBody}" TextWrapping="Wrap" />
     </Grid>
 </Page>

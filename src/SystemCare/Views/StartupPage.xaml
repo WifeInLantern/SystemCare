@@ -28,14 +28,14 @@
         <StackPanel Grid.Row="0">
             <TextBlock Text="Startup Manager" Style="{StaticResource CyberPageTitle}" />
             <TextBlock Text="Programs and tasks that launch when Windows starts. Disabling keeps the entry so you can re-enable it later."
-                       FontSize="13" Opacity="0.7" Margin="0,4,0,0" TextWrapping="Wrap" />
+                       Style="{StaticResource TextBody}" Margin="0,4,0,0" />
 
             <ui:Card Margin="0,12,0,0" Padding="14,10">
                 <StackPanel>
                     <StackPanel Orientation="Horizontal">
                         <ui:SymbolIcon Symbol="Timer24" FontSize="16" Foreground="{StaticResource NeonCyanBrush}" VerticalAlignment="Center" Margin="0,0,8,0" />
                         <TextBlock Text="Boot performance" FontWeight="SemiBold" VerticalAlignment="Center" />
-                        <TextBlock Text="{Binding BootSummary}" FontSize="12" Opacity="0.7" VerticalAlignment="Center" Margin="10,0,0,0" TextTrimming="CharacterEllipsis" />
+                        <TextBlock Text="{Binding BootSummary}" FontSize="12" Foreground="{StaticResource TextFillColorTertiaryBrush}" VerticalAlignment="Center" Margin="10,0,0,0" TextTrimming="CharacterEllipsis" />
                     </StackPanel>
                     <ItemsControl ItemsSource="{Binding BootApps}" Margin="24,8,0,0"
                                   Visibility="{Binding HasBootApps, Converter={StaticResource VisibleWhenTrue}}">
@@ -101,12 +101,12 @@
                         <ui:ToggleSwitch Grid.Column="0" IsChecked="{Binding IsEnabled}" VerticalAlignment="Center" />
                         <StackPanel Grid.Column="1" Margin="12,0,8,0" VerticalAlignment="Center">
                             <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
-                            <TextBlock Text="{Binding Command}" FontSize="11" Opacity="0.55" TextTrimming="CharacterEllipsis" />
+                            <TextBlock Text="{Binding Command}" FontSize="11" Foreground="{StaticResource TextFillColorTertiaryBrush}" TextTrimming="CharacterEllipsis" />
                         </StackPanel>
                         <TextBlock Grid.Column="2" Text="{Binding Publisher}" VerticalAlignment="Center"
-                                   FontSize="12" Opacity="0.8" TextTrimming="CharacterEllipsis" />
+                                   FontSize="12" Foreground="{StaticResource TextFillColorSecondaryBrush}" TextTrimming="CharacterEllipsis" />
                         <TextBlock Grid.Column="3" Text="{Binding SourceDisplay}" VerticalAlignment="Center"
-                                   FontSize="11" Opacity="0.6" />
+                                   Style="{StaticResource TextCaption}" />
                         <ui:Button Grid.Column="4" Appearance="Danger" Padding="8,6" ToolTip="Delete entry"
                                    Command="{Binding DataContext.DeleteCommand, RelativeSource={RelativeSource AncestorType=Page}}"
                                    CommandParameter="{Binding}">

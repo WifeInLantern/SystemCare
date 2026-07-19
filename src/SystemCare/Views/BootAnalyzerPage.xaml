@@ -23,7 +23,7 @@
 
         <StackPanel Grid.Row="0">
             <TextBlock Text="Boot-Time Analyzer" Style="{StaticResource CyberPageTitle}" />
-            <TextBlock Text="{Binding SummaryText}" FontSize="13" Opacity="0.78" Margin="0,4,0,0" TextWrapping="Wrap" />
+            <TextBlock Text="{Binding SummaryText}" Style="{StaticResource TextBody}" Margin="0,4,0,0" TextWrapping="Wrap" />
         </StackPanel>
 
         <Grid Grid.Row="1" Margin="0,16,0,0">
@@ -34,19 +34,19 @@
             </Grid.ColumnDefinitions>
             <ui:Card Grid.Column="0" Margin="0,0,6,0" Padding="16,14">
                 <StackPanel>
-                    <TextBlock Text="Boot duration" Opacity="0.7" FontSize="12" />
+                    <TextBlock Text="Boot duration" Style="{StaticResource TextCaption}" />
                     <TextBlock Text="{Binding BootDurationText}" FontSize="26" Style="{StaticResource CyberDisplayText}" Margin="0,4,0,0" />
                 </StackPanel>
             </ui:Card>
             <ui:Card Grid.Column="1" Margin="6,0,6,0" Padding="16,14">
                 <StackPanel>
-                    <TextBlock Text="Uptime" Opacity="0.7" FontSize="12" />
+                    <TextBlock Text="Uptime" Style="{StaticResource TextCaption}" />
                     <TextBlock Text="{Binding UptimeText}" FontSize="26" Style="{StaticResource CyberDisplayText}" Margin="0,4,0,0" />
                 </StackPanel>
             </ui:Card>
             <ui:Card Grid.Column="2" Margin="6,0,0,0" Padding="16,14">
                 <StackPanel>
-                    <TextBlock Text="Last boot" Opacity="0.7" FontSize="12" />
+                    <TextBlock Text="Last boot" Style="{StaticResource TextCaption}" />
                     <TextBlock Text="{Binding LastBootText}" FontSize="18" FontWeight="SemiBold" Margin="0,8,0,0" TextWrapping="Wrap" />
                 </StackPanel>
             </ui:Card>

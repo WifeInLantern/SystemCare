@@ -30,7 +30,7 @@
             <!-- Title -->
             <StackPanel Grid.Row="0">
                 <TextBlock Text="Sensors &amp; Thermals" Style="{StaticResource CyberPageTitle}" />
-                <TextBlock Text="{Binding StatusText}" FontSize="13" Opacity="0.75" Margin="0,4,0,0" TextWrapping="Wrap" />
+                <TextBlock Text="{Binding StatusText}" Style="{StaticResource TextBody}" Margin="0,4,0,0" TextWrapping="Wrap" />
             </StackPanel>
 
             <!-- Headline graphs -->
@@ -45,7 +45,7 @@
 
                 <ui:Card Grid.Column="0" Margin="0,0,6,0" Padding="16,12">
                     <StackPanel>
-                        <TextBlock Text="CPU TEMP" FontSize="11" Opacity="0.65" />
+                        <TextBlock Text="CPU TEMP" Style="{StaticResource TextCaption}" />
                         <TextBlock FontSize="22" Style="{StaticResource CyberDisplayText}"
                                    helpers:Animations.CountUpText="{Binding CpuTempValue}"
                                    helpers:Animations.CountUpFormat="0"
@@ -57,7 +57,7 @@
 
                 <ui:Card Grid.Column="1" Margin="6,0,6,0" Padding="16,12">
                     <StackPanel>
-                        <TextBlock Text="CPU LOAD" FontSize="11" Opacity="0.65" />
+                        <TextBlock Text="CPU LOAD" Style="{StaticResource TextCaption}" />
                         <TextBlock FontSize="22" Style="{StaticResource CyberDisplayText}"
                                    helpers:Animations.CountUpText="{Binding CpuLoadValue}"
                                    helpers:Animations.CountUpFormat="0"
@@ -70,7 +70,7 @@
                 <ui:Card Grid.Column="2" Margin="6,0,6,0" Padding="16,12"
                          Visibility="{Binding HasGpu, Converter={StaticResource VisibleWhenTrue}}">
                     <StackPanel>
-                        <TextBlock Text="GPU TEMP" FontSize="11" Opacity="0.65" />
+                        <TextBlock Text="GPU TEMP" Style="{StaticResource TextCaption}" />
                         <TextBlock FontSize="22" Style="{StaticResource CyberDisplayText}"
                                    helpers:Animations.CountUpText="{Binding GpuTempValue}"
                                    helpers:Animations.CountUpFormat="0"
@@ -83,7 +83,7 @@
                 <ui:Card Grid.Column="3" Margin="6,0,0,0" Padding="16,12"
                          Visibility="{Binding HasGpu, Converter={StaticResource VisibleWhenTrue}}">
                     <StackPanel>
-                        <TextBlock Text="GPU LOAD" FontSize="11" Opacity="0.65" />
+                        <TextBlock Text="GPU LOAD" Style="{StaticResource TextCaption}" />
                         <TextBlock FontSize="22" Style="{StaticResource CyberDisplayText}"
                                    helpers:Animations.CountUpText="{Binding GpuLoadValue}"
                                    helpers:Animations.CountUpFormat="0"
@@ -121,7 +121,7 @@
                                         <DataTemplate>
                                             <StackPanel Margin="0,6,0,0">
                                                 <TextBlock Text="{Binding Header}" Style="{StaticResource CyberSectionHeader}"
-                                                           FontSize="12" Opacity="0.65" />
+                                                           FontSize="12" />
                                                 <ItemsControl ItemsSource="{Binding Rows}">
                                                     <ItemsControl.ItemTemplate>
                                                         <DataTemplate>
@@ -131,7 +131,7 @@
                                                                     <ColumnDefinition Width="Auto" />
                                                                 </Grid.ColumnDefinitions>
                                                                 <TextBlock Grid.Column="0" Text="{Binding Name}"
-                                                                           Opacity="0.8" FontSize="13" />
+                                                                           Style="{StaticResource TextBody}" />
                                                                 <TextBlock Grid.Column="1" Text="{Binding ValueText}"
                                                                            Foreground="{Binding ValueBrush}"
                                                                            FontWeight="SemiBold" FontSize="13" />
