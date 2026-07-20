@@ -4,7 +4,18 @@ All notable changes to SystemCare are documented here. Versions follow [SemVer](
 
 ## [2.19.2] - 2026-07-20
 
+### Changed
+- **Clearer explanation when CPU temperature is unavailable.** Besides Memory Integrity, Windows 11's
+  separate Vulnerable Driver Blocklist (on by default since 22H2) also blocks the sensor kernel
+  driver — the Sensors hub's note now names it and mentions that setting changes need a reboot.
+
 ### Fixed
+- **Speed Test now measures real line speed.** The old test pushed a fixed 25 MB through a single
+  TCP connection — on fast lines that completes inside TCP slow-start and reported a fraction of
+  the truth (e.g. ~180 Mbps on a ~930 Mbps connection). The test now runs 6 parallel download and
+  4 parallel upload streams and measures steady-state throughput over a 6-second window after a
+  1.5-second warm-up — the same methodology as Ookla/fast.com. Upload streams continuously and
+  counts bytes as they are sent, so slow links measure correctly too.
 - **CPU temperature no longer sticks at an impossible ~17 °C.** When the real sensor is blocked
   (Memory Integrity) the app falls back to the ACPI thermal zone — but many boards expose a frozen
   placeholder there (290 K) that never updates. A running CPU can't sit below room temperature, so

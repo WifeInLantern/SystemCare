@@ -117,7 +117,9 @@ public partial class SensorsViewModel : ObservableObject
         {
             StatusText += Services.TemperatureService.IsMemoryIntegrityOn()
                 ? " · CPU temperature unavailable: Windows Memory Integrity (Core Isolation) blocks the sensor driver on this PC."
-                : " · CPU temperature unavailable: the sensor driver couldn't read this CPU.";
+                : " · CPU temperature unavailable: Windows blocks the sensor kernel driver — usually the Microsoft " +
+                  "Vulnerable Driver Blocklist (Core Isolation), which is separate from Memory Integrity. " +
+                  "A reboot is needed after changing either setting.";
         }
 
         if (!_built || readings.Any(r => !_rowIndex.ContainsKey(SensorMonitorService.Key(r))))
