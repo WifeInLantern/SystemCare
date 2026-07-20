@@ -33,7 +33,7 @@
                 </Grid.ColumnDefinitions>
                 <StackPanel Grid.Column="0" VerticalAlignment="Center">
                     <TextBlock Text="Repair Toolkit" Style="{StaticResource CyberPageTitle}" />
-                    <TextBlock Text="Run SFC, DISM, and CHKDSK to find and fix corrupt system files and disk errors." FontSize="13" Opacity="0.8" Margin="0,4,0,0" TextWrapping="Wrap" />
+                    <TextBlock Text="Run SFC, DISM, and CHKDSK to find and fix corrupt system files and disk errors." FontSize="13" Foreground="{StaticResource TextFillColorSecondaryBrush}" Margin="0,4,0,0" TextWrapping="Wrap" />
                 </StackPanel>
                 <ui:Button Grid.Column="1" Content="Run all (SFC → DISM → CHKDSK)" Appearance="Primary" Padding="16,9"
                            Command="{Binding RunAllCommand}">
@@ -55,7 +55,7 @@
                         <StackPanel Grid.Column="0" Margin="0,0,16,0">
                             <TextBlock Text="System File Checker (SFC)" FontWeight="SemiBold" />
                             <TextBlock Text="Scans and repairs corrupted Windows system files." Style="{StaticResource TextCaption}" TextWrapping="Wrap" />
-                            <TextBlock Text="{Binding SfcStatus}" FontSize="12" Opacity="0.85" Margin="0,4,0,0" />
+                            <TextBlock Text="{Binding SfcStatus}" FontSize="12" Foreground="{StaticResource TextFillColorSecondaryBrush}" Margin="0,4,0,0" />
                         </StackPanel>
                         <ui:Button Grid.Column="1" Content="Scan system files" Padding="14,7" VerticalAlignment="Center"
                                    Command="{Binding RunSfcCommand}">
@@ -73,7 +73,7 @@
                         <StackPanel Grid.Column="0" Margin="0,0,16,0">
                             <TextBlock Text="Deployment Image Servicing (DISM)" FontWeight="SemiBold" />
                             <TextBlock Text="Repairs the underlying Windows image that SFC relies on. Can take 10–20+ minutes." Style="{StaticResource TextCaption}" TextWrapping="Wrap" />
-                            <TextBlock Text="{Binding DismStatus}" FontSize="12" Opacity="0.85" Margin="0,4,0,0" />
+                            <TextBlock Text="{Binding DismStatus}" FontSize="12" Foreground="{StaticResource TextFillColorSecondaryBrush}" Margin="0,4,0,0" />
                         </StackPanel>
                         <ui:Button Grid.Column="1" Content="Repair Windows image" Padding="14,7" VerticalAlignment="Center"
                                    Command="{Binding RunDismCommand}">
@@ -92,7 +92,7 @@
                         <StackPanel Grid.Column="0" Margin="0,0,16,0">
                             <TextBlock Text="Check Disk (CHKDSK) — repair mode" FontWeight="SemiBold" />
                             <TextBlock Text="Finds and fixes file-system and bad-sector errors. The system drive can't be locked live, so this is usually scheduled for the next restart." Style="{StaticResource TextCaption}" TextWrapping="Wrap" />
-                            <TextBlock Text="{Binding ChkdskStatus}" FontSize="12" Opacity="0.85" Margin="0,4,0,0" />
+                            <TextBlock Text="{Binding ChkdskStatus}" FontSize="12" Foreground="{StaticResource TextFillColorSecondaryBrush}" Margin="0,4,0,0" />
                         </StackPanel>
                         <ComboBox Grid.Column="1" MinWidth="80" VerticalAlignment="Center" Margin="0,0,10,0"
                                   ItemsSource="{Binding AvailableDrives}" SelectedItem="{Binding SelectedDrive}" />

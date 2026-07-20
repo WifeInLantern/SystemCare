@@ -48,7 +48,7 @@
             </ui:Button>
             <ui:Button Grid.Column="2" Content="Clear" Padding="14,7" Margin="8,0,0,0" Appearance="Secondary" Command="{Binding ClearCommand}" />
             <StackPanel Grid.Column="4" Orientation="Horizontal" VerticalAlignment="Center">
-                <TextBlock Text="Passes:" VerticalAlignment="Center" Margin="0,0,8,0" FontSize="12" Opacity="0.8" />
+                <TextBlock Text="Passes:" VerticalAlignment="Center" Margin="0,0,8,0" FontSize="12" Foreground="{StaticResource TextFillColorSecondaryBrush}" />
                 <ui:NumberBox Value="{Binding Passes}" Minimum="1" Maximum="7" Width="100" SpinButtonPlacementMode="Compact" />
             </StackPanel>
         </Grid>
@@ -72,9 +72,9 @@
                                 <ui:SymbolIcon Grid.Column="0" Symbol="Document24" VerticalAlignment="Center" />
                                 <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center">
                                     <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
-                                    <TextBlock Text="{Binding Path}" FontSize="11" Opacity="0.55" TextTrimming="CharacterEllipsis" />
+                                    <TextBlock Text="{Binding Path}" FontSize="11" Foreground="{StaticResource TextFillColorTertiaryBrush}" TextTrimming="CharacterEllipsis" />
                                 </StackPanel>
-                                <TextBlock Grid.Column="2" Text="{Binding SizeText}" VerticalAlignment="Center" FontSize="12" Opacity="0.7" Margin="0,0,10,0" />
+                                <TextBlock Grid.Column="2" Text="{Binding SizeText}" VerticalAlignment="Center" FontSize="12" Foreground="{StaticResource TextFillColorTertiaryBrush}" Margin="0,0,10,0" />
                                 <ui:Button Grid.Column="3" Padding="6,4" Appearance="Secondary" ToolTip="Remove"
                                            Command="{Binding DataContext.RemoveCommand, RelativeSource={RelativeSource AncestorType=Page}}"
                                            CommandParameter="{Binding}">
@@ -89,7 +89,7 @@
 
         <StackPanel Grid.Row="4" Margin="0,12,0,0">
             <controls:TaskProgress IsActive="{Binding IsBusy}" />
-            <TextBlock Text="{Binding ProgressText}" FontSize="11" Opacity="0.6" Margin="0,6,0,8" TextTrimming="CharacterEllipsis" />
+            <TextBlock Text="{Binding ProgressText}" FontSize="11" Foreground="{StaticResource TextFillColorTertiaryBrush}" Margin="0,6,0,8" TextTrimming="CharacterEllipsis" />
             <StackPanel Orientation="Horizontal">
                 <ui:Button Content="Shred permanently" Appearance="Danger" Padding="22,9" FontSize="14"
                            Command="{Binding ShredCommand}"

@@ -68,7 +68,7 @@
                         <TextBlock Text="Off = daily at noon, On = weekly (Sunday)" Style="{StaticResource TextCaption}" />
                     </StackPanel>
                     <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                        <TextBlock Text="Weekly" VerticalAlignment="Center" Margin="0,0,8,0" FontSize="12" Opacity="0.8" />
+                        <TextBlock Text="Weekly" VerticalAlignment="Center" Margin="0,0,8,0" FontSize="12" Foreground="{StaticResource TextFillColorSecondaryBrush}" />
                         <ui:ToggleSwitch IsChecked="{Binding IsWeekly}" />
                     </StackPanel>
                 </Grid>
@@ -522,7 +522,7 @@
             <ui:Card Padding="16,12">
                 <StackPanel>
                     <TextBlock Text="{Binding VersionText}" FontWeight="SemiBold" />
-                    <TextBlock Text="{Binding ElevationText}" FontSize="12" Opacity="0.7" Margin="0,4,0,10" TextWrapping="Wrap" />
+                    <TextBlock Text="{Binding ElevationText}" FontSize="12" Foreground="{StaticResource TextFillColorTertiaryBrush}" Margin="0,4,0,10" TextWrapping="Wrap" />
                     <StackPanel Orientation="Horizontal">
                         <ui:Button Content="Open settings folder" Command="{Binding OpenSettingsFolderCommand}" Padding="14,7">
                             <ui:Button.Icon>

@@ -59,7 +59,7 @@
         <StackPanel Grid.Row="2" Margin="0,0,0,4">
             <controls:TaskProgress IsActive="{Binding IsChecking}" />
             <controls:TaskProgress IsActive="{Binding IsInstalling}" Value="{Binding InstallProgress}" />
-            <TextBlock Text="{Binding StatusText}" FontSize="12" Opacity="0.7" Margin="0,6,0,0"
+            <TextBlock Text="{Binding StatusText}" FontSize="12" Foreground="{StaticResource TextFillColorTertiaryBrush}" Margin="0,6,0,0"
                        TextTrimming="CharacterEllipsis" />
         </StackPanel>
 
@@ -94,11 +94,11 @@
                         <CheckBox Grid.Column="0" IsChecked="{Binding IsSelected}" VerticalAlignment="Center" />
                         <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center">
                             <TextBlock Text="{Binding Title}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
-                            <TextBlock FontSize="11" Opacity="0.6" TextTrimming="CharacterEllipsis">
+                            <TextBlock FontSize="11" Foreground="{StaticResource TextFillColorTertiaryBrush}" TextTrimming="CharacterEllipsis">
                                 <Run Text="{Binding Manufacturer, Mode=OneWay}" /><Run Text=" · " /><Run Text="{Binding DriverClass, Mode=OneWay}" />
                             </TextBlock>
                         </StackPanel>
-                        <TextBlock Grid.Column="2" Text="{Binding DateText}" FontSize="12" Opacity="0.75"
+                        <TextBlock Grid.Column="2" Text="{Binding DateText}" FontSize="12" Foreground="{StaticResource TextFillColorSecondaryBrush}"
                                    VerticalAlignment="Center" Margin="0,0,14,0" />
                         <TextBlock Grid.Column="3" Text="{Binding SizeText}" FontSize="12" FontWeight="SemiBold"
                                    Foreground="{StaticResource NeonCyanBrush}" VerticalAlignment="Center" />
@@ -121,7 +121,7 @@
                 <TextBlock Grid.Column="0" Text="INSTALLED DEVICES" Style="{StaticResource CyberSectionHeader}"
                            VerticalAlignment="Center" />
                 <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                    <TextBlock Text="{Binding DeviceSummary}" FontSize="12" Opacity="0.7" VerticalAlignment="Center" Margin="0,0,10,0" />
+                    <TextBlock Text="{Binding DeviceSummary}" FontSize="12" Foreground="{StaticResource TextFillColorTertiaryBrush}" VerticalAlignment="Center" Margin="0,0,10,0" />
                     <ui:Button Content="Rescan" Padding="14,6" Command="{Binding RefreshDevicesCommand}"
                                IsEnabled="{Binding IsLoadingDevices, Converter={StaticResource Not}}">
                         <ui:Button.Icon><ui:SymbolIcon Symbol="ArrowClockwise24" /></ui:Button.Icon>
@@ -142,7 +142,7 @@
                             </Grid.ColumnDefinitions>
                             <StackPanel Grid.Column="0" VerticalAlignment="Center" Margin="0,0,10,0">
                                 <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
-                                <TextBlock FontSize="11" Opacity="0.55" TextTrimming="CharacterEllipsis">
+                                <TextBlock FontSize="11" Foreground="{StaticResource TextFillColorTertiaryBrush}" TextTrimming="CharacterEllipsis">
                                     <Run Text="{Binding DeviceClass, Mode=OneWay}" /><Run Text=" · " /><Run Text="{Binding Manufacturer, Mode=OneWay}" />
                                 </TextBlock>
                             </StackPanel>
@@ -152,7 +152,7 @@
                                 <TextBlock Text="{Binding ProblemText}" FontSize="10" FontWeight="SemiBold"
                                            Foreground="{StaticResource NeonMagentaBrush}" />
                             </Border>
-                            <TextBlock Grid.Column="2" Text="{Binding VersionText}" FontSize="11" Opacity="0.7"
+                            <TextBlock Grid.Column="2" Text="{Binding VersionText}" FontSize="11" Foreground="{StaticResource TextFillColorTertiaryBrush}"
                                        VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
                         </Grid>
                     </DataTemplate>

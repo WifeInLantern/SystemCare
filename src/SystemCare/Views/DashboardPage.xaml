@@ -37,8 +37,32 @@
 
                 <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="36,0,0,0">
                     <TextBlock Text="PC HEALTH" FontSize="30" Style="{StaticResource CyberDisplayText}" />
-                    <TextBlock Text="{Binding LastScanSummary}" Margin="0,8,0,16"
+                    <TextBlock Text="{Binding LastScanSummary}" Margin="0,8,0,10"
                                Style="{StaticResource TextBody}" />
+                    <!-- Explainable score (2.19): why the number is what it is; each chip jumps to its tool. -->
+                    <WrapPanel Margin="0,0,0,14" Visibility="{Binding HasScoreInputs, Converter={StaticResource VisibleWhenTrue}}">
+                        <WrapPanel.Resources>
+                            <Style x:Key="ScoreChip" TargetType="ui:Button" BasedOn="{StaticResource {x:Type ui:Button}}">
+                                <Setter Property="Appearance" Value="Secondary" />
+                                <Setter Property="Padding" Value="10,4" />
+                                <Setter Property="FontSize" Value="12" />
+                                <Setter Property="Margin" Value="0,2,8,2" />
+                                <Setter Property="BorderBrush" Value="{StaticResource CyberStrokeBrush}" />
+                            </Style>
+                        </WrapPanel.Resources>
+                        <ui:Button Style="{StaticResource ScoreChip}" Content="{Binding JunkChipText}"
+                                   ToolTipService.ToolTip="Open Junk Cleanup"
+                                   Command="{Binding NavigateToCommand}" CommandParameter="Cleanup" />
+                        <ui:Button Style="{StaticResource ScoreChip}" Content="{Binding StartupChipText}"
+                                   ToolTipService.ToolTip="Open Startup Manager"
+                                   Command="{Binding NavigateToCommand}" CommandParameter="Startup" />
+                        <ui:Button Style="{StaticResource ScoreChip}" Content="{Binding RamChipText}"
+                                   ToolTipService.ToolTip="Open Processes"
+                                   Command="{Binding NavigateToCommand}" CommandParameter="Processes" />
+                        <ui:Button Style="{StaticResource ScoreChip}" Content="{Binding SecurityChipText}"
+                                   ToolTipService.ToolTip="Open Security Checkup"
+                                   Command="{Binding NavigateToCommand}" CommandParameter="Security" />
+                    </WrapPanel>
                     <StackPanel Orientation="Horizontal">
                         <ui:Button Content="Scan now" Appearance="Primary" FontSize="15"
                                    helpers:Animations.NeonPulse="True"
@@ -49,6 +73,7 @@
                             </ui:Button.Icon>
                         </ui:Button>
                         <ui:Button Content="Fix all" Appearance="Success" FontSize="15"
+                                   ToolTipService.ToolTip="Cleans the scanned junk and trims RAM, then re-scores. A restore point is offered first."
                                    Padding="28,10" Margin="12,0,0,0"
                                    Command="{Binding FixAllCommand}">
                             <ui:Button.Icon>

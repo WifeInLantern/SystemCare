@@ -127,6 +127,9 @@ public partial class App : Application
         services.AddSingleton<IBrowserExtensionService, BrowserExtensionService>();
         services.AddSingleton<IWifiInfoService, WifiInfoService>();
 
+        // 2.19 feature services
+        services.AddSingleton<IRestorePointWatchdogService, RestorePointWatchdogService>();
+
         // Window
         services.AddSingleton<MainWindow>();
 
@@ -382,6 +385,15 @@ public partial class App : Application
         // Boot report + monthly Care Report (2.16). Both fire-and-forget and never throw.
         _ = _services.GetRequiredService<IBootHistoryService>().CheckAndReportAsync();
         _ = _services.GetRequiredService<IMonthlyReportService>().CheckAsync();
+
+        // Restore-point watchdog (2.19): fire-and-forget, never throws, self-throttled to 1/14d.
+        _ = _services.GetRequiredService<IRestorePointWatchdogService>().CheckAsync();
+
+        // Autorun Guard periodic re-check (2.19): programs installed mid-session used to go
+        // unnoticed until the next launch. The guard is snapshot-diff based and cheap.
+        var guardTimer = new DispatcherTimer(DispatcherPriority.Background) { Interval = TimeSpan.FromHours(6) };
+        guardTimer.Tick += (_, _) => _ = _services.GetRequiredService<IAutorunGuardService>().CheckAsync();
+        guardTimer.Start();
 
         if (minimized)
         {

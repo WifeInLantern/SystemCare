@@ -51,7 +51,7 @@
                 </Grid.ColumnDefinitions>
 
                 <StackPanel Grid.Column="0">
-                    <TextBlock Text="TOTAL THROUGHPUT" FontSize="11" Opacity="0.6"
+                    <TextBlock Text="TOTAL THROUGHPUT" FontSize="11" Foreground="{StaticResource TextFillColorTertiaryBrush}"
                                Style="{StaticResource CyberSectionHeader}" />
                     <controls:SparklineChart Height="64" Margin="0,8,0,0"
                                              Values="{Binding ThroughputHistory}" Max="{Binding ThroughputMax}"
@@ -66,7 +66,7 @@
                         <TextBlock Text="↑" FontSize="12" Foreground="{StaticResource WarningBrush}" Margin="0,0,5,0" />
                         <TextBlock Text="{Binding SessionUpText}" FontSize="12" />
                     </StackPanel>
-                    <TextBlock Text="{Binding SessionInfo}" FontSize="10" Opacity="0.55" Margin="0,6,0,0" TextWrapping="Wrap" />
+                    <TextBlock Text="{Binding SessionInfo}" FontSize="10" Foreground="{StaticResource TextFillColorTertiaryBrush}" Margin="0,6,0,0" TextWrapping="Wrap" />
                 </StackPanel>
             </Grid>
         </ui:Card>
@@ -74,7 +74,7 @@
         <!-- Sort toggle -->
         <StackPanel Grid.Row="3" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,12,0,0"
                     Visibility="{Binding MonitoringAvailable, Converter={StaticResource VisibleWhenTrue}}">
-            <TextBlock Text="Sort by" VerticalAlignment="Center" Opacity="0.7" Margin="0,0,10,0" />
+            <TextBlock Text="Sort by" VerticalAlignment="Center" Foreground="{StaticResource TextFillColorTertiaryBrush}" Margin="0,0,10,0" />
             <RadioButton Content="Total" GroupName="netsort" IsChecked="{Binding IsSortCombined}" Margin="0,0,12,0" />
             <RadioButton Content="Download" GroupName="netsort" IsChecked="{Binding IsSortDownload}" Margin="0,0,12,0" />
             <RadioButton Content="Upload" GroupName="netsort" IsChecked="{Binding IsSortUpload}" />
@@ -98,12 +98,12 @@
                     <ColumnDefinition Width="92" />
                     <ColumnDefinition Width="170" />
                 </Grid.ColumnDefinitions>
-                <TextBlock Grid.Column="1" Text="Process" FontSize="11" Opacity="0.5" />
-                <TextBlock Grid.Column="2" Text="Download" FontSize="11" Opacity="0.5" />
-                <TextBlock Grid.Column="3" Text="Upload" FontSize="11" Opacity="0.5" />
-                <TextBlock Grid.Column="4" Text="Total ↓" FontSize="11" Opacity="0.5" />
-                <TextBlock Grid.Column="5" Text="Total ↑" FontSize="11" Opacity="0.5" />
-                <TextBlock Grid.Column="6" Text="Usage" FontSize="11" Opacity="0.5" />
+                <TextBlock Grid.Column="1" Text="Process" FontSize="11" Foreground="{StaticResource TextFillColorTertiaryBrush}" />
+                <TextBlock Grid.Column="2" Text="Download" FontSize="11" Foreground="{StaticResource TextFillColorTertiaryBrush}" />
+                <TextBlock Grid.Column="3" Text="Upload" FontSize="11" Foreground="{StaticResource TextFillColorTertiaryBrush}" />
+                <TextBlock Grid.Column="4" Text="Total ↓" FontSize="11" Foreground="{StaticResource TextFillColorTertiaryBrush}" />
+                <TextBlock Grid.Column="5" Text="Total ↑" FontSize="11" Foreground="{StaticResource TextFillColorTertiaryBrush}" />
+                <TextBlock Grid.Column="6" Text="Usage" FontSize="11" Foreground="{StaticResource TextFillColorTertiaryBrush}" />
             </Grid>
 
             <ui:ListView Grid.Row="1" ItemsSource="{Binding Processes}"
@@ -140,7 +140,7 @@
                                 </Grid>
                                 <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="8,0,6,0">
                                     <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
-                                    <TextBlock Text="{Binding PidText}" FontSize="10" Opacity="0.55" />
+                                    <TextBlock Text="{Binding PidText}" FontSize="10" Foreground="{StaticResource TextFillColorTertiaryBrush}" />
                                 </StackPanel>
 
                                 <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
@@ -152,8 +152,8 @@
                                     <TextBlock Text="{Binding UploadText}" FontSize="12" />
                                 </StackPanel>
 
-                                <TextBlock Grid.Column="4" Text="{Binding TotalDownText}" FontSize="12" Opacity="0.7" VerticalAlignment="Center" />
-                                <TextBlock Grid.Column="5" Text="{Binding TotalUpText}" FontSize="12" Opacity="0.7" VerticalAlignment="Center" />
+                                <TextBlock Grid.Column="4" Text="{Binding TotalDownText}" FontSize="12" Foreground="{StaticResource TextFillColorTertiaryBrush}" VerticalAlignment="Center" />
+                                <TextBlock Grid.Column="5" Text="{Binding TotalUpText}" FontSize="12" Foreground="{StaticResource TextFillColorTertiaryBrush}" VerticalAlignment="Center" />
 
                                 <Grid Grid.Column="6" VerticalAlignment="Center" Margin="4,0,0,0">
                                     <Grid.ColumnDefinitions>
@@ -162,7 +162,7 @@
                                     </Grid.ColumnDefinitions>
                                     <ProgressBar Grid.Column="0" Maximum="100" Height="6" Foreground="{Binding LevelBrush}"
                                                  helpers:Animations.SmoothValue="{Binding BarValue}" />
-                                    <TextBlock Grid.Column="1" Text="{Binding PercentText}" FontSize="11" Opacity="0.75"
+                                    <TextBlock Grid.Column="1" Text="{Binding PercentText}" FontSize="11" Foreground="{StaticResource TextFillColorSecondaryBrush}"
                                                MinWidth="34" TextAlignment="Right" Margin="8,0,0,0" />
                                 </Grid>
                             </Grid>
@@ -172,7 +172,7 @@
             </ui:ListView>
         </Grid>
 
-        <TextBlock Grid.Row="5" Text="{Binding MonitoringStatus}" FontSize="12" Opacity="0.6" Margin="0,8,0,0"
+        <TextBlock Grid.Row="5" Text="{Binding MonitoringStatus}" FontSize="12" Foreground="{StaticResource TextFillColorTertiaryBrush}" Margin="0,8,0,0"
                    Visibility="{Binding MonitoringAvailable, Converter={StaticResource VisibleWhenTrue}}" />
     </Grid>
 </Page>

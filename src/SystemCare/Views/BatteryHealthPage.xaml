@@ -28,7 +28,7 @@
         <!-- Header -->
         <StackPanel Grid.Row="0">
             <TextBlock Text="Battery Health" Style="{StaticResource CyberPageTitle}" />
-            <TextBlock Text="{Binding SummaryText}" FontSize="13" Opacity="0.78" Margin="0,4,0,0" TextWrapping="Wrap" />
+            <TextBlock Text="{Binding SummaryText}" FontSize="13" Foreground="{StaticResource TextFillColorSecondaryBrush}" Margin="0,4,0,0" TextWrapping="Wrap" />
         </StackPanel>
 
         <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,14,0,0">
@@ -71,7 +71,7 @@
                                           Score="{Binding HealthScore}"
                                           BandLabelOverride="{Binding HealthBand}"
                                           helpers:Animations.RevealOnLoad="True" />
-                    <TextBlock Text="Overall health" HorizontalAlignment="Center" Opacity="0.75"
+                    <TextBlock Text="Overall health" HorizontalAlignment="Center" Foreground="{StaticResource TextFillColorSecondaryBrush}"
                                Margin="0,8,0,0" FontSize="13" />
                 </StackPanel>
             </ui:Card>
@@ -83,42 +83,42 @@
 
                     <Grid Margin="0,0,0,8">
                         <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="Battery" Opacity="0.85" />
+                        <TextBlock Grid.Column="0" Text="Battery" Foreground="{StaticResource TextFillColorSecondaryBrush}" />
                         <TextBlock Grid.Column="1" Text="{Binding BatteryName}" FontWeight="SemiBold" TextAlignment="Right" />
                     </Grid>
                     <Grid Margin="0,0,0,8">
                         <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="Chemistry" Opacity="0.85" />
+                        <TextBlock Grid.Column="0" Text="Chemistry" Foreground="{StaticResource TextFillColorSecondaryBrush}" />
                         <TextBlock Grid.Column="1" Text="{Binding ChemistryText}" FontWeight="SemiBold" />
                     </Grid>
                     <Grid Margin="0,0,0,8">
                         <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="Design capacity" Opacity="0.85" />
+                        <TextBlock Grid.Column="0" Text="Design capacity" Foreground="{StaticResource TextFillColorSecondaryBrush}" />
                         <TextBlock Grid.Column="1" Text="{Binding DesignCapacityText}" FontWeight="SemiBold" TextAlignment="Right" />
                     </Grid>
                     <Grid Margin="0,0,0,8">
                         <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="Full-charge capacity" Opacity="0.85" />
+                        <TextBlock Grid.Column="0" Text="Full-charge capacity" Foreground="{StaticResource TextFillColorSecondaryBrush}" />
                         <TextBlock Grid.Column="1" Text="{Binding FullChargeCapacityText}" FontWeight="SemiBold" TextAlignment="Right" />
                     </Grid>
                     <Grid Margin="0,0,0,8">
                         <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="Wear level" Opacity="0.85" />
+                        <TextBlock Grid.Column="0" Text="Wear level" Foreground="{StaticResource TextFillColorSecondaryBrush}" />
                         <TextBlock Grid.Column="1" Text="{Binding WearText}" FontWeight="SemiBold" />
                     </Grid>
                     <Grid Margin="0,0,0,8">
                         <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="Cycle count" Opacity="0.85" />
+                        <TextBlock Grid.Column="0" Text="Cycle count" Foreground="{StaticResource TextFillColorSecondaryBrush}" />
                         <TextBlock Grid.Column="1" Text="{Binding CycleCountText}" FontWeight="SemiBold" />
                     </Grid>
                     <Grid Margin="0,0,0,8">
                         <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="Current charge" Opacity="0.85" />
+                        <TextBlock Grid.Column="0" Text="Current charge" Foreground="{StaticResource TextFillColorSecondaryBrush}" />
                         <TextBlock Grid.Column="1" Text="{Binding ChargeText}" FontWeight="SemiBold" />
                     </Grid>
                     <Grid>
                         <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="Power state" Opacity="0.85" />
+                        <TextBlock Grid.Column="0" Text="Power state" Foreground="{StaticResource TextFillColorSecondaryBrush}" />
                         <TextBlock Grid.Column="1" Text="{Binding PowerStateText}" FontWeight="SemiBold" />
                     </Grid>
                 </StackPanel>

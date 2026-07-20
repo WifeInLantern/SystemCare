@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
@@ -81,6 +83,37 @@ internal static class Program
             view.UpdateLayout();
         });
 
+        // Design-system lint (2.19): the text-opacity anti-pattern silently breaks WCAG AA
+        // (e.g. TextSecondary x 0.7 on Surface0 = 4.28:1). The app-wide cleanup is done; this
+        // rule keeps it done. Inline FontSize on text is reported as a count but doesn't fail
+        // (the ramp migration is tracked separately).
+        Try("lint: no Opacity on text elements in Views/*.xaml", () =>
+        {
+            string? viewsDir = FindViewsDir();
+            if (viewsDir is null) return; // packaged/out-of-repo run: nothing to lint
+
+            var offenders = new List<string>();
+            int fontSizeCount = 0;
+            foreach (var file in Directory.EnumerateFiles(viewsDir, "*.xaml"))
+            {
+                int lineNo = 0;
+                foreach (var line in File.ReadLines(file))
+                {
+                    lineNo++;
+                    bool isText = line.Contains("TextBlock") || line.TrimStart().StartsWith("<Run");
+                    if (!isText) continue;
+                    if (line.Contains("Opacity=\"0."))
+                        offenders.Add($"{Path.GetFileName(file)}:{lineNo}");
+                    if (line.Contains("FontSize=\""))
+                        fontSizeCount++;
+                }
+            }
+            Console.WriteLine($"    (info: {fontSizeCount} inline FontSize on text remain — ramp migration backlog)");
+            if (offenders.Count > 0)
+                throw new Exception($"text Opacity found (breaks AA contrast): {string.Join(", ", offenders.Take(8))}" +
+                                    (offenders.Count > 8 ? $" (+{offenders.Count - 8} more)" : ""));
+        });
+
         Console.WriteLine();
         Console.WriteLine($"Smoke test: {_checks - Failures.Count}/{_checks} checks passed.");
         if (Failures.Count > 0)
@@ -95,6 +128,18 @@ internal static class Program
 
     private static ResourceDictionary Load(string rel) =>
         new() { Source = new Uri($"pack://application:,,,/SystemCare;component/{rel}") };
+
+    /// <summary>Walks up from the test binary to the repo's src/SystemCare/Views (null when not in-repo).</summary>
+    private static string? FindViewsDir()
+    {
+        var dir = new DirectoryInfo(AppContext.BaseDirectory);
+        for (int i = 0; i < 8 && dir is not null; i++, dir = dir.Parent)
+        {
+            string candidate = Path.Combine(dir.FullName, "src", "SystemCare", "Views");
+            if (Directory.Exists(candidate)) return candidate;
+        }
+        return null;
+    }
 
     private static void BuildAndLayout(Application app)
     {

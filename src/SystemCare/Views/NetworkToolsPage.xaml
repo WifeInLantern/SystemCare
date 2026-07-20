@@ -47,10 +47,10 @@
                                         <ColumnDefinition Width="110" />
                                         <ColumnDefinition Width="160" />
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="{Binding Protocol}" FontSize="12" Opacity="0.6" VerticalAlignment="Center" />
+                                    <TextBlock Grid.Column="0" Text="{Binding Protocol}" FontSize="12" Foreground="{StaticResource TextFillColorTertiaryBrush}" VerticalAlignment="Center" />
                                     <TextBlock Grid.Column="1" Text="{Binding Local}" FontSize="12" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
                                     <TextBlock Grid.Column="2" Text="{Binding Remote}" FontSize="12" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
-                                    <TextBlock Grid.Column="3" Text="{Binding State}" FontSize="12" Opacity="0.7" VerticalAlignment="Center" />
+                                    <TextBlock Grid.Column="3" Text="{Binding State}" FontSize="12" Foreground="{StaticResource TextFillColorTertiaryBrush}" VerticalAlignment="Center" />
                                     <TextBlock Grid.Column="4" Text="{Binding ProcessName}" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
                                 </Grid>
                             </DataTemplate>

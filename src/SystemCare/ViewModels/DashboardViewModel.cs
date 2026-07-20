@@ -62,6 +62,17 @@ public partial class DashboardViewModel : ObservableObject
     [ObservableProperty] private bool _isWorking;
     [ObservableProperty] [NotifyCanExecuteChangedFor(nameof(FixAllCommand))] private bool _canFix;
 
+    // Explainable score (2.19): the inputs behind the number, each chip clickable -> its tool.
+    [ObservableProperty] private bool _hasScoreInputs;
+    [ObservableProperty] private string _junkChipText = "";
+    [ObservableProperty] private bool _junkChipWarn;
+    [ObservableProperty] private string _startupChipText = "";
+    [ObservableProperty] private bool _startupChipWarn;
+    [ObservableProperty] private string _ramChipText = "";
+    [ObservableProperty] private bool _ramChipWarn;
+    [ObservableProperty] private string _securityChipText = "";
+    [ObservableProperty] private bool _securityChipWarn;
+
     // Customizable quick-action tiles (shown when their id is in AppSettings.DashboardQuickActions).
     [ObservableProperty] private bool _showScanFix;
     [ObservableProperty] private bool _showFreeRam;
@@ -256,6 +267,17 @@ public partial class DashboardViewModel : ObservableObject
             });
 
             HealthScoreValue = report.Score;
+
+            // Explainable score chips: same inputs the score model just consumed.
+            JunkChipText = $"Junk {ByteFormatter.Format(_lastScan.TotalBytes)}";
+            JunkChipWarn = _lastScan.TotalBytes > 200L * 1024 * 1024;
+            StartupChipText = $"Startup {enabledStartup} items";
+            StartupChipWarn = enabledStartup > 8;
+            RamChipText = $"RAM {snapshot.RamLoadPercent:0}%";
+            RamChipWarn = snapshot.RamLoadPercent > 75;
+            SecurityChipText = securityIssues > 0 ? $"Security {securityIssues} issue(s)" : "Security OK";
+            SecurityChipWarn = securityIssues > 0;
+            HasScoreInputs = true;
             LastScanSummary =
                 $"{ByteFormatter.Format(_lastScan.TotalBytes)} of junk in {_lastScan.TotalFiles:N0} files · " +
                 $"{enabledStartup} startup items · RAM {snapshot.RamLoadPercent:0}% used" +

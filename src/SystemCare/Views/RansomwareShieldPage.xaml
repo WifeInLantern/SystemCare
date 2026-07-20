@@ -35,14 +35,14 @@
                 <ui:SymbolIcon Grid.Column="0" Symbol="{Binding StatusIcon}" FontSize="40" VerticalAlignment="Center" />
                 <StackPanel Grid.Column="1" Margin="16,0,12,0" VerticalAlignment="Center">
                     <TextBlock Text="Ransomware Shield" Style="{StaticResource CyberPageTitle}" />
-                    <TextBlock Text="{Binding Headline}" FontSize="13" Opacity="0.8" Margin="0,4,0,0" TextWrapping="Wrap" />
+                    <TextBlock Text="{Binding Headline}" FontSize="13" Foreground="{StaticResource TextFillColorSecondaryBrush}" Margin="0,4,0,0" TextWrapping="Wrap" />
                 </StackPanel>
                 <ui:Button Grid.Column="2" Content="{Binding ToggleLabel}" Appearance="Primary" Padding="18,9"
                            VerticalAlignment="Center" Command="{Binding ToggleCommand}" />
             </Grid>
         </ui:Card>
 
-        <TextBlock Grid.Row="1" Margin="2,12,0,0" TextWrapping="Wrap" Opacity="0.8" FontSize="12"
+        <TextBlock Grid.Row="1" Margin="2,12,0,0" TextWrapping="Wrap" Foreground="{StaticResource TextFillColorSecondaryBrush}" FontSize="12"
                    Text="Uses Windows Defender's Controlled Folder Access. Your Documents, Pictures, Videos, Music, and Desktop are protected by default; any extra folders you've added appear below." />
 
         <WrapPanel Grid.Row="2" Margin="0,12,0,0">

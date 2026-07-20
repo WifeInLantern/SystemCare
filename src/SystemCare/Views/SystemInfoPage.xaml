@@ -21,7 +21,7 @@
     <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="24,12,24,24">
         <StackPanel MaxWidth="1100" helpers:Animations.StaggerChildren="True">
             <TextBlock Text="System Information" Style="{StaticResource CyberPageTitle}" />
-            <TextBlock Text="{Binding SummaryText}" FontSize="13" Opacity="0.75" Margin="0,6,0,0" TextWrapping="Wrap" />
+            <TextBlock Text="{Binding SummaryText}" FontSize="13" Foreground="{StaticResource TextFillColorSecondaryBrush}" Margin="0,6,0,0" TextWrapping="Wrap" />
 
             <!-- Live monitors -->
             <TextBlock Text="Live monitors" Style="{StaticResource CyberSectionHeader}" Margin="0,18,0,10" />
@@ -29,27 +29,27 @@
                 <ui:Card Margin="0,0,8,0" Padding="18,14" helpers:Animations.HoverLift="True"
                          ToolTipService.ToolTip="Total processor utilization across all cores">
                     <StackPanel>
-                        <TextBlock Text="Processor" FontWeight="SemiBold" Opacity="0.85" />
+                        <TextBlock Text="Processor" FontWeight="SemiBold" Foreground="{StaticResource TextFillColorSecondaryBrush}" />
                         <TextBlock Text="{Binding CpuText}" FontSize="26" FontWeight="Bold" Margin="0,4,0,0" />
-                        <TextBlock Text="{Binding CpuSubText}" FontSize="11" Opacity="0.6" Margin="0,0,0,6" TextTrimming="CharacterEllipsis" />
+                        <TextBlock Text="{Binding CpuSubText}" FontSize="11" Foreground="{StaticResource TextFillColorTertiaryBrush}" Margin="0,0,0,6" TextTrimming="CharacterEllipsis" />
                         <controls:SparklineChart Height="52" Values="{Binding CpuHistory}" Max="100" Accent="{StaticResource AccentColor}" />
                     </StackPanel>
                 </ui:Card>
                 <ui:Card Margin="8,0,8,0" Padding="18,14" helpers:Animations.HoverLift="True"
                          ToolTipService.ToolTip="Physical memory in use">
                     <StackPanel>
-                        <TextBlock Text="Memory" FontWeight="SemiBold" Opacity="0.85" />
+                        <TextBlock Text="Memory" FontWeight="SemiBold" Foreground="{StaticResource TextFillColorSecondaryBrush}" />
                         <TextBlock Text="{Binding RamText}" FontSize="26" FontWeight="Bold" Margin="0,4,0,0" />
-                        <TextBlock Text="{Binding RamSubText}" FontSize="11" Opacity="0.6" Margin="0,0,0,6" />
+                        <TextBlock Text="{Binding RamSubText}" FontSize="11" Foreground="{StaticResource TextFillColorTertiaryBrush}" Margin="0,0,0,6" />
                         <controls:SparklineChart Height="52" Values="{Binding RamHistory}" Max="100" Accent="{StaticResource SuccessColor}" />
                     </StackPanel>
                 </ui:Card>
                 <ui:Card Margin="8,0,0,0" Padding="18,14" helpers:Animations.HoverLift="True"
                          ToolTipService.ToolTip="Live network throughput on active adapters">
                     <StackPanel>
-                        <TextBlock Text="Network" FontWeight="SemiBold" Opacity="0.85" />
+                        <TextBlock Text="Network" FontWeight="SemiBold" Foreground="{StaticResource TextFillColorSecondaryBrush}" />
                         <TextBlock Text="{Binding NetText}" FontSize="15" FontWeight="Bold" Margin="0,8,0,0" />
-                        <TextBlock Text="{Binding NetSubText}" FontSize="11" Opacity="0.6" Margin="0,0,0,6" TextTrimming="CharacterEllipsis" />
+                        <TextBlock Text="{Binding NetSubText}" FontSize="11" Foreground="{StaticResource TextFillColorTertiaryBrush}" Margin="0,0,0,6" TextTrimming="CharacterEllipsis" />
                         <controls:SparklineChart Height="52" Values="{Binding NetHistory}" Max="{Binding NetMax}" Accent="{StaticResource VioletColor}" />
                     </StackPanel>
                 </ui:Card>
@@ -126,7 +126,7 @@
                                                         <Run Text="{Binding Name, Mode=OneWay}" />
                                                         <Run Text="{Binding Label, Mode=OneWay}" />
                                                     </TextBlock>
-                                                    <TextBlock Text="{Binding CapacityText}" Opacity="0.75" FontSize="12" Margin="0,6,0,5" />
+                                                    <TextBlock Text="{Binding CapacityText}" Foreground="{StaticResource TextFillColorSecondaryBrush}" FontSize="12" Margin="0,6,0,5" />
                                                     <ProgressBar Maximum="100" Height="5"
                                                                  helpers:Animations.SmoothValue="{Binding UsedPercent}"
                                                                  Foreground="{Binding UsedPercent, Converter={StaticResource UsageBrush}}" />

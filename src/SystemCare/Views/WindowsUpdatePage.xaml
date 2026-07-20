@@ -54,12 +54,12 @@
         <!-- Pause controls -->
         <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,0,0,4" VerticalAlignment="Center">
             <ui:SymbolIcon Symbol="PauseCircle24" FontSize="16" Opacity="0.7" VerticalAlignment="Center" Margin="0,0,8,0" />
-            <TextBlock Text="Pause updates:" VerticalAlignment="Center" Opacity="0.75" Margin="0,0,8,0" />
+            <TextBlock Text="Pause updates:" VerticalAlignment="Center" Foreground="{StaticResource TextFillColorSecondaryBrush}" Margin="0,0,8,0" />
             <ui:Button Content="7 days" Padding="12,5" Margin="0,0,6,0" Command="{Binding PauseCommand}" CommandParameter="7" />
             <ui:Button Content="14 days" Padding="12,5" Margin="0,0,6,0" Command="{Binding PauseCommand}" CommandParameter="14" />
             <ui:Button Content="35 days" Padding="12,5" Margin="0,0,12,0" Command="{Binding PauseCommand}" CommandParameter="35" />
             <ui:Button Content="Resume" Appearance="Secondary" Padding="12,5" Command="{Binding ResumeCommand}" />
-            <TextBlock Text="{Binding PauseStatus}" VerticalAlignment="Center" Margin="12,0,0,0" FontSize="12" Opacity="0.7" />
+            <TextBlock Text="{Binding PauseStatus}" VerticalAlignment="Center" Margin="12,0,0,0" FontSize="12" Foreground="{StaticResource TextFillColorTertiaryBrush}" />
         </StackPanel>
 
         <!-- Status + progress -->
@@ -71,7 +71,7 @@
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
-                <TextBlock Grid.Column="0" Text="{Binding StatusText}" FontSize="12" Opacity="0.75"
+                <TextBlock Grid.Column="0" Text="{Binding StatusText}" FontSize="12" Foreground="{StaticResource TextFillColorSecondaryBrush}"
                            VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
                 <ui:Button Grid.Column="1" Content="Install selected" Appearance="Primary" Padding="18,7"
                            Command="{Binding InstallSelectedCommand}"
@@ -97,9 +97,9 @@
                         <CheckBox Grid.Column="0" IsChecked="{Binding IsSelected}" VerticalAlignment="Center" />
                         <StackPanel Grid.Column="1" Margin="10,0,12,0" VerticalAlignment="Center">
                             <TextBlock Text="{Binding Title}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
-                            <TextBlock Text="{Binding SubText}" FontSize="11" Opacity="0.55" TextTrimming="CharacterEllipsis" />
+                            <TextBlock Text="{Binding SubText}" FontSize="11" Foreground="{StaticResource TextFillColorTertiaryBrush}" TextTrimming="CharacterEllipsis" />
                         </StackPanel>
-                        <TextBlock Grid.Column="2" Text="{Binding SizeText}" FontSize="12" Opacity="0.7" VerticalAlignment="Center" />
+                        <TextBlock Grid.Column="2" Text="{Binding SizeText}" FontSize="12" Foreground="{StaticResource TextFillColorTertiaryBrush}" VerticalAlignment="Center" />
                     </Grid>
                 </DataTemplate>
             </ui:ListView.ItemTemplate>
@@ -119,8 +119,8 @@
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
                             <TextBlock Grid.Column="0" Text="{Binding Title}" FontSize="12" TextTrimming="CharacterEllipsis" Margin="0,0,12,0" />
-                            <TextBlock Grid.Column="1" Text="{Binding Result}" FontSize="11" Opacity="0.7" Margin="0,0,12,0" />
-                            <TextBlock Grid.Column="2" Text="{Binding DateText}" FontSize="11" Opacity="0.55" />
+                            <TextBlock Grid.Column="1" Text="{Binding Result}" FontSize="11" Foreground="{StaticResource TextFillColorTertiaryBrush}" Margin="0,0,12,0" />
+                            <TextBlock Grid.Column="2" Text="{Binding DateText}" FontSize="11" Foreground="{StaticResource TextFillColorTertiaryBrush}" />
                         </Grid>
                     </DataTemplate>
                 </ui:ListView.ItemTemplate>

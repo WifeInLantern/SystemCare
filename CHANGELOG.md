@@ -2,6 +2,27 @@
 
 All notable changes to SystemCare are documented here. Versions follow [SemVer](https://semver.org/).
 
+## [2.19.0] - 2026-07-20
+
+### Added
+- **Explainable health score.** Under the Dashboard gauge, clickable chips now show the score's
+  actual inputs — junk found, startup items, RAM load, security posture — each jumping straight to
+  its tool, and "Fix all" states exactly what it will do in its tooltip. The score stops being a
+  black box.
+- **Restore-point watchdog.** The whole app leans on System Restore as its safety net; now it's
+  monitored. A tray notice (at most once per 14 days) warns when no restore point exists from the
+  last 30 days — which also catches System Protection being switched off.
+- **Autorun Guard re-checks every 6 hours** while the app runs — programs that add themselves to
+  startup mid-session no longer go unnoticed until the next launch.
+- **Design-system lint in CI.** The smoke test now fails the build if any text element in Views
+  carries an inline `Opacity` (the WCAG-breaking anti-pattern), and reports the remaining inline
+  `FontSize` count as a migration metric. The cleanup below can never silently regress.
+
+### Changed
+- **Text-contrast cleanup completed app-wide.** The remaining 159 instances of opacity-dimmed text
+  across 33 pages were replaced with AA-compliant color tokens (size and layout untouched). Every
+  piece of text in the app now meets WCAG AA contrast.
+
 ## [2.18.0] - 2026-07-20
 
 ### Changed

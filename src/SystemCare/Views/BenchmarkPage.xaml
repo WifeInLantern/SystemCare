@@ -32,7 +32,7 @@
             <!-- Title -->
             <StackPanel Grid.Row="0">
                 <TextBlock Text="PC Benchmark" Style="{StaticResource CyberPageTitle}" />
-                <TextBlock Text="{Binding CurrentPhase}" FontSize="13" Opacity="0.75" Margin="0,4,0,0" TextWrapping="Wrap" />
+                <TextBlock Text="{Binding CurrentPhase}" FontSize="13" Foreground="{StaticResource TextFillColorSecondaryBrush}" Margin="0,4,0,0" TextWrapping="Wrap" />
             </StackPanel>
 
             <!-- Run / Cancel + progress -->
@@ -69,13 +69,13 @@
                                           Score="{Binding OverallScore}" BandLabelOverride="{Binding Tier}" />
 
                     <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="36,0,0,0">
-                        <TextBlock Text="NIGHT CITY SCORE" FontSize="13" Opacity="0.7"
+                        <TextBlock Text="NIGHT CITY SCORE" FontSize="13" Foreground="{StaticResource TextFillColorTertiaryBrush}"
                                    Style="{StaticResource CyberSectionHeader}" />
                         <StackPanel Orientation="Horizontal" Margin="0,4,0,0"
                                     Visibility="{Binding HasResult, Converter={StaticResource VisibleWhenTrue}}">
                             <TextBlock Text="{Binding Points, StringFormat='{}{0:N0}'}" FontSize="48"
                                        Style="{StaticResource CyberDisplayText}" />
-                            <TextBlock Text="pts" FontSize="18" Opacity="0.6" VerticalAlignment="Bottom" Margin="8,0,0,12" />
+                            <TextBlock Text="pts" FontSize="18" Foreground="{StaticResource TextFillColorTertiaryBrush}" VerticalAlignment="Bottom" Margin="8,0,0,12" />
                         </StackPanel>
                         <TextBlock Text="Run the benchmark to see your score."
                                    FontSize="15" Opacity="0.6" Margin="0,6,0,0"
@@ -102,7 +102,7 @@
                                    helpers:Animations.CountUpText="{Binding CpuMOps}"
                                    helpers:Animations.CountUpFormat="N0"
                                    helpers:Animations.CountUpSuffix=" MOps/s" />
-                        <TextBlock Text="multi-thread compute" FontSize="11" Opacity="0.6" />
+                        <TextBlock Text="multi-thread compute" FontSize="11" Foreground="{StaticResource TextFillColorTertiaryBrush}" />
                         <ProgressBar Height="6" Maximum="100" helpers:Animations.SmoothValue="{Binding CpuScore}" Margin="0,8,0,0" />
                     </StackPanel>
                 </ui:Card>
@@ -117,7 +117,7 @@
                                    helpers:Animations.CountUpText="{Binding RamGBps}"
                                    helpers:Animations.CountUpFormat="0.0"
                                    helpers:Animations.CountUpSuffix=" GB/s" />
-                        <TextBlock Text="copy bandwidth" FontSize="11" Opacity="0.6" />
+                        <TextBlock Text="copy bandwidth" FontSize="11" Foreground="{StaticResource TextFillColorTertiaryBrush}" />
                         <ProgressBar Height="6" Maximum="100" helpers:Animations.SmoothValue="{Binding RamScore}" Margin="0,8,0,0" />
                     </StackPanel>
                 </ui:Card>
@@ -132,7 +132,7 @@
                                    helpers:Animations.CountUpText="{Binding DiskMBps}"
                                    helpers:Animations.CountUpFormat="N0"
                                    helpers:Animations.CountUpSuffix=" MB/s" />
-                        <TextBlock Text="sequential write" FontSize="11" Opacity="0.6" />
+                        <TextBlock Text="sequential write" FontSize="11" Foreground="{StaticResource TextFillColorTertiaryBrush}" />
                         <ProgressBar Height="6" Maximum="100" helpers:Animations.SmoothValue="{Binding DiskScore}" Margin="0,8,0,0" />
                     </StackPanel>
                 </ui:Card>
@@ -146,7 +146,7 @@
                          Visibility="{Binding HasTrend, Converter={StaticResource VisibleWhenTrue}}">
                     <controls:SparklineChart Height="64" Values="{Binding Trend}" Max="{Binding TrendMax}" Accent="{StaticResource AccentColor}" />
                 </ui:Card>
-                <TextBlock Margin="0,12,0,0" FontSize="11" Opacity="0.55" TextWrapping="Wrap"
+                <TextBlock Margin="0,12,0,0" FontSize="11" Foreground="{StaticResource TextFillColorTertiaryBrush}" TextWrapping="Wrap"
                            Text="A quick local benchmark — results vary with background load and thermal state. Scores are relative, not industry-standard figures. Nothing leaves your PC." />
             </StackPanel>
 
@@ -169,12 +169,12 @@
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="2*" />
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="WHEN" FontSize="11" Opacity="0.6" />
-                        <TextBlock Grid.Column="1" Text="SCORE" FontSize="11" Opacity="0.6" />
-                        <TextBlock Grid.Column="2" Text="CPU" FontSize="11" Opacity="0.6" />
-                        <TextBlock Grid.Column="3" Text="MEMORY" FontSize="11" Opacity="0.6" />
-                        <TextBlock Grid.Column="4" Text="DISK" FontSize="11" Opacity="0.6" />
-                        <TextBlock Grid.Column="5" Text="SUB-SCORES" FontSize="11" Opacity="0.6" />
+                        <TextBlock Grid.Column="0" Text="WHEN" FontSize="11" Foreground="{StaticResource TextFillColorTertiaryBrush}" />
+                        <TextBlock Grid.Column="1" Text="SCORE" FontSize="11" Foreground="{StaticResource TextFillColorTertiaryBrush}" />
+                        <TextBlock Grid.Column="2" Text="CPU" FontSize="11" Foreground="{StaticResource TextFillColorTertiaryBrush}" />
+                        <TextBlock Grid.Column="3" Text="MEMORY" FontSize="11" Foreground="{StaticResource TextFillColorTertiaryBrush}" />
+                        <TextBlock Grid.Column="4" Text="DISK" FontSize="11" Foreground="{StaticResource TextFillColorTertiaryBrush}" />
+                        <TextBlock Grid.Column="5" Text="SUB-SCORES" FontSize="11" Foreground="{StaticResource TextFillColorTertiaryBrush}" />
                     </Grid>
                     <ItemsControl ItemsSource="{Binding RunHistory}">
                         <ItemsControl.ItemTemplate>
@@ -196,7 +196,7 @@
                                         <TextBlock Grid.Column="2" Text="{Binding CpuRaw}" FontSize="12" VerticalAlignment="Center" />
                                         <TextBlock Grid.Column="3" Text="{Binding RamRaw}" FontSize="12" VerticalAlignment="Center" />
                                         <TextBlock Grid.Column="4" Text="{Binding DiskRaw}" FontSize="12" VerticalAlignment="Center" />
-                                        <TextBlock Grid.Column="5" Text="{Binding SubScores}" FontSize="12" Opacity="0.75" VerticalAlignment="Center" />
+                                        <TextBlock Grid.Column="5" Text="{Binding SubScores}" FontSize="12" Foreground="{StaticResource TextFillColorSecondaryBrush}" VerticalAlignment="Center" />
                                     </Grid>
                                 </Border>
                             </DataTemplate>

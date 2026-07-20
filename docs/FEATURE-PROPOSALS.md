@@ -179,3 +179,61 @@ sequence, reversible). A classic "why is my disk full/slow" culprit no current t
 **R2-2 temperature alerts + R2-3 boot report + R2-5 accent picker + R2-6 tray menu** — four small,
 high-visibility wins on existing infrastructure. Start R2-1 (Greek) in parallel as its own 2.16
 release. R2-4 and the Round-1 leftovers (Undo Center first) fill 2.17+.
+
+---
+
+# Round 3 — after 2.18 (the app is feature-rich; value now shifts to depth and trust)
+
+Shipped so far: 19 features + 2 polish/bug passes across 2.13–2.18. What remains valuable is
+mostly *finishing the original redesign* and a few features with proven foundations.
+
+## A. Finish the UI redesign (docs/UI-REDESIGN-V5.md, phases 3–5) — the biggest unshipped value
+
+### R3-1. Explainable health score (v5 §5.2)
+Under the Dashboard gauge, clickable chips for the score's inputs: `Junk 2.1 GB`, `Startup 9 items`,
+`RAM 78%`, `Security 4/5` — each jumps to its tool; "Fix all" states its plan before running.
+**Why first:** the score is the product's centerpiece and still a black box; HealthScoreService
+already computes these inputs — this is surfacing, not new math.
+
+### R3-2. Pinned tools + Recents in the nav pane
+A "Pinned" group (starred via right-click or the palette) + auto "Recents" (last 3), persisted in
+AppSettings. The 90% case becomes one click. Lighter than the full category-hub restructure —
+which can follow later or never; with search + pins the flat list stops hurting.
+
+### R3-3. Accessibility pass (v5 phase 4)
+`AutomationProperties.Name` on icon-only buttons; `AutomationPeer` for HealthGauge ("PC health:
+84 of 100"); focus visuals on custom controls; a "Solid surfaces" toggle (reduce transparency /
+high-ambient-light accommodation). The score becomes perceivable to assistive tech for the first time.
+
+### R3-4. Lock in the cleanup: SmokeTest lint
+The inline-drift cleanup is ~done; add the CI rule so it can never return — SmokeTest scans
+`Views/*.xaml` for `Opacity="0.` + `FontSize="` on text elements and fails the build. Ten lines of
+C#; permanent payoff.
+
+## B. New features on proven foundations
+
+### R3-5. Similar-photos mode in Duplicate Finder
+Perceptual hash (dHash) stage in the existing size→partial→full pipeline: catches resized/edited
+copies exact hashing misses; "keep highest resolution" preselection.
+
+### R3-6. Restore-point watchdog
+Warn (once, tray) when System Protection is off or the newest restore point is >30 days old —
+the safety net the whole app leans on, currently unmonitored. Tiny: RestorePointService + the
+alert plumbing.
+
+### R3-7. Autorun Guard: periodic re-check
+Currently checks at app start only; a program installed mid-session isn't noticed until next
+launch. Re-run the diff every 6h while running (timer + the existing service).
+
+### R3-8. Undo Center (carried, still worth it)
+One page listing recent reversible actions with per-item Revert. Needs history entries to carry a
+machine-readable revert descriptor — a small HistoryService extension first (additive field).
+
+## Recommended 2.19
+R3-1 + R3-4 + R3-6 + R3-7 (score explainability + permanent lint + two small watchdogs).
+2.20: R3-2 pins/recents. Then R3-3 a11y as its own release; R3-5/R3-8 after.
+
+## Not recommended
+Full category-hub nav restructure (pins+search deliver most of the value at a fraction of the
+risk); localization (declined); cloud-file advisor (OneDrive attribute edge cases vs. modest win);
+security-updater CVE flagging (still no good keyless data source for Windows desktop apps).

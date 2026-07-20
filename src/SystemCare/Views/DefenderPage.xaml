@@ -34,7 +34,7 @@
                 <ui:SymbolIcon Grid.Column="0" Symbol="{Binding StatusIcon}" FontSize="40" VerticalAlignment="Center" />
                 <StackPanel Grid.Column="1" Margin="16,0,12,0" VerticalAlignment="Center">
                     <TextBlock Text="Microsoft Defender" Style="{StaticResource CyberPageTitle}" />
-                    <TextBlock Text="{Binding Headline}" FontSize="13" Opacity="0.8" Margin="0,4,0,0" TextWrapping="Wrap" />
+                    <TextBlock Text="{Binding Headline}" FontSize="13" Foreground="{StaticResource TextFillColorSecondaryBrush}" Margin="0,4,0,0" TextWrapping="Wrap" />
                 </StackPanel>
                 <ui:Button Grid.Column="2" Content="Refresh" Padding="14,7" VerticalAlignment="Center"
                            Command="{Binding RefreshCommand}">
@@ -59,7 +59,7 @@
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="Real-time protection" Opacity="0.85" />
+                        <TextBlock Grid.Column="0" Text="Real-time protection" Foreground="{StaticResource TextFillColorSecondaryBrush}" />
                         <TextBlock Grid.Column="1" Text="{Binding RealTimeText}" FontWeight="SemiBold" />
                     </Grid>
                     <Grid Margin="0,0,0,6">
@@ -67,7 +67,7 @@
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="Tamper protection" Opacity="0.85" />
+                        <TextBlock Grid.Column="0" Text="Tamper protection" Foreground="{StaticResource TextFillColorSecondaryBrush}" />
                         <TextBlock Grid.Column="1" Text="{Binding TamperText}" FontWeight="SemiBold" />
                     </Grid>
                     <Grid Margin="0,0,0,6">
@@ -75,7 +75,7 @@
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="Definitions" Opacity="0.85" />
+                        <TextBlock Grid.Column="0" Text="Definitions" Foreground="{StaticResource TextFillColorSecondaryBrush}" />
                         <TextBlock Grid.Column="1" Text="{Binding SignatureText}" FontWeight="SemiBold" TextAlignment="Right" />
                     </Grid>
                     <Grid Margin="0,0,0,6">
@@ -83,7 +83,7 @@
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="Last quick scan" Opacity="0.85" />
+                        <TextBlock Grid.Column="0" Text="Last quick scan" Foreground="{StaticResource TextFillColorSecondaryBrush}" />
                         <TextBlock Grid.Column="1" Text="{Binding LastQuickScanText}" FontWeight="SemiBold" />
                     </Grid>
                     <Grid>
@@ -91,7 +91,7 @@
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="Last full scan" Opacity="0.85" />
+                        <TextBlock Grid.Column="0" Text="Last full scan" Foreground="{StaticResource TextFillColorSecondaryBrush}" />
                         <TextBlock Grid.Column="1" Text="{Binding LastFullScanText}" FontWeight="SemiBold" />
                     </Grid>
                 </StackPanel>

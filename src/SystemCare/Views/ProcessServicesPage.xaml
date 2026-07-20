@@ -48,9 +48,9 @@
                                     </Grid.ColumnDefinitions>
                                     <StackPanel Grid.Column="0" VerticalAlignment="Center" Margin="0,0,8,0">
                                         <TextBlock Text="{Binding Title}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
-                                        <TextBlock Text="{Binding Name}" FontSize="11" Opacity="0.5" TextTrimming="CharacterEllipsis" />
+                                        <TextBlock Text="{Binding Name}" FontSize="11" Foreground="{StaticResource TextFillColorTertiaryBrush}" TextTrimming="CharacterEllipsis" />
                                     </StackPanel>
-                                    <TextBlock Grid.Column="1" Text="{Binding Pid}" VerticalAlignment="Center" FontSize="12" Opacity="0.6" />
+                                    <TextBlock Grid.Column="1" Text="{Binding Pid}" VerticalAlignment="Center" FontSize="12" Foreground="{StaticResource TextFillColorTertiaryBrush}" />
                                     <TextBlock Grid.Column="2" Text="{Binding CpuText}" VerticalAlignment="Center" FontSize="12" />
                                     <TextBlock Grid.Column="3" Text="{Binding RamText}" VerticalAlignment="Center" FontSize="12" FontWeight="SemiBold" />
                                     <ui:Button Grid.Column="4" Content="End task" Appearance="Danger" Padding="12,5"
@@ -100,9 +100,9 @@
                                     </Grid.ColumnDefinitions>
                                     <StackPanel Grid.Column="0" VerticalAlignment="Center" Margin="0,0,8,0">
                                         <TextBlock Text="{Binding DisplayName}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
-                                        <TextBlock Text="{Binding Name}" FontSize="11" Opacity="0.5" TextTrimming="CharacterEllipsis" />
+                                        <TextBlock Text="{Binding Name}" FontSize="11" Foreground="{StaticResource TextFillColorTertiaryBrush}" TextTrimming="CharacterEllipsis" />
                                     </StackPanel>
-                                    <TextBlock Grid.Column="1" Text="{Binding StartMode}" VerticalAlignment="Center" FontSize="12" Opacity="0.6" />
+                                    <TextBlock Grid.Column="1" Text="{Binding StartMode}" VerticalAlignment="Center" FontSize="12" Foreground="{StaticResource TextFillColorTertiaryBrush}" />
                                     <TextBlock Grid.Column="2" Text="{Binding StateText}" VerticalAlignment="Center" FontSize="12" FontWeight="SemiBold" />
                                     <ui:Button Grid.Column="3" Padding="12,5"
                                                Command="{Binding DataContext.ToggleServiceCommand, RelativeSource={RelativeSource AncestorType=Page}}"

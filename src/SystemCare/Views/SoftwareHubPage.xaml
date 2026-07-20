@@ -68,7 +68,7 @@
         <StackPanel Grid.Row="3" Margin="0,0,0,4">
             <controls:TaskProgress IsActive="{Binding IsChecking}" />
             <controls:TaskProgress IsActive="{Binding IsInstalling}" Value="{Binding InstallProgress}" />
-            <TextBlock Text="{Binding StatusText}" FontSize="12" Opacity="0.7" Margin="0,6,0,0"
+            <TextBlock Text="{Binding StatusText}" FontSize="12" Foreground="{StaticResource TextFillColorTertiaryBrush}" Margin="0,6,0,0"
                        TextTrimming="CharacterEllipsis" />
         </StackPanel>
 
@@ -139,7 +139,7 @@
                 <StackPanel Grid.Row="0" Margin="0,12,0,4">
                     <TextBlock Text="SEARCH RESULTS" Style="{StaticResource CyberSectionHeader}" />
                     <controls:TaskProgress IsActive="{Binding IsSearching}" />
-                    <TextBlock Text="{Binding SearchStatusText}" FontSize="12" Opacity="0.7" Margin="0,4,0,0"
+                    <TextBlock Text="{Binding SearchStatusText}" FontSize="12" Foreground="{StaticResource TextFillColorTertiaryBrush}" Margin="0,4,0,0"
                                TextTrimming="CharacterEllipsis" />
                 </StackPanel>
 
@@ -156,7 +156,7 @@
                                         <StackPanel Grid.Column="0" VerticalAlignment="Center">
                                             <StackPanel Orientation="Horizontal">
                                                 <TextBlock Text="{Binding Name}" FontWeight="SemiBold" />
-                                                <TextBlock Text="{Binding Id}" FontSize="11" Opacity="0.5" Margin="10,0,0,0"
+                                                <TextBlock Text="{Binding Id}" FontSize="11" Foreground="{StaticResource TextFillColorTertiaryBrush}" Margin="10,0,0,0"
                                                            VerticalAlignment="Center" FontFamily="Consolas" />
                                             </StackPanel>
                                             <TextBlock Text="{Binding Description}" Style="{StaticResource TextCaption}" TextWrapping="Wrap" />

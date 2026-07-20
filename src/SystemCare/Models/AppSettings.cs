@@ -29,6 +29,9 @@ public class AppSettings
     public bool MaintenanceOnlyWhenIdle { get; set; }
     /// <summary>2.14: Autorun Guard — notify when a program adds itself to startup.</summary>
     public bool AutorunGuardEnabled { get; set; } = true;
+
+    /// <summary>2.19: restore-point watchdog cooldown (warns at most once per 14 days).</summary>
+    public DateTime? LastRestorePointWarningUtc { get; set; }
     public bool MinimizeToTray { get; set; } = true;
     /// <summary>Launch SystemCare minimized to the tray when Windows starts (via an elevated logon task).</summary>
     public bool StartWithWindows { get; set; }

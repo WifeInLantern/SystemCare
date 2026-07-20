@@ -38,7 +38,7 @@
                 </Grid.ColumnDefinitions>
                 <StackPanel Grid.Column="0">
                     <TextBlock Text="Care Report" Style="{StaticResource CyberPageTitle}" />
-                    <TextBlock Text="{Binding HistoryWindowText}" FontSize="13" Opacity="0.75" Margin="0,4,0,0" TextWrapping="Wrap" />
+                    <TextBlock Text="{Binding HistoryWindowText}" FontSize="13" Foreground="{StaticResource TextFillColorSecondaryBrush}" Margin="0,4,0,0" TextWrapping="Wrap" />
                 </StackPanel>
                 <ui:Button Grid.Column="1" Content="Export HTML report" Appearance="Primary" Padding="18,8"
                            VerticalAlignment="Top" Command="{Binding ExportReportCommand}"
@@ -51,7 +51,7 @@
             <UniformGrid Grid.Row="1" Columns="4" Margin="0,16,0,0">
                 <ui:Card Margin="0,0,8,0" Padding="16,12">
                     <StackPanel>
-                        <TextBlock Text="SPACE FREED" FontSize="11" Opacity="0.6" Style="{StaticResource CyberSectionHeader}" />
+                        <TextBlock Text="SPACE FREED" FontSize="11" Foreground="{StaticResource TextFillColorTertiaryBrush}" Style="{StaticResource CyberSectionHeader}" />
                         <TextBlock FontSize="24" Margin="0,4,0,0" Style="{StaticResource CyberDisplayText}"
                                    helpers:Animations.CountUpBytes="True"
                                    helpers:Animations.CountUpText="{Binding TotalFreedBytes}" />
@@ -59,7 +59,7 @@
                 </ui:Card>
                 <ui:Card Margin="0,0,8,0" Padding="16,12">
                     <StackPanel>
-                        <TextBlock Text="ACTIONS" FontSize="11" Opacity="0.6" Style="{StaticResource CyberSectionHeader}" />
+                        <TextBlock Text="ACTIONS" FontSize="11" Foreground="{StaticResource TextFillColorTertiaryBrush}" Style="{StaticResource CyberSectionHeader}" />
                         <TextBlock FontSize="24" Margin="0,4,0,0" Style="{StaticResource CyberDisplayText}"
                                    helpers:Animations.CountUpText="{Binding TotalActionsValue}"
                                    helpers:Animations.CountUpFormat="N0" />
@@ -67,7 +67,7 @@
                 </ui:Card>
                 <ui:Card Margin="0,0,8,0" Padding="16,12">
                     <StackPanel>
-                        <TextBlock Text="HEALTH SCORE" FontSize="11" Opacity="0.6" Style="{StaticResource CyberSectionHeader}" />
+                        <TextBlock Text="HEALTH SCORE" FontSize="11" Foreground="{StaticResource TextFillColorTertiaryBrush}" Style="{StaticResource CyberSectionHeader}" />
                         <TextBlock FontSize="24" Margin="0,4,0,0" Style="{StaticResource CyberDisplayText}"
                                    helpers:Animations.CountUpText="{Binding HealthScoreValue}"
                                    helpers:Animations.CountUpFormat="0" />
@@ -75,7 +75,7 @@
                 </ui:Card>
                 <ui:Card Padding="16,12">
                     <StackPanel>
-                        <TextBlock Text="LATEST BENCHMARK" FontSize="11" Opacity="0.6" Style="{StaticResource CyberSectionHeader}" />
+                        <TextBlock Text="LATEST BENCHMARK" FontSize="11" Foreground="{StaticResource TextFillColorTertiaryBrush}" Style="{StaticResource CyberSectionHeader}" />
                         <TextBlock FontSize="24" Margin="0,4,0,0" Style="{StaticResource CyberDisplayText}"
                                    helpers:Animations.CountUpText="{Binding LatestBenchmarkValue}"
                                    helpers:Animations.CountUpFormat="N0"
@@ -92,18 +92,18 @@
                 </Grid.ColumnDefinitions>
                 <ui:Card Grid.Column="0" Margin="0,0,6,0" Padding="16,14">
                     <StackPanel>
-                        <TextBlock Text="SPACE FREED — LAST 30 DAYS" Style="{StaticResource CyberSectionHeader}" FontSize="11" Opacity="0.7" />
+                        <TextBlock Text="SPACE FREED — LAST 30 DAYS" Style="{StaticResource CyberSectionHeader}" FontSize="11" Foreground="{StaticResource TextFillColorTertiaryBrush}" />
                         <controls:BarChart Height="72" Margin="0,10,0,0"
                                            Values="{Binding DailyBars}" Max="{Binding DailyMax}" Accent="{StaticResource AccentColor}" />
-                        <TextBlock Text="{Binding DailyRangeText}" FontSize="11" Opacity="0.55" Margin="0,6,0,0" />
+                        <TextBlock Text="{Binding DailyRangeText}" FontSize="11" Foreground="{StaticResource TextFillColorTertiaryBrush}" Margin="0,6,0,0" />
                     </StackPanel>
                 </ui:Card>
                 <ui:Card Grid.Column="1" Margin="6,0,0,0" Padding="16,14">
                     <StackPanel>
-                        <TextBlock Text="SPACE FREED — LAST 12 WEEKS" Style="{StaticResource CyberSectionHeader}" FontSize="11" Opacity="0.7" />
+                        <TextBlock Text="SPACE FREED — LAST 12 WEEKS" Style="{StaticResource CyberSectionHeader}" FontSize="11" Foreground="{StaticResource TextFillColorTertiaryBrush}" />
                         <controls:BarChart Height="72" Margin="0,10,0,0"
                                            Values="{Binding WeeklyBars}" Max="{Binding WeeklyMax}" Accent="{StaticResource SecondaryColor}" />
-                        <TextBlock Text="{Binding WeeklyRangeText}" FontSize="11" Opacity="0.55" Margin="0,6,0,0" />
+                        <TextBlock Text="{Binding WeeklyRangeText}" FontSize="11" Foreground="{StaticResource TextFillColorTertiaryBrush}" Margin="0,6,0,0" />
                     </StackPanel>
                 </ui:Card>
             </Grid>
@@ -111,8 +111,8 @@
             <!-- Actions by category -->
             <ui:Card Grid.Row="3" Margin="0,12,0,0" Padding="16,14">
                 <StackPanel>
-                    <TextBlock Text="ACTIONS BY CATEGORY" Style="{StaticResource CyberSectionHeader}" FontSize="11" Opacity="0.7" />
-                    <TextBlock Text="Run scans and cleanups to build up trend data." FontSize="12" Opacity="0.55" Margin="0,8,0,0"
+                    <TextBlock Text="ACTIONS BY CATEGORY" Style="{StaticResource CyberSectionHeader}" FontSize="11" Foreground="{StaticResource TextFillColorTertiaryBrush}" />
+                    <TextBlock Text="Run scans and cleanups to build up trend data." FontSize="12" Foreground="{StaticResource TextFillColorTertiaryBrush}" Margin="0,8,0,0"
                                Visibility="{Binding HasActivity, Converter={StaticResource VisibleWhenFalse}}" />
                     <ItemsControl ItemsSource="{Binding CategoryRows}" Margin="0,8,0,0">
                         <ItemsControl.ItemTemplate>
@@ -126,7 +126,7 @@
                                     </Grid.ColumnDefinitions>
                                     <TextBlock Grid.Column="0" Text="{Binding Name}" FontSize="12" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
                                     <ProgressBar Grid.Column="1" Maximum="100" Height="6" Value="{Binding PercentOfMax, Mode=OneWay}" VerticalAlignment="Center" />
-                                    <TextBlock Grid.Column="2" Text="{Binding CountText}" FontSize="12" Opacity="0.75" TextAlignment="Right" VerticalAlignment="Center" Margin="8,0,0,0" />
+                                    <TextBlock Grid.Column="2" Text="{Binding CountText}" FontSize="12" Foreground="{StaticResource TextFillColorSecondaryBrush}" TextAlignment="Right" VerticalAlignment="Center" Margin="8,0,0,0" />
                                     <TextBlock Grid.Column="3" Text="{Binding BytesText}" FontSize="12" Foreground="{StaticResource NeonCyanBrush}" TextAlignment="Right" VerticalAlignment="Center" />
                                 </Grid>
                             </DataTemplate>
@@ -143,27 +143,27 @@
                 </Grid.ColumnDefinitions>
                 <ui:Card Grid.Column="0" Margin="0,0,6,0" Padding="16,14">
                     <StackPanel>
-                        <TextBlock Text="HEALTH SCORE TREND" Style="{StaticResource CyberSectionHeader}" FontSize="11" Opacity="0.7" />
+                        <TextBlock Text="HEALTH SCORE TREND" Style="{StaticResource CyberSectionHeader}" FontSize="11" Foreground="{StaticResource TextFillColorTertiaryBrush}" />
                         <controls:SparklineChart Height="64" Margin="0,10,0,0" Max="100"
                                                  Values="{Binding HealthTrendValues}" Accent="#3DFFB4"
                                                  Visibility="{Binding HasHealthTrend, Converter={StaticResource VisibleWhenTrue}}" />
-                        <TextBlock Text="Needs at least two daily health scans." FontSize="12" Opacity="0.55" Margin="0,8,0,0"
+                        <TextBlock Text="Needs at least two daily health scans." FontSize="12" Foreground="{StaticResource TextFillColorTertiaryBrush}" Margin="0,8,0,0"
                                    Visibility="{Binding HasHealthTrend, Converter={StaticResource VisibleWhenFalse}}" />
                     </StackPanel>
                 </ui:Card>
                 <ui:Card Grid.Column="1" Margin="6,0,0,0" Padding="16,14">
                     <StackPanel>
-                        <TextBlock Text="BENCHMARK TREND" Style="{StaticResource CyberSectionHeader}" FontSize="11" Opacity="0.7" />
+                        <TextBlock Text="BENCHMARK TREND" Style="{StaticResource CyberSectionHeader}" FontSize="11" Foreground="{StaticResource TextFillColorTertiaryBrush}" />
                         <controls:SparklineChart Height="64" Margin="0,10,0,0"
                                                  Values="{Binding BenchmarkTrendValues}" Max="{Binding BenchmarkTrendMax}" Accent="{StaticResource WarningColor}"
                                                  Visibility="{Binding HasBenchmarkTrend, Converter={StaticResource VisibleWhenTrue}}" />
-                        <TextBlock Text="Needs at least two benchmark runs." FontSize="12" Opacity="0.55" Margin="0,8,0,0"
+                        <TextBlock Text="Needs at least two benchmark runs." FontSize="12" Foreground="{StaticResource TextFillColorTertiaryBrush}" Margin="0,8,0,0"
                                    Visibility="{Binding HasBenchmarkTrend, Converter={StaticResource VisibleWhenFalse}}" />
                     </StackPanel>
                 </ui:Card>
             </Grid>
 
-            <TextBlock Grid.Row="5" Margin="0,14,0,0" FontSize="11" Opacity="0.55" TextWrapping="Wrap"
+            <TextBlock Grid.Row="5" Margin="0,14,0,0" FontSize="11" Foreground="{StaticResource TextFillColorTertiaryBrush}" TextWrapping="Wrap"
                        Text="All data comes from this PC's local activity history — nothing is collected or sent anywhere. The exported HTML report is a single self-contained file, safe to print or share." />
         </Grid>
     </ScrollViewer>

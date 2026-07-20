@@ -21,7 +21,7 @@
 
         <StackPanel Grid.Row="0">
             <TextBlock Text="Network Security Audit" Style="{StaticResource CyberPageTitle}" />
-            <TextBlock Text="{Binding SummaryText}" FontSize="13" Opacity="0.75" Margin="0,4,0,0" />
+            <TextBlock Text="{Binding SummaryText}" FontSize="13" Foreground="{StaticResource TextFillColorSecondaryBrush}" Margin="0,4,0,0" />
         </StackPanel>
 
         <ui:Button Grid.Row="1" Content="Refresh" Padding="18,8" Margin="0,14,0,0" Command="{Binding RefreshCommand}">
@@ -45,10 +45,10 @@
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="80" />
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="Proto" FontSize="11" Opacity="0.5" />
-                        <TextBlock Grid.Column="1" Text="Local address" FontSize="11" Opacity="0.5" />
-                        <TextBlock Grid.Column="2" Text="Port" FontSize="11" Opacity="0.5" />
-                        <TextBlock Grid.Column="3" Text="Process" FontSize="11" Opacity="0.5" />
+                        <TextBlock Grid.Column="0" Text="Proto" FontSize="11" Foreground="{StaticResource TextFillColorTertiaryBrush}" />
+                        <TextBlock Grid.Column="1" Text="Local address" FontSize="11" Foreground="{StaticResource TextFillColorTertiaryBrush}" />
+                        <TextBlock Grid.Column="2" Text="Port" FontSize="11" Foreground="{StaticResource TextFillColorTertiaryBrush}" />
+                        <TextBlock Grid.Column="3" Text="Process" FontSize="11" Foreground="{StaticResource TextFillColorTertiaryBrush}" />
                     </Grid>
                     <ui:ListView Grid.Row="1" ItemsSource="{Binding ListeningPorts}"
                                  VirtualizingPanel.IsVirtualizing="True" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
@@ -62,9 +62,9 @@
                                         <ColumnDefinition Width="*" />
                                         <ColumnDefinition Width="80" />
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="{Binding Protocol}" FontSize="12" Opacity="0.6" VerticalAlignment="Center" />
+                                    <TextBlock Grid.Column="0" Text="{Binding Protocol}" FontSize="12" Foreground="{StaticResource TextFillColorTertiaryBrush}" VerticalAlignment="Center" />
                                     <TextBlock Grid.Column="1" Text="{Binding LocalAddress}" FontSize="12" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
-                                    <TextBlock Grid.Column="2" Text="{Binding Port}" FontSize="12" Opacity="0.7" VerticalAlignment="Center" />
+                                    <TextBlock Grid.Column="2" Text="{Binding Port}" FontSize="12" Foreground="{StaticResource TextFillColorTertiaryBrush}" VerticalAlignment="Center" />
                                     <TextBlock Grid.Column="3" Text="{Binding ProcessName}" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
                                     <ui:Button Grid.Column="4" Content="Block" Padding="10,4" FontSize="11"
                                                Appearance="Danger"
@@ -89,7 +89,7 @@
                                     <ColumnDefinition Width="Auto" />
                                 </Grid.ColumnDefinitions>
                                 <TextBlock Grid.Column="0" Text="{Binding DisplayName}" FontSize="13" FontWeight="SemiBold" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
-                                <TextBlock Grid.Column="1" Text="{Binding ApplicationPath}" FontSize="11" Opacity="0.6" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+                                <TextBlock Grid.Column="1" Text="{Binding ApplicationPath}" FontSize="11" Foreground="{StaticResource TextFillColorTertiaryBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
                                 <ui:Button Grid.Column="2" Content="Unblock" Padding="10,4" FontSize="11"
                                            Command="{Binding DataContext.UnblockAppCommand, RelativeSource={RelativeSource AncestorType=Page}}"
                                            CommandParameter="{Binding}" />

@@ -30,7 +30,7 @@
         <ui:Card Grid.Row="1" Margin="0,14,0,0" Padding="16,12">
             <!-- WrapPanel so the options + buttons wrap to a new line instead of clipping at narrow widths. -->
             <WrapPanel>
-                <TextBlock Text="Clear:" VerticalAlignment="Center" Opacity="0.85" Margin="0,4,12,4" />
+                <TextBlock Text="Clear:" VerticalAlignment="Center" Foreground="{StaticResource TextFillColorSecondaryBrush}" Margin="0,4,12,4" />
                 <CheckBox Content="Cache" IsChecked="{Binding ClearCache}" VerticalAlignment="Center" Margin="0,4,16,4" />
                 <CheckBox Content="Cookies" IsChecked="{Binding ClearCookies}" VerticalAlignment="Center" Margin="0,4,16,4" />
                 <CheckBox Content="History" IsChecked="{Binding ClearHistory}" VerticalAlignment="Center" Margin="0,4,16,4" />
@@ -45,7 +45,7 @@
 
         <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="2,12,0,0">
             <controls:TaskProgress IsActive="{Binding IsBusy}" VerticalAlignment="Center" />
-            <TextBlock Text="{Binding StatusText}" VerticalAlignment="Center" Margin="8,0,0,0" Opacity="0.85" FontSize="12" TextWrapping="Wrap" />
+            <TextBlock Text="{Binding StatusText}" VerticalAlignment="Center" Margin="8,0,0,0" Foreground="{StaticResource TextFillColorSecondaryBrush}" FontSize="12" TextWrapping="Wrap" />
         </StackPanel>
 
         <ScrollViewer Grid.Row="3" VerticalScrollBarVisibility="Auto" Margin="0,12,0,0">
@@ -62,7 +62,7 @@
                                 <CheckBox Grid.Column="0" IsChecked="{Binding IsSelected, Mode=TwoWay}" VerticalAlignment="Center" />
                                 <TextBlock Grid.Column="1" Text="{Binding Name}" FontWeight="SemiBold" FontSize="14"
                                            Margin="10,0,0,0" VerticalAlignment="Center" />
-                                <TextBlock Grid.Column="2" Text="{Binding CacheText}" VerticalAlignment="Center" Opacity="0.8" />
+                                <TextBlock Grid.Column="2" Text="{Binding CacheText}" VerticalAlignment="Center" Foreground="{StaticResource TextFillColorSecondaryBrush}" />
                             </Grid>
                         </ui:Card>
                     </DataTemplate>

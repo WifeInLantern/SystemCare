@@ -95,7 +95,7 @@
                                             </Style.Triggers>
                                         </Style>
                                     </Border.Style>
-                                    <TextBlock Text="{Binding BadgeText}" FontSize="10" Opacity="0.85" />
+                                    <TextBlock Text="{Binding BadgeText}" FontSize="10" Foreground="{StaticResource TextFillColorSecondaryBrush}" />
                                 </Border>
                             </Grid>
                         </ui:Card>

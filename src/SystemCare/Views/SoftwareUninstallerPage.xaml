@@ -60,7 +60,7 @@
                         </Grid.ColumnDefinitions>
                         <StackPanel Grid.Column="0" VerticalAlignment="Center" Margin="0,0,8,0">
                             <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
-                            <TextBlock FontSize="11" Opacity="0.55" TextTrimming="CharacterEllipsis">
+                            <TextBlock FontSize="11" Foreground="{StaticResource TextFillColorTertiaryBrush}" TextTrimming="CharacterEllipsis">
                                 <Run Text="{Binding Publisher, Mode=OneWay}" /><Run Text="  ·  v" /><Run Text="{Binding Version, Mode=OneWay}" />
                             </TextBlock>
                         </StackPanel>

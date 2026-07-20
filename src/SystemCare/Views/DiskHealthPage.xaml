@@ -37,7 +37,7 @@
                 <controls:HealthGauge Grid.Column="0" Score="{Binding OverallScore}" Width="108" Height="108" />
                 <StackPanel Grid.Column="1" Margin="18,0,12,0" VerticalAlignment="Center">
                     <TextBlock Text="Disk Health" Style="{StaticResource CyberPageTitle}" />
-                    <TextBlock Text="{Binding SummaryText}" FontSize="13" Opacity="0.8" Margin="0,4,0,0" TextWrapping="Wrap" />
+                    <TextBlock Text="{Binding SummaryText}" FontSize="13" Foreground="{StaticResource TextFillColorSecondaryBrush}" Margin="0,4,0,0" TextWrapping="Wrap" />
                 </StackPanel>
                 <StackPanel Grid.Column="2" VerticalAlignment="Center">
                     <ui:Button Content="Optimize all drives" Appearance="Primary" Padding="16,9" HorizontalAlignment="Stretch"
@@ -77,7 +77,7 @@
                                                    Foreground="{Binding Brush}" Margin="0,0,12,0" />
                                     <StackPanel Grid.Column="1" VerticalAlignment="Center">
                                         <TextBlock Text="{Binding Title}" FontWeight="SemiBold" Foreground="{Binding Brush}" />
-                                        <TextBlock Text="{Binding Detail}" FontSize="12" Opacity="0.78" TextWrapping="Wrap" />
+                                        <TextBlock Text="{Binding Detail}" FontSize="12" Foreground="{StaticResource TextFillColorSecondaryBrush}" TextWrapping="Wrap" />
                                     </StackPanel>
                                     <ui:Button Grid.Column="2" Content="{Binding ActionLabel}" Padding="12,6" Margin="12,0,0,0"
                                                VerticalAlignment="Center"
@@ -114,7 +114,7 @@
                                             <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="13"
                                                        TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
                                         </StackPanel>
-                                        <TextBlock FontSize="11" Opacity="0.6" Margin="0,2,0,0">
+                                        <TextBlock FontSize="11" Foreground="{StaticResource TextFillColorTertiaryBrush}" Margin="0,2,0,0">
                                             <Run Text="{Binding Media, Mode=OneWay}" /><Run Text=" · " /><Run Text="{Binding SizeText, Mode=OneWay}" /><Run Text=" · " /><Run Text="{Binding HealthText, Mode=OneWay}" />
                                         </TextBlock>
                                         <WrapPanel Margin="0,8,0,0">
@@ -158,7 +158,7 @@
                                         <TextBlock FontWeight="SemiBold">
                                             <Run Text="{Binding Letter, Mode=OneWay}" /><Run Text=" " /><Run Text="{Binding Label, Mode=OneWay}" />
                                         </TextBlock>
-                                        <TextBlock Text="{Binding FreeText}" FontSize="11" Opacity="0.6" />
+                                        <TextBlock Text="{Binding FreeText}" FontSize="11" Foreground="{StaticResource TextFillColorTertiaryBrush}" />
                                     </StackPanel>
                                     <ProgressBar Grid.Column="1" Value="{Binding UsedPercent, Mode=OneWay}" Maximum="100"
                                                  Height="6" VerticalAlignment="Center" Margin="0,0,12,0"
@@ -184,21 +184,21 @@
                         <ui:CardAction.Icon><ui:SymbolIcon Symbol="Broom24" /></ui:CardAction.Icon>
                         <StackPanel>
                             <TextBlock Text="Clean junk &amp; cache" FontWeight="SemiBold" />
-                            <TextBlock Text="Remove temporary and leftover files" FontSize="11" Opacity="0.65" TextWrapping="Wrap" />
+                            <TextBlock Text="Remove temporary and leftover files" FontSize="11" Foreground="{StaticResource TextFillColorTertiaryBrush}" TextWrapping="Wrap" />
                         </StackPanel>
                     </ui:CardAction>
                     <ui:CardAction Margin="8,0,8,0" Command="{Binding NavigateCommand}" CommandParameter="Duplicates">
                         <ui:CardAction.Icon><ui:SymbolIcon Symbol="DocumentCopy24" /></ui:CardAction.Icon>
                         <StackPanel>
                             <TextBlock Text="Find duplicates" FontWeight="SemiBold" />
-                            <TextBlock Text="Reclaim space from repeated files" FontSize="11" Opacity="0.65" TextWrapping="Wrap" />
+                            <TextBlock Text="Reclaim space from repeated files" FontSize="11" Foreground="{StaticResource TextFillColorTertiaryBrush}" TextWrapping="Wrap" />
                         </StackPanel>
                     </ui:CardAction>
                     <ui:CardAction Margin="8,0,0,0" Command="{Binding NavigateCommand}" CommandParameter="Disk">
                         <ui:CardAction.Icon><ui:SymbolIcon Symbol="DataPie24" /></ui:CardAction.Icon>
                         <StackPanel>
                             <TextBlock Text="Find large files" FontWeight="SemiBold" />
-                            <TextBlock Text="See what's using the most space" FontSize="11" Opacity="0.65" TextWrapping="Wrap" />
+                            <TextBlock Text="See what's using the most space" FontSize="11" Foreground="{StaticResource TextFillColorTertiaryBrush}" TextWrapping="Wrap" />
                         </StackPanel>
                     </ui:CardAction>
                 </UniformGrid>
