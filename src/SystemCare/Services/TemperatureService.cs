@@ -127,7 +127,11 @@ public sealed class TemperatureService : ITemperatureService
                 double celsius = Convert.ToDouble(row["CurrentTemperature"]) / 10.0 - 273.15;
                 if (celsius > best) best = celsius;
             }
-            _acpiCache = best is > 5 and < 110 ? Math.Round(best) : null;
+            // 2.19.x: a *running* CPU cannot sit below ~room temperature. Many boards expose a
+            // frozen ACPI placeholder (exactly 290.0 K = 16.9 °C is the classic) that never updates;
+            // reporting it as "CPU TEMP 17 °C" is worse than reporting nothing — the Sensors hub
+            // already explains a missing CPU temperature honestly. Floor raised 5 → 20 °C.
+            _acpiCache = best is > 20 and < 110 ? Math.Round(best) : null;
         }
         catch (Exception)
         {

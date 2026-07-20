@@ -2,6 +2,15 @@
 
 All notable changes to SystemCare are documented here. Versions follow [SemVer](https://semver.org/).
 
+## [2.19.2] - 2026-07-20
+
+### Fixed
+- **CPU temperature no longer sticks at an impossible ~17 °C.** When the real sensor is blocked
+  (Memory Integrity) the app falls back to the ACPI thermal zone — but many boards expose a frozen
+  placeholder there (290 K) that never updates. A running CPU can't sit below room temperature, so
+  implausible readings (≤20 °C) are now rejected and the Sensors hub shows its honest
+  "CPU temperature unavailable" explanation instead of a false number.
+
 ## [2.19.1] - 2026-07-20
 
 ### Fixed
