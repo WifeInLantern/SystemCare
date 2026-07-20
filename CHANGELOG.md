@@ -2,7 +2,7 @@
 
 All notable changes to SystemCare are documented here. Versions follow [SemVer](https://semver.org/).
 
-## [2.19.2] - 2026-07-20
+## [2.19.3] - 2026-07-20
 
 ### Changed
 - **Clearer explanation when CPU temperature is unavailable.** Besides Memory Integrity, Windows 11's
