@@ -2,6 +2,14 @@
 
 All notable changes to SystemCare are documented here. Versions follow [SemVer](https://semver.org/).
 
+## [2.19.1] - 2026-07-20
+
+### Fixed
+- **Sensors no longer show "0 MHz" rows.** Parked CPU cores report zero "effective" clocks, and a
+  blocked sensor driver (Windows Memory Integrity/HVCI) can zero out whole clock and voltage banks —
+  those rows are noise, not signal, and are now dropped from the Sensors hub. Zeros that carry
+  meaning (a stopped fan, 0% load) still show.
+
 ## [2.19.0] - 2026-07-20
 
 ### Added

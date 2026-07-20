@@ -158,6 +158,11 @@ public sealed class TemperatureService : ITemperatureService
         {
             if (MapKind(s.SensorType) is not SensorKind kind) continue;
             if (s.Value is not float v || float.IsNaN(v) || float.IsInfinity(v)) continue;
+            // 2.19.x: a clock or voltage of exactly 0 is noise, not signal — parked cores report
+            // 0 MHz "effective" clocks, and a blocked sensor driver (Memory Integrity/HVCI) makes
+            // whole banks read 0. Loads/fans/temps keep their zeros (a stopped fan IS information);
+            // meaningless zero rows are dropped instead of rendered as "0 MHz".
+            if (v == 0 && kind is SensorKind.Clock or SensorKind.Voltage) continue;
             if (kind == SensorKind.Temperature &&
                 (v <= 0 || v >= 200 || ThresholdNames.Any(t => s.Name.Contains(t, StringComparison.OrdinalIgnoreCase))))
                 continue; // skip fixed limits / bogus temps, matching PickTemperature
