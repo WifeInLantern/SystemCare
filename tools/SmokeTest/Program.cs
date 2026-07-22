@@ -114,6 +114,33 @@ internal static class Program
                                     (offenders.Count > 8 ? $" (+{offenders.Count - 8} more)" : ""));
         });
 
+        // Diagnostics lint (2.19.4): a bare `catch { }` with no comment and no log is
+        // indistinguishable from a hidden failure. Reported as a metric, not a failure — many are
+        // legitimately best-effort; the number should trend down as files are touched.
+        Try("lint: report undocumented empty catch blocks (Services/)", () =>
+        {
+            string? servicesDir = FindSiblingDir("Services");
+            if (servicesDir is null) return;
+
+            int bare = 0;
+            foreach (var file in Directory.EnumerateFiles(servicesDir, "*.cs"))
+            {
+                var lines = File.ReadAllLines(file);
+                for (int i = 0; i < lines.Length; i++)
+                {
+                    string line = lines[i];
+                    if (!line.Contains("catch (Exception") && !line.Contains("catch {")) continue;
+                    // Documented (trailing comment) or logged on the same/next lines => fine.
+                    string window = line + (i + 1 < lines.Length ? lines[i + 1] : "")
+                                         + (i + 2 < lines.Length ? lines[i + 2] : "");
+                    if (window.Contains("//") || window.Contains("_log.") || window.Contains("log.")) continue;
+                    if (window.Replace(" ", "").Contains("{}") || window.Replace(" ", "").EndsWith("{"))
+                        bare++;
+                }
+            }
+            Console.WriteLine($"    (info: {bare} undocumented empty catch blocks in Services/)");
+        });
+
         Console.WriteLine();
         Console.WriteLine($"Smoke test: {_checks - Failures.Count}/{_checks} checks passed.");
         if (Failures.Count > 0)
@@ -128,6 +155,18 @@ internal static class Program
 
     private static ResourceDictionary Load(string rel) =>
         new() { Source = new Uri($"pack://application:,,,/SystemCare;component/{rel}") };
+
+    /// <summary>Walks up to a folder under src/SystemCare (null when not running in-repo).</summary>
+    private static string? FindSiblingDir(string name)
+    {
+        var dir = new DirectoryInfo(AppContext.BaseDirectory);
+        for (int i = 0; i < 8 && dir is not null; i++, dir = dir.Parent)
+        {
+            string candidate = Path.Combine(dir.FullName, "src", "SystemCare", name);
+            if (Directory.Exists(candidate)) return candidate;
+        }
+        return null;
+    }
 
     /// <summary>Walks up from the test binary to the repo's src/SystemCare/Views (null when not in-repo).</summary>
     private static string? FindViewsDir()

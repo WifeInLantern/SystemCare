@@ -12,7 +12,7 @@
     <ApplicationIcon>Assets\app.ico</ApplicationIcon>
     <AssemblyTitle>SystemCare</AssemblyTitle>
     <Product>SystemCare</Product>
-    <Version>2.19.3</Version>
+    <Version>2.19.4</Version>
     <!-- Precompile IL to native code at publish time for faster cold start (R2R). Only takes
          effect on `dotnet publish` for the matching runtime (win-x64); no effect on debug builds. -->
     <PublishReadyToRun>true</PublishReadyToRun>
@@ -33,7 +33,6 @@
 
   <ItemGroup>
     <!-- The WindowsDesktop SDK drops System.IO from implicit usings; restore it. -->
-    <Using Include="System.IO" />
     <!-- WinForms/Drawing implicit usings clash with WPF types (Color, Point, Pen, Application…);
          drop them so the custom-drawn WPF controls keep compiling. The tray service imports
          these explicitly under aliases. -->

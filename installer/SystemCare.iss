@@ -3,7 +3,7 @@
 ; The published single-file app (dist\SystemCare.exe) must exist first (dotnet publish).
 
 #define MyAppName "SystemCare"
-#define MyAppVersion "2.19.3"
+#define MyAppVersion "2.19.4"
 #define MyAppPublisher "SystemCare"
 #define MyAppExeName "SystemCare.exe"
 

@@ -50,10 +50,11 @@ public sealed class SearchIndexService(IHistoryService history, ILogService log)
                 key.SetValue("SetupCompletedSuccessfully", 0, RegistryValueKind.DWord);
 
             // "service is not started" from the stop is fine — we only need it down before the start.
-            // A slow-to-stop WSearch must not hang the button forever, hence the hard timeout.
-            using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(90));
-            _ = await ProcessRunner.RunAsync("net.exe", $"stop {ServiceName}", timeout.Token);
-            var start = await ProcessRunner.RunAsync("net.exe", $"start {ServiceName}", timeout.Token);
+            // ProcessRunner bounds every run by default (2.19.4); WSearch gets a longer explicit
+            // window because a large index can take a while to release.
+            var window = TimeSpan.FromSeconds(90);
+            _ = await ProcessRunner.RunAsync("net.exe", $"stop {ServiceName}", window, CancellationToken.None);
+            var start = await ProcessRunner.RunAsync("net.exe", $"start {ServiceName}", window, CancellationToken.None);
             if (start.ExitCode != 0)
                 return (false, $"Couldn't restart Windows Search: {start.Output.Trim()}");
 

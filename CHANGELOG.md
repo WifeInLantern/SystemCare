@@ -2,6 +2,33 @@
 
 All notable changes to SystemCare are documented here. Versions follow [SemVer](https://semver.org/).
 
+## [2.19.4] - 2026-07-20
+
+Internal hardening release from a full code audit (`docs/CODE-AUDIT-2.19.md`). No feature changes —
+everything here removes a class of failure rather than fixing a single symptom.
+
+### Fixed
+- **External tools can no longer hang forever.** `ProcessRunner` had no timeout of its own and six
+  call sites passed no cancellation token — a wedged `netsh`, `powercfg`, or Windows Search service
+  left the operation pending indefinitely. Every external-tool run is now bounded (2 min default,
+  explicit longer windows where needed) and reports honestly when a tool is stopped for exceeding it.
+  (SFC/DISM/CHKDSK use their own long-running process path and are unaffected.)
+- **Command output can no longer grow without bound.** Captured stdout/stderr is capped at ~1 MB,
+  keeping the tail, so a runaway tool can't balloon memory.
+
+### Changed
+- **Build fragility eliminated.** Three build breaks in the 2.14–2.19 cycle came from the WPF SDK's
+  implicit-usings set being narrower than expected (`HttpClient`, `File`, `Linq`), each patched one
+  namespace at a time. Both projects now declare the common set once in `GlobalUsings.cs`.
+- **Composition root extracted.** `App.xaml.cs` (566 lines, doing DI + startup + CLI + updates +
+  fault handling) is down to ~370; the 142 DI registrations moved to `ServiceRegistration.cs`.
+  No behavior change.
+- **Startup housekeeping moved off the cold-start path.** Autorun Guard, boot report, monthly report
+  and the restore-point watchdog fired inline at launch, competing with the first frame. They now run
+  sequentially at idle priority a few seconds after the window is up.
+- **Smoke test reports undocumented empty `catch` blocks** in `Services/` as a metric (informational,
+  non-failing) so the diagnostic blind spots trend down over time.
+
 ## [2.19.3] - 2026-07-20
 
 ### Changed
