@@ -1,5 +1,7 @@
 using System.Collections.Generic;
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Effects;
@@ -698,6 +700,65 @@ public static class Animations
                 element.Effect = null;
         };
         glow.BeginAnimation(DropShadowEffect.OpacityProperty, fade);
+    }
+
+    // ---------- SmoothScroll (eased mouse-wheel scrolling) ----------
+
+    /// <summary>
+    /// Smooth wheel scrolling (2.20). WPF's default wheel handling jumps the viewport in discrete
+    /// ~3-line steps, which reads as stutter on long lists next to the rest of the app's eased
+    /// motion. This animates ScrollViewer.VerticalOffset instead, coalescing rapid wheel ticks into
+    /// one continuous glide. Attached to the app-wide implicit ScrollViewer style; honours Reduce
+    /// motion by falling through to the default (instant) behaviour.
+    /// </summary>
+    public static readonly DependencyProperty SmoothScrollProperty =
+        DependencyProperty.RegisterAttached(
+            "SmoothScroll", typeof(bool), typeof(Animations),
+            new PropertyMetadata(false, OnSmoothScrollChanged));
+
+    public static bool GetSmoothScroll(DependencyObject o) => (bool)o.GetValue(SmoothScrollProperty);
+    public static void SetSmoothScroll(DependencyObject o, bool v) => o.SetValue(SmoothScrollProperty, v);
+
+    // Per-ScrollViewer animation target: WPF has no animatable VerticalOffset, so we animate an
+    // attached double and push it into ScrollToVerticalOffset.
+    private static readonly DependencyProperty ScrollTargetProperty =
+        DependencyProperty.RegisterAttached(
+            "ScrollTarget", typeof(double), typeof(Animations),
+            new PropertyMetadata(0.0, OnScrollTargetChanged));
+
+    private static void OnScrollTargetChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    {
+        if (d is ScrollViewer sv) sv.ScrollToVerticalOffset((double)e.NewValue);
+    }
+
+    private static void OnSmoothScrollChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    {
+        if (d is not ScrollViewer sv) return;
+        if ((bool)e.NewValue) sv.PreviewMouseWheel += OnSmoothWheel;
+        else sv.PreviewMouseWheel -= OnSmoothWheel;
+    }
+
+    private static void OnSmoothWheel(object sender, MouseWheelEventArgs e)
+    {
+        if (sender is not ScrollViewer sv) return;
+        if (ReduceMotion || sv.ScrollableHeight <= 0) return;   // let WPF handle it natively
+
+        // Where we're heading: the in-flight animation's target if one is running, else here.
+        double current = sv.GetValue(ScrollTargetProperty) is double t && Math.Abs(t - sv.VerticalOffset) > 0.5
+            ? t
+            : sv.VerticalOffset;
+
+        double target = Math.Clamp(current - e.Delta, 0, sv.ScrollableHeight);
+        sv.BeginAnimation(ScrollTargetProperty, null);
+        sv.SetValue(ScrollTargetProperty, sv.VerticalOffset);
+        sv.BeginAnimation(ScrollTargetProperty, new DoubleAnimation(sv.VerticalOffset, target, Motion.Gentle)
+        {
+            EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut },
+            FillBehavior = FillBehavior.Stop,
+        });
+        // Keep the final value after the animation stops filling.
+        sv.SetValue(ScrollTargetProperty, target);
+        e.Handled = true;
     }
 
     // ---------- Shimmer (opacity breathing for skeleton loading placeholders) ----------

@@ -237,3 +237,65 @@ R3-1 + R3-4 + R3-6 + R3-7 (score explainability + permanent lint + two small wat
 Full category-hub nav restructure (pins+search deliver most of the value at a fraction of the
 risk); localization (declined); cloud-file advisor (OneDrive attribute edge cases vs. modest win);
 security-updater CVE flagging (still no good keyless data source for Windows desktop apps).
+
+---
+
+# Round 4 — after 2.20 (read of the full program, 2026-07-20)
+
+The feature surface is now large (50+ tools). These are the gaps that remain *worth* filling —
+each verified against the current code, with the cheap ones first.
+
+## UI / UX (beyond the 2.20 smoothness work)
+
+### R4-1. Pinned + Recent tools in the nav (still the #1 unshipped UX win)
+Carried from Round 3 and still true: 47 flat nav items, and the palette + search only help people
+who already know what they want. A "Pinned" group (star from the palette or right-click) plus
+auto-Recents would collapse the 90% case to one click. **Cheap:** two `List<string>` in AppSettings,
+a nav group, a context menu.
+
+### R4-2. Per-page empty states
+Several pages open blank before the first scan (Extension Audit, Wi-Fi, App Caches show only a
+status line). The design system already documents an EmptyState composition (§8) — apply it: icon,
+one-line explanation, primary action. Makes every tool self-explanatory on first open.
+
+### R4-3. Keyboard shortcuts + a shortcut sheet
+Ctrl+K exists; nothing else does. Worth adding: Ctrl+1..4 (category jumps), F5 (rescan on any scan
+page), Esc (cancel a running scan), Ctrl+, (Settings) — plus a "?" overlay listing them. Power-user
+polish that costs almost nothing.
+
+### R4-4. Result summary bars on scan pages
+Cleanup/Privacy/Duplicates/Large Files each report results differently (status text, chips, footer).
+The v5 spec's "sticky summary footer" (count + size + primary action) should become the shared
+pattern — one muscle memory across seven scan tools.
+
+## Features
+
+### R4-5. Scheduled scans without cleaning ("report-only mode")
+Auto Care runs *actions*. A read-only scheduled scan that only notifies ("2.1 GB of junk has built
+up") lets cautious users stay informed without automatic changes. Uses existing scan services +
+the tray pipeline.
+
+### R4-6. Per-tool "what will this do?" pre-flight
+The Fix-all tooltip added in 2.19 proved useful. Generalise it: every destructive action states its
+exact plan (counts, sizes, reversibility) in one consistent format before running. Trust compounds.
+
+### R4-7. Search inside long lists
+Processes, Startup, Uninstaller, Extension Audit, Bloatware all show long lists with no filter box.
+A shared `FilterBox` control bound to a CollectionView would serve five pages at once.
+
+### R4-8. Export any list to CSV
+Processes, Startup, Extensions, Large Files, Duplicates — one shared "Export CSV" button. Trivial
+to implement, genuinely useful for anyone documenting or comparing machines.
+
+## Engineering (from CODE-AUDIT-2.19, still open)
+
+- **Sandbox integration tests** (#4 in the audit) — still the highest quality ceiling, still needs
+  a VM/CI runner.
+- **Empty-catch sweep** — the 2.19.4 smoke test now *counts* undocumented empty catches; drive that
+  number down opportunistically.
+- **`dotnet build` gate in the release script** before packaging, so type errors surface in seconds
+  rather than at release time.
+
+## Recommended next release (2.21)
+R4-1 (pins + recents) + R4-7 (list filter) + R4-2 (empty states). All three are UX-visible, share the
+same "make 50 tools navigable" theme, and none needs new system access.

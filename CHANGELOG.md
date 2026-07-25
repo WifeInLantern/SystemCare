@@ -2,6 +2,21 @@
 
 All notable changes to SystemCare are documented here. Versions follow [SemVer](https://semver.org/).
 
+## [2.20.0] - 2026-07-20
+
+### Changed
+- **Smooth mouse-wheel scrolling everywhere.** WPF scrolls in discrete ~3-line jumps, which stutters
+  against the app's eased motion. Scrolling is now animated over 300 ms with the same easing as the
+  rest of the UI, coalescing fast wheel ticks into one continuous glide. Applied app-wide; falls back
+  to native instant scrolling under Reduce motion.
+- **Long lists no longer stutter.** Large Files, Extension Audit and App Caches used plain
+  `ItemsControl`s, which do **not** virtualize by default — every row was realised even when
+  off-screen. All three now use recycling virtualization, so a scan returning thousands of rows
+  scrolls at full speed.
+- **Every page now animates in.** The last 8 tool pages (App Caches, Breach Checker, Context Menu,
+  Extension Audit, Ad Blocker, Large Files, Scheduled Tasks, Wi-Fi) were missing the staggered
+  entrance the rest of the app uses — navigation is now consistent across all 52 pages.
+
 ## [2.19.4] - 2026-07-20
 
 Internal hardening release from a full code audit (`docs/CODE-AUDIT-2.19.md`). No feature changes —

@@ -17,7 +17,7 @@
         <converters:BoolToVisibilityConverter x:Key="VisibleWhenTrue" />
     </Page.Resources>
 
-    <Grid Margin="24,12,24,20">
+    <Grid Margin="24,12,24,20" helpers:Animations.StaggerChildren="True">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
@@ -78,7 +78,11 @@
         <Border Grid.Row="3" Margin="0,12,0,0" Background="{StaticResource CardBackgroundFillColorDefaultBrush}"
                 CornerRadius="8" BorderBrush="{StaticResource CyberStrokeBrush}" BorderThickness="1">
             <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="4">
-                <ItemsControl ItemsSource="{Binding Files}" Grid.IsSharedSizeScope="True">
+                <ItemsControl ItemsSource="{Binding Files}" Grid.IsSharedSizeScope="True" VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling"
+                              ScrollViewer.CanContentScroll="True">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate><VirtualizingStackPanel /></ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <Grid Margin="8,6">

@@ -13,7 +13,7 @@
       Title="Context Menu"
       Loaded="OnPageLoaded">
 
-    <Grid Margin="24,12,24,20">
+    <Grid Margin="24,12,24,20" helpers:Animations.StaggerChildren="True">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />

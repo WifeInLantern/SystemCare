@@ -13,7 +13,7 @@
       Title="Ad/Tracker Blocker"
       Loaded="OnPageLoaded">
 
-    <Grid Margin="24,12,24,24">
+    <Grid Margin="24,12,24,24" helpers:Animations.StaggerChildren="True">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />

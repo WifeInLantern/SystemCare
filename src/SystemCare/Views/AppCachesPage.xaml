@@ -17,7 +17,7 @@
         <converters:BoolToVisibilityConverter x:Key="VisibleWhenTrue" />
     </Page.Resources>
 
-    <Grid Margin="24,12,24,20">
+    <Grid Margin="24,12,24,20" helpers:Animations.StaggerChildren="True">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
@@ -55,7 +55,11 @@
         </Grid>
 
         <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" Margin="0,12,0,0">
-            <ItemsControl ItemsSource="{Binding Items}">
+            <ItemsControl ItemsSource="{Binding Items}" VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling"
+                              ScrollViewer.CanContentScroll="True">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate><VirtualizingStackPanel /></ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
                         <ui:Card Margin="0,0,0,8" Padding="14,10">

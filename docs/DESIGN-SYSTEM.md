@@ -223,3 +223,22 @@ replacing inline `FontSize="32" FontWeight="Bold"`.
 
 **Navigation**: a "Search" entry at the top of the pane opens the Ctrl+K command palette (the
 palette itself is unchanged); tooltip advertises the hotkey.
+
+
+## 11. Design System v7 additions (2.20)
+
+**`Animations.SmoothScroll`** (attached, bool) — eased mouse-wheel scrolling. WPF's default wheel
+handling jumps the viewport in discrete ~3-line steps, which reads as stutter next to the rest of
+the app's eased motion. The behavior animates the scroll offset over `Motion.Gentle` (300 ms,
+CubicEase Out), coalescing rapid wheel ticks into one continuous glide. Applied app-wide via an
+implicit `ScrollViewer` style in Components.xaml — no per-page markup. **Reduce-motion contract:**
+falls through to native instant scrolling when Reduce motion is on.
+
+**Entrance coverage** — all 52 tool pages now carry `StaggerChildren` on their root layout panel
+(8 pages added in 2.20). New pages must follow §9's checklist.
+
+**List virtualization** — long lists must set `VirtualizingPanel.IsVirtualizing` +
+`VirtualizationMode="Recycling"`; plain `ItemsControl` additionally needs an explicit
+`<VirtualizingStackPanel>` ItemsPanel and `ScrollViewer.CanContentScroll="True"` (an ItemsControl
+does **not** virtualize by default). Large Files, Extension Audit and App Caches were converted
+in 2.20.

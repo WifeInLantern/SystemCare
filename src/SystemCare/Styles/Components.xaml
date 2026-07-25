@@ -285,6 +285,14 @@
         <Setter Property="HorizontalScrollBarVisibility" Value="Auto" />
     </Style>
 
+    <!--  ==========  Smooth wheel scrolling app-wide (2.20)  ==========
+          WPF scrolls in discrete ~3-line jumps, which stutters against the app's eased motion.
+          The behavior animates the offset instead and falls back to native scrolling under
+          Reduce motion. Implicit style so every page gets it without per-page markup. -->
+    <Style TargetType="ScrollViewer">
+        <Setter Property="helpers:Animations.SmoothScroll" Value="True" />
+    </Style>
+
     <!--  ==========  Page root: bright inherited text (removes per-page boilerplate)  ==========  -->
     <Style TargetType="Page">
         <Setter Property="TextElement.Foreground" Value="{StaticResource TextFillColorPrimaryBrush}" />
