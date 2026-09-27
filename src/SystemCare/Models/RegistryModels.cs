@@ -36,7 +36,7 @@ public class RegistryIssue
                 _ => Hive.ToString(),
             };
             string path = $@"{root}\{SubKeyPath}";
-            return ValueName is null ? path : $@"{path}\\{ValueName}";
+            return ValueName is null ? path : $@"{path}\{ValueName}";
         }
     }
 

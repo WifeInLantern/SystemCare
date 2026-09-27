@@ -32,6 +32,14 @@ public class HostsBlockerService : IHostsBlockerService
         Path.Combine(Environment.SystemDirectory, "drivers", "etc", "hosts");
     private static string BackupPath => HostsPath + ".systemcare.bak";
 
+    // Latin-1 maps every byte 0x00-0xFF to one char and back, so the user's existing entries and comments
+    // survive a read/modify/write byte-for-byte whatever their original encoding (ANSI, UTF-8). ASCII would
+    // turn every non-ASCII byte into '?', in both the hosts file and the "pristine" backup.
+    // Bytes are decoded directly (not via ReadAllText) so a BOM is kept as data rather than sniffed away.
+    private static readonly Encoding HostsEncoding = Encoding.Latin1;
+
+    private static async Task<string> ReadHostsAsync() => HostsEncoding.GetString(await File.ReadAllBytesAsync(HostsPath));
+
     // 2.14: optional community blocklist, stored next to settings.json. When present it replaces
     // the built-in curated list; deleting it reverts to the built-in list.
     private const string CommunityListUrl = "https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts";
@@ -169,7 +177,7 @@ public class HostsBlockerService : IHostsBlockerService
         try
         {
             if (!File.Exists(HostsPath)) return new HostsStatus(false, 0);
-            string text = File.ReadAllText(HostsPath);
+            string text = HostsEncoding.GetString(File.ReadAllBytes(HostsPath));
             bool applied = text.Contains(BeginMarker, StringComparison.Ordinal);
             return new HostsStatus(applied, applied ? ActiveDomains().Length : 0);
         }
@@ -184,13 +192,13 @@ public class HostsBlockerService : IHostsBlockerService
     {
         try
         {
-            string original = File.Exists(HostsPath) ? await File.ReadAllTextAsync(HostsPath) : "";
+            string original = File.Exists(HostsPath) ? await ReadHostsAsync() : "";
             if (original.Contains(BeginMarker, StringComparison.Ordinal))
                 return (true, "Blocklist is already applied.");
 
             // One-time backup of the pristine hosts file.
             if (!File.Exists(BackupPath))
-                await File.WriteAllTextAsync(BackupPath, original, Encoding.ASCII);
+                await File.WriteAllTextAsync(BackupPath, original, HostsEncoding);
 
             var domains = ActiveDomains();
             var sb = new StringBuilder(original);
@@ -199,7 +207,7 @@ public class HostsBlockerService : IHostsBlockerService
             foreach (var d in domains) sb.Append("0.0.0.0 ").Append(d).Append("\r\n");
             sb.Append(EndMarker).Append("\r\n");
 
-            await File.WriteAllTextAsync(HostsPath, sb.ToString(), Encoding.ASCII);
+            await File.WriteAllTextAsync(HostsPath, sb.ToString(), HostsEncoding);
             NativeMethods.DnsFlushResolverCache(); // in-process DLL call instead of spawning ipconfig.exe
             _log.Info("Hosts", $"Applied blocklist ({domains.Length} domains).");
             return (true, $"Blocking {domains.Length:N0} ad/tracker domains. A backup of your original hosts file was saved.");
@@ -220,7 +228,7 @@ public class HostsBlockerService : IHostsBlockerService
         try
         {
             if (!File.Exists(HostsPath)) return (true, "Nothing to remove.");
-            string text = await File.ReadAllTextAsync(HostsPath);
+            string text = await ReadHostsAsync();
 
             int begin = text.IndexOf(BeginMarker, StringComparison.Ordinal);
             int end = text.IndexOf(EndMarker, StringComparison.Ordinal);
@@ -232,7 +240,7 @@ public class HostsBlockerService : IHostsBlockerService
             while (trimStart > 0 && (text[trimStart - 1] == '\n' || text[trimStart - 1] == '\r')) trimStart--;
 
             string cleaned = (text[..trimStart] + text[end..]).TrimEnd('\r', '\n') + "\r\n";
-            await File.WriteAllTextAsync(HostsPath, cleaned, Encoding.ASCII);
+            await File.WriteAllTextAsync(HostsPath, cleaned, HostsEncoding);
             NativeMethods.DnsFlushResolverCache(); // in-process DLL call instead of spawning ipconfig.exe
             _log.Info("Hosts", "Removed blocklist.");
             return (true, "Blocklist removed — your original hosts entries are untouched.");

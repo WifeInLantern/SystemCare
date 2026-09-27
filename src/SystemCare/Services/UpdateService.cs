@@ -147,7 +147,12 @@ public class UpdateService(ISettingsService settings, ILogService log) : IUpdate
 
             string downloads = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads");
             Directory.CreateDirectory(downloads);
-            string path = Path.Combine(downloads, info.AssetName);
+            // The name comes from the (possibly custom) feed: keep only a bare file name so a crafted
+            // "..\\..\\x.exe" can never place the elevated installer outside Downloads.
+            string fileName = Path.GetFileName(info.AssetName.Replace('/', '\\'));
+            if (string.IsNullOrWhiteSpace(fileName) || fileName.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0)
+                fileName = "SystemCare-Setup.exe";
+            string path = Path.Combine(downloads, fileName);
             // Stream to a temporary .part file, verify it, then atomically rename — so a truncated or
             // tampered download is never left under the real name nor launched as the installer.
             string partPath = path + ".part";

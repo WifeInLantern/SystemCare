@@ -19,6 +19,9 @@ public class DuplicateFinderService : IDuplicateFinderService
     {
         // Stage 1: enumerate and group by exact length.
         var bySize = new Dictionary<long, List<FileInfo>>();
+        // Overlapping roots (e.g. the whole profile plus its Documents folder) would enumerate the same file
+        // twice and report it as its own duplicate, letting the user "delete the extra copy" — the only copy.
+        var visited = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         int seen = 0;
         foreach (var root in roots)
         {
@@ -27,6 +30,7 @@ public class DuplicateFinderService : IDuplicateFinderService
                 ct.ThrowIfCancellationRequested();
                 try
                 {
+                    if (!visited.Add(file.FullName)) continue;
                     if (file.Length < minSizeBytes) continue;
                     if (!bySize.TryGetValue(file.Length, out var list))
                         bySize[file.Length] = list = [];

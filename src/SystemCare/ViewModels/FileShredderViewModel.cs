@@ -52,6 +52,7 @@ public partial class FileShredderViewModel : ObservableObject
         foreach (var file in dialog.FileNames)
         {
             if (Items.Any(i => i.Path.Equals(file, StringComparison.OrdinalIgnoreCase))) continue;
+            if (FileShredderService.IsProtectedPath(file)) { NotifyProtected(file); continue; }
             long size = 0;
             try { size = new FileInfo(file).Length; } catch (Exception) { }
             Items.Add(new ShredItemViewModel(file, false, ByteFormatter.Format(size)));
@@ -60,15 +61,24 @@ public partial class FileShredderViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void AddFolder()
+    private async Task AddFolderAsync()
     {
         var dialog = new OpenFolderDialog { Title = "Choose a folder to shred" };
         if (dialog.ShowDialog() != true) return;
-        if (Items.Any(i => i.Path.Equals(dialog.FolderName, StringComparison.OrdinalIgnoreCase))) return;
-        var (bytes, _) = SafeFileEnumerator.Measure(dialog.FolderName);
-        Items.Add(new ShredItemViewModel(dialog.FolderName, true, ByteFormatter.Format(bytes)));
+        string folder = dialog.FolderName;
+        if (Items.Any(i => i.Path.Equals(folder, StringComparison.OrdinalIgnoreCase))) return;
+        if (FileShredderService.IsProtectedPath(folder)) { NotifyProtected(folder); return; }
+        // Measuring a large folder takes seconds; keep the UI responsive while it runs.
+        var (bytes, _) = await Task.Run(() => SafeFileEnumerator.Measure(folder));
+        if (Items.Any(i => i.Path.Equals(folder, StringComparison.OrdinalIgnoreCase))) return;
+        Items.Add(new ShredItemViewModel(folder, true, ByteFormatter.Format(bytes)));
         HasItems = Items.Count > 0;
     }
+
+    private void NotifyProtected(string path) =>
+        _snackbar.Show("Can't shred this location",
+            $"{path} is a drive, system or profile folder. Shredding it would damage Windows or your account.",
+            ControlAppearance.Caution, null, TimeSpan.FromSeconds(6));
 
     [RelayCommand]
     private void Remove(ShredItemViewModel item)

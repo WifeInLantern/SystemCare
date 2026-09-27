@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using Microsoft.Win32;
+using SystemCare.Helpers;
 using SystemCare.Models;
 
 namespace SystemCare.Services;
@@ -157,8 +158,11 @@ public class RegistryCleanerService(IRestorePointService restore, IBackupConfirm
                 {
                     string command = key.GetValue(valueName)?.ToString() ?? "";
                     string first = FirstToken(command);
-                    // Only flag explicit file paths (avoids rundll32/powershell-style commands).
-                    if (first.Contains('\\') && !File.Exists(first) && !Directory.Exists(first))
+                    // Only flag explicit file paths (avoids rundll32/powershell-style commands). An unquoted
+                    // path with spaces ("C:\Program Files\App\app.exe /min") splits badly at the first space,
+                    // so an entry only counts as broken when the full command resolves to no existing file either.
+                    if (first.Contains('\\') && !File.Exists(first) && !Directory.Exists(first) &&
+                        CommandLineParser.ExtractExecutablePath(command) is null)
                     {
                         issue = new RegistryIssue
                         {
@@ -269,18 +273,32 @@ public class RegistryCleanerService(IRestorePointService restore, IBackupConfirm
         Directory.CreateDirectory(folder);
         result.BackupFolder = folder;
 
+        // Only touch keys whose backup actually landed on disk: a failed export must never be followed by
+        // an unrecoverable delete.
+        var backedUp = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         int n = 0;
-        foreach (var group in list.GroupBy(x => x.ExportKeyPath))
+        foreach (var group in list.GroupBy(x => x.ExportKeyPath, StringComparer.OrdinalIgnoreCase))
         {
             ct.ThrowIfCancellationRequested();
             progress?.Report($"Backing up {group.Key}…");
             string file = Path.Combine(folder, $"key_{++n}.reg");
-            try { await RunReg(ct, "export", group.Key, file, "/y"); } catch (Exception) { }
+            try
+            {
+                if (await RunReg(ct, "export", group.Key, file, "/y") == 0 && File.Exists(file))
+                    backedUp.Add(group.Key);
+            }
+            catch (OperationCanceledException) { throw; }
+            catch (Exception) { }
         }
 
         foreach (var issue in list)
         {
             ct.ThrowIfCancellationRequested();
+            if (!backedUp.Contains(issue.ExportKeyPath))
+            {
+                result.Skipped++;
+                continue;
+            }
             progress?.Report($"Removing {issue.DisplayPath}…");
             try
             {

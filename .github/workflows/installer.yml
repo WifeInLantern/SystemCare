@@ -1,0 +1,69 @@
+name: Installer
+
+# Builds the release installer on a Windows runner: test, publish the single-file exe, compile the
+# Inno Setup script, and write the SHA-256 the in-app updater verifies. Download the result from the
+# run's "SystemCare-Setup" artifact and attach both files to the GitHub release.
+on:
+  workflow_dispatch:
+  push:
+    branches: [ 'claude/**' ]
+    tags: [ 'v*' ]
+
+permissions:
+  contents: read
+
+jobs:
+  installer:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Build and test (Release)
+        run: |
+          dotnet restore SystemCare.sln
+          dotnet build SystemCare.sln -c Release --no-restore
+          dotnet test SystemCare.sln -c Release --no-build --verbosity normal
+
+      - name: Publish single-file exe
+        shell: pwsh
+        run: |
+          # Uncompressed single file (2.11.0): no temp extraction on launch. WPF does not support trimming.
+          dotnet publish src\SystemCare\SystemCare.csproj -c Release -r win-x64 --self-contained true `
+            -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true `
+            -p:EnableCompressionInSingleFile=false
+          New-Item -ItemType Directory -Force dist | Out-Null
+          Copy-Item src\SystemCare\bin\Release\net8.0-windows\win-x64\publish\SystemCare.exe dist\
+
+      - name: Compile installer (Inno Setup)
+        shell: pwsh
+        run: |
+          $iscc = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
+          if (-not (Test-Path $iscc)) {
+            choco install innosetup -y --no-progress
+          }
+          & $iscc installer\SystemCare.iss
+          if ($LASTEXITCODE -ne 0) { throw "ISCC failed with exit code $LASTEXITCODE" }
+
+      - name: Write installer checksum
+        shell: pwsh
+        run: |
+          (Get-FileHash dist\SystemCare-Setup.exe -Algorithm SHA256).Hash.ToLower() + " *SystemCare-Setup.exe" `
+            | Out-File dist\SystemCare-Setup.exe.sha256 -Encoding ascii
+          Get-Content dist\SystemCare-Setup.exe.sha256
+          Get-ChildItem dist | Format-Table Name, Length
+
+      - name: Upload installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: SystemCare-Setup
+          path: |
+            dist/SystemCare-Setup.exe
+            dist/SystemCare-Setup.exe.sha256
+            dist/SystemCare.exe
+          if-no-files-found: error

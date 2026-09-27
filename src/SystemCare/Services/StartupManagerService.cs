@@ -247,6 +247,23 @@ public class StartupManagerService : IStartupManagerService
         }
     }
 
+    /// <summary>
+    /// Drops the StartupApproved enabled/disabled flag of a deleted entry. Left behind, it silently keeps a
+    /// same-named entry the app re-registers later (e.g. after a reinstall) disabled.
+    /// </summary>
+    private static void ClearApprovedState(StartupSource source, string valueName)
+    {
+        var location = ApprovedLocation(source);
+        if (location is null) return;
+        try
+        {
+            using var baseKey = RegistryKey.OpenBaseKey(location.Value.Hive, RegistryView.Registry64);
+            using var key = baseKey.OpenSubKey(location.Value.SubKey, writable: true);
+            key?.DeleteValue(valueName, throwOnMissingValue: false);
+        }
+        catch (Exception) { }
+    }
+
     public bool DeleteEntry(StartupEntry entry)
     {
         try
@@ -262,11 +279,13 @@ public class StartupManagerService : IStartupManagerService
                     using var baseKey = RegistryKey.OpenBaseKey(hive, RegistryView.Registry64);
                     using var key = baseKey.OpenSubKey(keyPath, writable: true);
                     key?.DeleteValue(entry.RawKey, throwOnMissingValue: false);
+                    ClearApprovedState(entry.Source, entry.RawKey);
                     return true;
                 }
                 case StartupSource.UserStartupFolder:
                 case StartupSource.CommonStartupFolder:
                     File.Delete(entry.RawKey);
+                    ClearApprovedState(entry.Source, Path.GetFileName(entry.RawKey));
                     return true;
                 case StartupSource.ScheduledTask:
                 {

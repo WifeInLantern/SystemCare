@@ -25,8 +25,55 @@ public interface IFileShredderService
 
 public class FileShredderService : IFileShredderService
 {
+    /// <summary>
+    /// True for a drive root, a system or profile folder, or any folder that contains one. Shredding is
+    /// irreversible and runs elevated, so these are refused outright rather than left to one confirmation.
+    /// </summary>
+    public static bool IsProtectedPath(string path)
+    {
+        string full;
+        try { full = Path.GetFullPath(path).TrimEnd('\\'); }
+        catch (Exception) { return true; }
+        if (full.Length <= 2) return true; // a drive root ("C:" once trimmed)
+
+        static string Folder(Environment.SpecialFolder f) => Environment.GetFolderPath(f).TrimEnd('\\');
+        string profile = Folder(Environment.SpecialFolder.UserProfile);
+
+        // OS and application folders: refused together with everything inside them.
+        string[] system =
+        [
+            Folder(Environment.SpecialFolder.Windows),
+            Folder(Environment.SpecialFolder.ProgramFiles),
+            Folder(Environment.SpecialFolder.ProgramFilesX86),
+            Folder(Environment.SpecialFolder.CommonApplicationData),
+        ];
+        // Containers of user data: the folder itself is refused, but files inside it can still be shredded.
+        string[] containers =
+        [
+            profile,
+            Path.GetDirectoryName(profile) ?? "",
+            Folder(Environment.SpecialFolder.ApplicationData),
+            Folder(Environment.SpecialFolder.LocalApplicationData),
+        ];
+
+        bool IsSelfOrAncestorOf(string root) =>
+            full.Equals(root, StringComparison.OrdinalIgnoreCase) ||
+            root.StartsWith(full + "\\", StringComparison.OrdinalIgnoreCase);
+
+        foreach (var root in system.Where(r => r.Length > 0))
+            if (IsSelfOrAncestorOf(root) || full.StartsWith(root + "\\", StringComparison.OrdinalIgnoreCase))
+                return true;
+        foreach (var root in containers.Where(r => r.Length > 0))
+            if (IsSelfOrAncestorOf(root))
+                return true;
+        return false;
+    }
+
     public Task<ShredResult> ShredAsync(IEnumerable<string> paths, int passes, IProgress<ShredProgress>? progress, CancellationToken ct) => Task.Run(() =>
     {
+        // Defence in depth: the page refuses these too, but the service never shreds them whatever the caller.
+        paths = paths.Where(p => !IsProtectedPath(p)).ToList();
+
         // Expand folders into their files (reparse-point-safe).
         var files = new List<string>();
         foreach (var path in paths)
@@ -87,10 +134,21 @@ public class FileShredderService : IFileShredderService
             }
         }
 
-        // Remove now-empty folders that were passed in.
+        // Remove the folders that were passed in, now that their files are gone. Subfolders go bottom-up and only
+        // when empty, so a skipped (locked) file keeps its folder chain, and the shredded folder never lingers
+        // as an empty tree. Only real directories are walked; a junction is removed as a link, never followed.
         foreach (var path in paths.Where(Directory.Exists).OrderByDescending(p => p.Length))
         {
-            try { if (!Directory.EnumerateFileSystemEntries(path).Any()) Directory.Delete(path, recursive: true); }
+            try
+            {
+                var subdirs = Directory.GetDirectories(path, "*", SafeFileEnumerator.RecursiveOptions())
+                    .OrderByDescending(d => d.Length);
+                foreach (var dir in subdirs.Append(path))
+                {
+                    try { if (!Directory.EnumerateFileSystemEntries(dir).Any()) Directory.Delete(dir); }
+                    catch (Exception) { }
+                }
+            }
             catch (Exception) { }
         }
 

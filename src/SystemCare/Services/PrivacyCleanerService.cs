@@ -141,9 +141,14 @@ public class PrivacyCleanerService : IPrivacyCleanerService
             BrowserProcess = "firefox",
             GetPaths = () => FirefoxProfileDirs().SelectMany(p => new[]
             {
+                // Each SQLite database goes with its -wal/-shm journals: a stale journal left beside a
+                // deleted database can be replayed into the fresh one, restoring or corrupting the data.
                 Path.Combine(p, "cookies.sqlite"),
                 Path.Combine(p, "cookies.sqlite-wal"),
+                Path.Combine(p, "cookies.sqlite-shm"),
                 Path.Combine(p, "formhistory.sqlite"),
+                Path.Combine(p, "formhistory.sqlite-wal"),
+                Path.Combine(p, "formhistory.sqlite-shm"),
             }),
         },
         new PrivacyCategory

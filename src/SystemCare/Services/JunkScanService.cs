@@ -219,12 +219,14 @@ public class JunkScanService(ISettingsService settings) : IJunkScanService
                     string memoryDmp = Windows("MEMORY.DMP");
                     try
                     {
-                        if (File.Exists(memoryDmp))
+                        if (File.Exists(memoryDmp) && !IsExcluded(memoryDmp))
                         {
                             var info = new FileInfo(memoryDmp);
                             categoryResult.Items.Add(new JunkItem { Path = info.FullName, Bytes = info.Length });
                             categoryResult.TotalBytes += info.Length;
                             categoryResult.FileCount++;
+                            totalBytes += info.Length;
+                            totalFiles++;
                         }
                     }
                     catch (Exception) { }
