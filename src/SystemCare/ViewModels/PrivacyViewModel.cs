@@ -135,6 +135,8 @@ public partial class PrivacyViewModel : ObservableObject
         IsBusy = true;
         try
         {
+            // Re-check now: a browser opened since the scan must still block its categories.
+            RefreshRunningBrowsers();
             var ids = AllItems.Where(i => i.IsSelected && !i.IsBlocked).Select(i => i.Category.Id).ToList();
             var result = await _privacy.CleanAsync(ids, CancellationToken.None);
 

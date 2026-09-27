@@ -2,6 +2,29 @@
 
 All notable changes to SystemCare are documented here. Versions follow [SemVer](https://semver.org/).
 
+## [2.20.2] - 2026-09-27
+
+Second bug-fix pass: shredder, privacy and browser cleaners, startup manager and the updater.
+
+### Fixed
+- **File Shredder could destroy Windows.** It accepted any location, so a drive root, `C:\Windows`,
+  Program Files or the whole profile folder could be irreversibly overwritten (elevated) after one
+  confirmation. Drive roots, system folders, profile containers and their parents are now refused, both
+  on the page and in the shredding service itself.
+- **Shredding a folder left an empty folder tree behind.** Subfolders are now removed bottom-up once
+  empty, then the folder itself; a locked file still keeps its folder chain.
+- **Adding a large folder to the shredder froze the app** while its size was measured on the UI thread.
+- **Privacy Cleaner cleaned a browser opened after the scan.** "Browser is running" is now re-checked
+  when you press Clean, not only when you scan.
+- **Cleared browser data could come back or corrupt the database.** Cookie/history databases were
+  deleted without their SQLite `-journal`/`-wal`/`-shm` companions, which SQLite can replay into the
+  fresh database. Privacy Cleaner (Firefox) and Browser Cleanup (Chrome/Edge/Brave/Firefox) now remove
+  them together, and Browser Cleanup leaves a database untouched while its browser holds it open.
+- **Deleting a startup entry left its "disabled" flag behind**, so a same-named entry the app
+  re-registered later (e.g. after a reinstall) stayed silently disabled.
+- **Updater:** the downloaded installer's file name from the release feed is reduced to a bare name, so
+  a custom feed can never place the elevated installer outside Downloads.
+
 ## [2.20.1] - 2026-09-27
 
 Bug-fix release from a code audit of the tools that delete, rewrite or terminate things.

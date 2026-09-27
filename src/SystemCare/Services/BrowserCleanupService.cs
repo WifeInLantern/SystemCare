@@ -97,15 +97,15 @@ public class BrowserCleanupService : IBrowserCleanupService
             {
                 foreach (var profile in ChromiumProfiles(b.UserDataPath))
                 {
-                    if (cookies) freed += DeleteFile(Path.Combine(profile, "Network", "Cookies"));
-                    if (history) freed += DeleteFile(Path.Combine(profile, "History"));
+                    if (cookies) freed += DeleteSqlite(Path.Combine(profile, "Network", "Cookies"));
+                    if (history) freed += DeleteSqlite(Path.Combine(profile, "History"));
                 }
             }
             else // Firefox: only touch cookies (places.sqlite also holds bookmarks, so history is left alone)
             {
                 if (cookies && Directory.Exists(b.UserDataPath))
                     foreach (var profile in Directory.EnumerateDirectories(b.UserDataPath))
-                        freed += DeleteFile(Path.Combine(profile, "cookies.sqlite"));
+                        freed += DeleteSqlite(Path.Combine(profile, "cookies.sqlite"));
             }
         }
         catch (Exception ex) { _log.Warn("BrowserCleanup", $"Clear failed for {b.Name}: {ex.Message}"); }
@@ -136,6 +136,29 @@ public class BrowserCleanupService : IBrowserCleanupService
             catch (Exception) { } // locked (browser open) or in use — skip
         }
         return freed;
+    }
+
+    // A SQLite database goes with its journals: a stale -journal/-wal left beside a deleted database can be
+    // replayed into the fresh one the browser creates, restoring the cleared data or corrupting the file.
+    // The journals go first so a locked database (browser open) never ends up without its own journal.
+    private static long DeleteSqlite(string path)
+    {
+        if (File.Exists(path) && IsLocked(path)) return 0;
+        long freed = 0;
+        foreach (var suffix in new[] { "-journal", "-wal", "-shm" })
+            freed += DeleteFile(path + suffix);
+        return freed + DeleteFile(path);
+    }
+
+    private static bool IsLocked(string path)
+    {
+        try
+        {
+            using var _ = new FileStream(path, FileMode.Open, FileAccess.ReadWrite, FileShare.None);
+            return false;
+        }
+        catch (IOException) { return true; }
+        catch (Exception) { return false; }
     }
 
     private static long DeleteFile(string path)
