@@ -2,6 +2,37 @@
 
 All notable changes to SystemCare are documented here. Versions follow [SemVer](https://semver.org/).
 
+## [2.20.1] - 2026-09-27
+
+Bug-fix release from a code audit of the tools that delete, rewrite or terminate things.
+
+### Fixed
+- **Registry Cleaner deleted valid startup entries.** A Run value with an unquoted path containing spaces
+  (`C:\Program Files\App\app.exe /min`) was split at the first space, judged "target missing" and
+  removed. An entry is now flagged only when the full command resolves to no existing file.
+- **Registry Cleaner could delete without a backup.** A failed `reg export` (non-zero exit) was ignored
+  and the delete went ahead. Keys whose backup did not land on disk are now skipped.
+- **Duplicate Finder reported a file as its own duplicate** when two search folders overlapped (e.g. the
+  whole profile plus the default Documents folder), letting the user "delete the extra copy", which was
+  the only copy. Each file is now counted once however many roots reach it.
+- **Uninstaller leftovers could propose a parent of a system folder.** A bogus `InstallLocation` such as
+  `C:\Users` was accepted as "Install folder" because the guard only rejected exact matches of protected
+  folders. Ancestors of protected folders are now rejected too.
+- **End Process killed the whole process tree.** Ending `explorer.exe` also closed every app launched from
+  it, losing unsaved work. It now ends only the chosen process, like Task Manager. Critical system
+  processes (`wininit`, `services`, `csrss`, `lsass`, ...), which bluescreen Windows when ended from an
+  elevated app, and SystemCare itself are now refused.
+- **Restart Explorer opened a stray File Explorer window** by launching `explorer.exe` while Windows was
+  already relaunching the shell. It now waits for the automatic restart and only starts Explorer if the
+  shell does not come back; the wait runs off the UI thread.
+- **Ad Blocker corrupted non-ASCII text in the hosts file** (and its "pristine" backup) by rewriting it as
+  ASCII. The file is now round-tripped byte-for-byte.
+- **A corrupted `settings.json` was silently overwritten** with defaults on the next save, losing
+  exclusions and ignore lists. The unreadable file is now kept as `settings.json.corrupt`, and a failed
+  save no longer leaves a stray temp file behind.
+- **Junk scan:** `MEMORY.DMP` now honours cleanup exclusions and counts toward the live "found" total.
+- **Registry Cleaner** showed value paths with a doubled backslash (`...\Run\\Foo`).
+
 ## [2.20.0] - 2026-07-20
 
 ### Changed

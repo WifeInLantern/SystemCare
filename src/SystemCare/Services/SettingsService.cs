@@ -44,7 +44,10 @@ public class SettingsService : ISettingsService
         }
         catch (Exception)
         {
-            // corrupted settings — fall back to defaults
+            // Corrupted settings: fall back to defaults, but first keep the unreadable file. The next Save()
+            // overwrites settings.json, which would otherwise silently destroy the user's exclusions and lists.
+            try { File.Copy(SettingsPath, SettingsPath + ".corrupt", overwrite: true); }
+            catch (Exception) { }
         }
         return new AppSettings();
     }
@@ -85,16 +88,23 @@ public class SettingsService : ISettingsService
         // saves can't clobber each other's temp and fail the File.Move (which silently lost a write).
         lock (_saveGate)
         {
+            string? tmp = null;
             try
             {
                 Directory.CreateDirectory(SettingsDirectory);
-                string tmp = SettingsPath + "." + Guid.NewGuid().ToString("N") + ".tmp";
+                tmp = SettingsPath + "." + Guid.NewGuid().ToString("N") + ".tmp";
                 File.WriteAllText(tmp, JsonSerializer.Serialize(Current, JsonOptions));
                 File.Move(tmp, SettingsPath, overwrite: true);
+                tmp = null;
             }
             catch (Exception)
             {
                 // never crash over settings persistence
+            }
+            finally
+            {
+                // A failed write/move must not leave a stray temp file behind on every save.
+                if (tmp is not null) try { File.Delete(tmp); } catch (Exception) { }
             }
         }
     }

@@ -151,6 +151,18 @@ public class LeftoverScanServiceTests : IDisposable
     }
 
     [Fact]
+    public void CaptureCandidates_RejectsAncestorOfProtectedRoot()
+    {
+        // A bogus InstallLocation of C:\Users is not itself protected, but it contains the user profile —
+        // proposing it would recycle every account's files.
+        string profile = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+        string users = Path.GetDirectoryName(profile.TrimEnd('\\'))!;
+        var plan = NewService().CaptureCandidates(App("Zorptastic", installLocation: users));
+
+        Assert.False(HasFolder(plan, users));
+    }
+
+    [Fact]
     public void CaptureCandidates_RejectsFolderSharedWithAnotherInstalledApp()
     {
         // Another app lives at <root>\Shared; the app under test installs into <root>\Shared\Sub — a

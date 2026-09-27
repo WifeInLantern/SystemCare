@@ -101,14 +101,36 @@ public class TweaksService : ITweaksService
 
     public void RestartExplorer()
     {
-        try
+        // Off the UI thread: waiting for the old shell to exit and the new one to appear takes seconds.
+        _ = Task.Run(() =>
         {
-            foreach (var p in Process.GetProcessesByName("explorer"))
-                using (p) p.Kill();
-            // Windows relaunches Explorer automatically; nudge it in case it doesn't.
-            Process.Start(new ProcessStartInfo("explorer.exe") { UseShellExecute = true });
-        }
-        catch (Exception) { }
+            try
+            {
+                foreach (var p in Process.GetProcessesByName("explorer"))
+                    using (p)
+                    {
+                        p.Kill();
+                        p.WaitForExit(5000);
+                    }
+
+                // Windows relaunches the shell itself (AutoRestartShell). Starting explorer.exe while that
+                // shell is already up opens a stray File Explorer window, so only nudge it if it never came back.
+                for (int i = 0; i < 20; i++)
+                {
+                    Thread.Sleep(250);
+                    if (IsExplorerRunning()) return;
+                }
+                Process.Start(new ProcessStartInfo("explorer.exe") { UseShellExecute = true });
+            }
+            catch (Exception) { }
+        });
+    }
+
+    private static bool IsExplorerRunning()
+    {
+        var running = Process.GetProcessesByName("explorer");
+        foreach (var p in running) p.Dispose();
+        return running.Length > 0;
     }
 
     private static void SetDiagTrack(bool enabled)

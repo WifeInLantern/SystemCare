@@ -77,12 +77,26 @@ public class ProcessService : IProcessService
         try { return process.MainWindowTitle; } catch (Exception) { return ""; }
     }
 
+    // Ending any of these (the app runs elevated) bugchecks Windows with CRITICAL_PROCESS_DIED or kills the
+    // session, so they are refused outright rather than left to a generic "unsaved work" confirmation.
+    private static readonly HashSet<string> CriticalProcesses = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "System", "Registry", "Secure System", "MemCompression", "smss", "csrss", "wininit", "winlogon",
+        "services", "lsass", "LsaIso", "dwm",
+    };
+
+    public static bool IsCritical(string processName) => CriticalProcesses.Contains(processName);
+
     public bool EndProcess(int pid)
     {
         try
         {
+            if (pid <= 4 || pid == Environment.ProcessId) return false;
             using var process = Process.GetProcessById(pid);
-            process.Kill(entireProcessTree: true);
+            if (IsCritical(process.ProcessName)) return false;
+            // Only the process itself, like Task Manager's "End task". Killing the whole tree would take
+            // down every app launched from it, e.g. all of the user's windows when restarting explorer.exe.
+            process.Kill(entireProcessTree: false);
             return true;
         }
         catch (Exception)

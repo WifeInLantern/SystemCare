@@ -115,6 +115,9 @@ public class LeftoverScanService(
             string norm = Normalize(path);
             if (norm.Length <= 3) return false;                              // drive root / too shallow
             if (protectedRoots.Contains(norm)) return false;                 // a scan root itself
+            foreach (var guarded in protectedRoots)                          // an ancestor of one, e.g. a
+                if (guarded.StartsWith(norm + "\\", StringComparison.OrdinalIgnoreCase)) // bogus InstallLocation
+                    return false;                                            // of C:\Users
             foreach (var other in otherLocations)                            // shared with another app
             {
                 if (norm.Equals(other, StringComparison.OrdinalIgnoreCase)) return false;
